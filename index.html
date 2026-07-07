@@ -12,12 +12,14 @@
   *{box-sizing:border-box; margin:0; padding:0;}
   body{font-family:'Segoe UI', system-ui, sans-serif; background:var(--crema); color:#2b2b2b; min-height:100vh;}
 
-  header.top{display:flex; align-items:center; justify-content:space-between; padding:14px 22px 0 22px;}
-  .logo{font-size:1.5rem; font-weight:700; color:var(--azul-osc); letter-spacing:.5px;}
+  header.top{display:flex; align-items:center; justify-content:space-between; padding:12px 22px;
+    background:var(--azul-osc); box-shadow:0 2px 6px rgba(0,0,0,.18);}
+  .logo{font-size:1.5rem; font-weight:700; color:#fff; letter-spacing:.5px;}
   .logo span{color:var(--amarillo);}
-  .auth-zone{display:flex; align-items:center; gap:10px; font-size:.85rem; color:var(--gris);}
-  .auth-zone button{padding:6px 14px; border:1px solid var(--borde); background:var(--papel); border-radius:6px; cursor:pointer; font-size:.85rem;}
-  .auth-zone button:hover{background:#eee;}
+  .auth-zone{display:flex; align-items:center; gap:10px; font-size:.85rem; color:#dbe4ee;}
+  .auth-zone button{padding:6px 14px; border:1px solid rgba(255,255,255,.35); background:rgba(255,255,255,.12); color:#fff; border-radius:6px; cursor:pointer; font-size:.85rem;}
+  .auth-zone button:hover{background:rgba(255,255,255,.25);}
+  .btn-opciones{border:none; background:none; font-size:1.3rem; cursor:pointer; color:#fff; padding:2px 6px; margin-left:6px;}
 
   .aviso-local{background:#fff3cd; border:1px solid #e6d9a0; color:#7a6420; padding:8px 22px; font-size:.85rem; margin:10px 22px 0 22px; border-radius:6px; display:none;}
 
@@ -28,11 +30,13 @@
     border-radius:10px 10px 0 0; background:#e9e5da; color:#666; cursor:pointer;
     font-size:.93rem; font-weight:600; position:relative; top:1px;
   }
-  nav.tabs button[data-tab="tareas"]{--ct:#f7d9c4;}
-  nav.tabs button[data-tab="bitacora"]{--ct:#c9e4de;}
-  nav.tabs button[data-tab="equipo"]{--ct:#c6def1;}
-  nav.tabs button[data-tab="docentes"]{--ct:#dbcdf0;}
-  nav.tabs button[data-tab="disponible"]{--ct:#f2c6de;}
+  nav.tabs button[data-tab="tareas"]{--ct:#f9b384;}
+  nav.tabs button[data-tab="bitacora"]{--ct:#7fd6c0;}
+  nav.tabs button[data-tab="equipo"]{--ct:#85bdec;}
+  nav.tabs button[data-tab="docentes"]{--ct:#c49bea;}
+  nav.tabs button[data-tab="disponible"]{--ct:#f28cc0;}
+  nav.tabs button[data-tab="licencias"]{--ct:#f5d266;}
+  nav.tabs button[data-tab="paro"]{--ct:#f28b82;}
   nav.tabs button{background:color-mix(in srgb, var(--ct) 38%, #efece5);}
   nav.tabs button.activa{background:var(--ct); color:#3a3a3a; border-color:var(--borde);
     box-shadow:0 -2px 4px rgba(0,0,0,.05); z-index:2;}
@@ -174,6 +178,60 @@
     padding:10px 20px; border-radius:8px; font-size:.9rem; opacity:0; transition:opacity .3s; pointer-events:none; z-index:99;}
   .toast.visible{opacity:1;}
 
+  /* ---- ZONAS ---- */
+  .zona-norte{color:#12275e !important;}
+  .zona-sur{color:#2e8b57 !important;}
+
+  /* ---- LICENCIA / PARO en Disponible ---- */
+  .en-lic{text-decoration:line-through; opacity:.6;}
+  .en-paro, .en-paro b{text-decoration:line-through; color:var(--rojo) !important; font-weight:700;}
+  .tag-lic{font-size:.68rem; background:var(--amarillo); color:#fff; border-radius:8px; padding:1px 6px; font-weight:700; text-decoration:none; display:inline-block;}
+  .tag-paro{font-size:.68rem; background:var(--rojo); color:#fff; border-radius:8px; padding:1px 6px; font-weight:700; text-decoration:none; display:inline-block;}
+
+  /* ---- FUNCIONES ---- */
+  .funcion{display:flex; gap:8px; align-items:center; padding:5px 2px; border-bottom:1px solid #f0ede4;}
+  .funcion input[type=checkbox]{width:16px; height:16px; cursor:pointer; flex-shrink:0;}
+  .funcion .tachada{text-decoration:line-through; color:var(--gris);}
+  .btn-borrar-func{border:none; background:none; cursor:pointer; margin-left:auto; font-size:1rem;}
+
+  /* ---- FORMULARIOS LIC/PARO ---- */
+  .form-alta select{padding:8px; border:1px solid var(--borde); border-radius:6px; font-size:.9rem; max-width:230px; background:#fff;}
+  .form-alta label.chk{display:flex; align-items:center; gap:5px; font-size:.85rem; color:var(--gris); white-space:nowrap;}
+  .form-alta label.chk input{width:16px; height:16px;}
+  .modal select{width:100%; padding:8px 10px; border:1px solid var(--borde); border-radius:6px; font-size:.93rem; background:#fff;}
+  table.intervalos input[type=checkbox]{width:16px; height:16px; cursor:pointer;}
+
+  /* ---- TEMAS ---- */
+  body.tema-sepia{--papel:#faf3e3; --borde:#d8c9a8; background:#efe3cd;}
+  body.tema-sepia .form-alta{background:#f3ead3;}
+  body.tema-sepia .bloque-persona, body.tema-sepia .dia-card, body.tema-sepia .calendario{background:#f6efdd;}
+  body.tema-sepia .bp-cab{background:#faf3e3;}
+  body.tema-sepia .cal-dia{background:#faf3e3;}
+
+  body.tema-oscuro{--papel:#2a3038; --borde:#4a4f57; --gris:#9aa4b1; background:#20242b; color:#e4e6e9; color-scheme:dark;}
+  body.tema-oscuro .form-alta{background:#333a43;}
+  body.tema-oscuro .form-alta input, body.tema-oscuro .form-alta select,
+  body.tema-oscuro .modal input, body.tema-oscuro .modal textarea, body.tema-oscuro .modal select,
+  body.tema-oscuro table.horarios input{background:#20242b; color:#e4e6e9; border-color:#4a4f57;}
+  body.tema-oscuro .fila-orden button, body.tema-oscuro .btn-copiar, body.tema-oscuro .btn-volver{background:#3a414b; color:#dfe3e8; border-color:#4a4f57;}
+  body.tema-oscuro .bloque-persona, body.tema-oscuro .dia-card, body.tema-oscuro .calendario{background:#2f353e; border-color:#4a4f57;}
+  body.tema-oscuro .bp-cab{background:#343b45; border-color:#4a4f57;}
+  body.tema-oscuro .bp-cab:hover{background:#3c4450;}
+  body.tema-oscuro .cal-dia{background:#2a3038; border-color:#3d434c;}
+  body.tema-oscuro .cal-num{color:#cfd4da;}
+  body.tema-oscuro .chip-fecha, body.tema-oscuro .semana>h3, body.tema-oscuro table.intervalos th{background:#374252; color:#cfe0f2;}
+  body.tema-oscuro .modal{background:#2a3038; color:#e4e6e9;}
+  body.tema-oscuro .modal h3, body.tema-oscuro h2.sub, body.tema-oscuro .semana>h3{color:#a8c6e8;}
+  body.tema-oscuro ul.lista-tareas li{border-color:#3d434c;}
+  body.tema-oscuro ul.lista-tareas li.vencida{background:#3d2a28;}
+  body.tema-oscuro table.intervalos td, body.tema-oscuro .funcion, body.tema-oscuro .dia ul li{border-color:#3d434c;}
+  body.tema-oscuro .dia-cab, body.tema-oscuro .bp-cab .nombre, body.tema-oscuro .dia-card .pers b, body.tema-oscuro table.intervalos td.hora{color:#e4e6e9;}
+  body.tema-oscuro .b-cancelar{background:#3a414b; color:#dfe3e8;}
+  body.tema-oscuro .acciones button:hover{background:#3a414b;}
+  body.tema-oscuro .zona-norte{color:#9db8f5 !important;}
+  body.tema-oscuro .zona-sur{color:#7fd8a4 !important;}
+  body.tema-oscuro .aviso-local{background:#4a4020; border-color:#6b5d2e; color:#e8d999;}
+
   @media (max-width:560px){
     header.top{padding:10px 12px 0 12px;}
     nav.tabs{padding:14px 12px 0 12px;}
@@ -186,7 +244,10 @@
 
 <header class="top">
   <div class="logo">MD<span>Agenda</span></div>
-  <div class="auth-zone" id="authZone"></div>
+  <div style="display:flex; align-items:center;">
+    <div class="auth-zone" id="authZone"></div>
+    <button class="btn-opciones" id="btnOpciones" title="Opciones">⚙</button>
+  </div>
 </header>
 
 <div class="aviso-local" id="avisoLocal">
@@ -199,6 +260,8 @@
   <button data-tab="equipo">👥 Equipo</button>
   <button data-tab="docentes">🎓 Docentes</button>
   <button data-tab="disponible">🕐 Disponible</button>
+  <button data-tab="licencias">📄 Licencias</button>
+  <button data-tab="paro">✊ Paro</button>
 </nav>
 
 <main>
@@ -253,6 +316,38 @@
   <section class="panel" id="panel-disponible">
     <div id="contDisponible"></div>
   </section>
+
+  <!-- LICENCIAS -->
+  <section class="panel" id="panel-licencias">
+    <div class="form-alta">
+      <select id="licPersona"></select>
+      <input type="date" id="licDesde" title="Desde">
+      <input type="date" id="licHasta" title="Hasta (si es de un solo día, dejalo vacío)">
+      <input type="text" id="licTipo" placeholder="Tipo (ej.: médica)" style="max-width:170px;">
+      <label class="chk"><input type="checkbox" id="licCert"> Entregó certificado</label>
+      <label class="chk"><input type="checkbox" id="licPedido"> Entregó pedido</label>
+      <button class="btn-mas" id="btnAgregarLic" title="Agregar licencia">+</button>
+    </div>
+    <div id="contLicencias"></div>
+  </section>
+
+  <!-- PARO -->
+  <section class="panel" id="panel-paro">
+    <div class="form-alta">
+      <select id="paroPersona"></select>
+      <input type="date" id="paroFecha">
+      <button class="btn-mas" id="btnAgregarParo" title="Agregar paro">+</button>
+    </div>
+    <div class="fila-orden">
+      <span>Listado del día:</span>
+      <input type="date" id="paroVerFecha" style="padding:6px 8px; border:1px solid var(--borde); border-radius:6px;">
+      <button class="btn-word" id="btnParoWord" style="padding:6px 14px; border:none; border-radius:6px; cursor:pointer; font-weight:600;">⬇ Descargar Word</button>
+      <button class="btn-copiar" id="btnParoCopiar" style="padding:6px 14px; border:none; border-radius:6px; cursor:pointer; font-weight:600;">📋 Copiar</button>
+    </div>
+    <div id="contParoDia"></div>
+    <h2 class="sub" style="margin-top:20px;">Todos los registros</h2>
+    <div id="contParo"></div>
+  </section>
 </main>
 
 <!-- Modal completar tarea -->
@@ -298,6 +393,14 @@
     <input type="tel" id="pTelefono">
     <label>Correo</label>
     <input type="email" id="pCorreo">
+    <label>Dirección (dónde vive)</label>
+    <input type="text" id="pDireccion" placeholder="Calle y número, localidad">
+    <label>Zona</label>
+    <select id="pZona">
+      <option value="">Sin zona</option>
+      <option value="norte">Norte</option>
+      <option value="sur">Sur</option>
+    </select>
     <div id="zonaMaterias" style="display:none;">
       <label>Materia principal</label>
       <input type="text" id="pMateria" placeholder="Ej.: Lengua">
@@ -306,6 +409,12 @@
     </div>
     <label id="lblHorarios">Días y horarios que cumple</label>
     <table class="horarios" id="tablaHorarios"></table>
+    <label>Funciones (tareas que se repiten; se tachan al tildarlas)</label>
+    <div id="listaFunciones"></div>
+    <div style="display:flex; gap:6px; margin-top:6px;">
+      <input type="text" id="nuevaFuncion" placeholder="Nueva función..." maxlength="200" style="flex:1;">
+      <button type="button" class="b-guardar" id="btnAgregarFuncion" style="padding:6px 14px; border:none; border-radius:6px; cursor:pointer;">＋</button>
+    </div>
     <label>Notas</label>
     <textarea id="pNotas" placeholder="Observaciones, acuerdos, etc."></textarea>
     <div class="pie">
@@ -323,6 +432,28 @@
     <ul class="lista-modal" id="diaLista"></ul>
     <div class="pie">
       <button class="b-cancelar" data-cerrar="ovDia">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal opciones -->
+<div class="overlay" id="ovOpciones">
+  <div class="modal">
+    <h3>⚙ Opciones</h3>
+    <label>Tema de fondo</label>
+    <select id="optTema">
+      <option value="claro">Blanco (claro)</option>
+      <option value="sepia">Sepia</option>
+      <option value="oscuro">Oscuro</option>
+    </select>
+    <label style="display:flex; align-items:center; gap:8px; margin-top:16px; font-size:.9rem; color:inherit;">
+      <input type="checkbox" id="optReset" style="width:16px; height:16px;">
+      Reiniciar cada lunes las funciones tildadas de POTs y coordinadores
+    </label>
+    <p style="font-size:.8rem; color:var(--gris); margin-top:6px;">Las funciones de los docentes nunca se reinician solas.</p>
+    <div class="pie">
+      <button class="b-cancelar" data-cerrar="ovOpciones">Cancelar</button>
+      <button class="b-guardar" id="btnGuardarOpciones">Guardar</button>
     </div>
   </div>
 </div>
@@ -352,13 +483,18 @@ const DUR_MODULO = 40; // hora cátedra en minutos
 
 // ---------- Estado ----------
 function personaBase(id, rol){
-  return {id, rol, nombre:"", apellido:"", telefono:"", correo:"", notas:"", horarios:{}, tareas:[]};
+  return {id, rol, nombre:"", apellido:"", telefono:"", correo:"", notas:"", direccion:"", zona:"", horarios:{}, tareas:[], funciones:[]};
 }
 function equipoInicial(){
   return [personaBase("pot1","POT"), personaBase("pot2","POT"),
           personaBase("coord1","Coordinador/a"), personaBase("coord2","Coordinador/a")];
 }
-let estado = { tareas: [], bitacora: [], equipo: equipoInicial(), docentes: [] };
+const OPCIONES_BASE = {tema:"claro", resetFunciones:true};
+function estadoInicial(){
+  return { tareas: [], bitacora: [], equipo: equipoInicial(), docentes: [],
+           licencias: [], paros: [], opciones: {...OPCIONES_BASE} };
+}
+let estado = estadoInicial();
 let orden = "carga";
 let ordenDir = 1;
 let diasSeleccionados = new Set();
@@ -367,7 +503,8 @@ let estrellasModal = 0;
 let pendiente = null;      // {owner, id} para completar / editar
 let personaEnCurso = null; // owner de la ficha abierta
 let calRef = new Date(); calRef.setDate(1);
-let diaDetalle = null;     // clave de día ("lun"...) en Disponible
+let diaDetalle = null;     // índice 0-6 del día abierto en Disponible
+let semanaRef = null;      // lunes (ISO) de la semana mostrada en Disponible
 
 // ---------- Utilidades ----------
 const $ = (s)=>document.querySelector(s);
@@ -406,6 +543,11 @@ function escapar(s){
   return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
 function nombreDe(p){ return (p.nombre+" "+p.apellido).trim(); }
+function claseZona(p){ return p.zona==="norte" ? "zona-norte" : (p.zona==="sur" ? "zona-sur" : ""); }
+function sumarDias(iso, n){
+  const d = parseISO(iso); d.setDate(d.getDate()+n);
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
 
 // ---------- Acceso a listas por dueño ----------
 // owner: "propia" | "eq:<id>" | "doc:<id>"
@@ -440,6 +582,9 @@ function cargarLocal(){
 }
 function normalizarPersona(p, esDocente){
   if (!Array.isArray(p.tareas)) p.tareas = [];
+  if (!Array.isArray(p.funciones)) p.funciones = [];
+  if (typeof p.direccion !== "string") p.direccion = "";
+  if (typeof p.zona !== "string") p.zona = "";
   if (!p.horarios || typeof p.horarios !== "object") p.horarios = {};
   for (const d of DIAS_SEMANA){
     const h = p.horarios[d];
@@ -460,7 +605,18 @@ function aplicarEstado(nuevo){
     ? nuevo.equipo.map(p=>normalizarPersona(p,false)) : equipoInicial();
   estado.docentes = Array.isArray(nuevo.docentes)
     ? nuevo.docentes.map(p=>normalizarPersona(p,true)) : [];
+  estado.licencias = Array.isArray(nuevo.licencias) ? nuevo.licencias : [];
+  estado.paros = Array.isArray(nuevo.paros) ? nuevo.paros : [];
+  estado.opciones = Object.assign({...OPCIONES_BASE},
+    (nuevo.opciones && typeof nuevo.opciones==="object") ? nuevo.opciones : {});
+  aplicarTema();
   renderTodo();
+}
+function aplicarTema(){
+  document.body.classList.remove("tema-sepia","tema-oscuro");
+  const t = estado.opciones && estado.opciones.tema;
+  if (t==="sepia") document.body.classList.add("tema-sepia");
+  else if (t==="oscuro") document.body.classList.add("tema-oscuro");
 }
 
 // ---------- Firebase ----------
@@ -510,7 +666,8 @@ async function iniciarFirebase(){
             }
           }
         };
-        estado = { tareas: [], bitacora: [], equipo: equipoInicial(), docentes: [] };
+        estado = estadoInicial();
+        aplicarTema();
         renderTodo();
       }
     });
@@ -901,7 +1058,7 @@ function bloquePersona(p, owner){
       (p.materiasSec ? ' <span class="mat-sec">(también: '+escapar(p.materiasSec)+')</span>' : '')+'</div>';
   }
   cab.innerHTML = '<div><div class="rol">'+escapar(p.rol)+'</div>'+
-    '<div class="nombre'+(nom?"":" vacio")+'">'+(nom?escapar(nom):"Sin asignar — tocá para cargar")+'</div>'+
+    '<div class="nombre '+claseZona(p)+(nom?'':' vacio')+'">'+(nom?escapar(nom):"Sin asignar — tocá para cargar")+'</div>'+
     materias+'</div>'+
     '<span class="ver">Ver ficha ›</span>';
   cab.onclick = ()=>abrirFicha(owner);
@@ -958,9 +1115,13 @@ function abrirFicha(owner){
   $("#pTelefono").value = p.telefono||"";
   $("#pCorreo").value = p.correo||"";
   $("#pNotas").value = p.notas||"";
+  $("#pDireccion").value = p.direccion||"";
+  $("#pZona").value = p.zona||"";
   $("#zonaMaterias").style.display = esDocente ? "block" : "none";
   $("#pMateria").value = p.materia||"";
   $("#pMateriasSec").value = p.materiasSec||"";
+  $("#nuevaFuncion").value = "";
+  renderFunciones(p);
   $("#btnBorrarPersona").style.display = esDocente ? "inline-block" : "none";
   $("#lblHorarios").textContent = esDocente
     ? "Días y horarios (hora de inicio + horas cátedra de "+DUR_MODULO+" min)"
@@ -974,31 +1135,72 @@ function abrirFicha(owner){
     td1.textContent = NOMBRE_DIA[d];
     tr.appendChild(td1);
     const td2 = document.createElement("td");
-    if (esDocente){
-      const inicio = document.createElement("input");
-      inicio.type = "time"; inicio.value = h.desde||""; inicio.dataset.dia = d; inicio.dataset.campo = "desde";
-      const mods = document.createElement("input");
-      mods.type = "number"; mods.min = "0"; mods.max = "15"; mods.value = h.modulos||""; mods.placeholder = "hs cát.";
-      mods.dataset.dia = d; mods.dataset.campo = "modulos";
-      const calc = document.createElement("span");
-      calc.className = "hasta-calc";
-      const actualizar = ()=>{
-        calc.textContent = (inicio.value && Number(mods.value)>0)
-          ? "→ hasta "+aHHMM(aMin(inicio.value)+Number(mods.value)*DUR_MODULO) : "";
-      };
-      inicio.oninput = actualizar; mods.oninput = actualizar; actualizar();
-      td2.append(inicio, " ", mods, " ", calc);
-    } else {
-      const desde = document.createElement("input");
-      desde.type = "time"; desde.value = h.desde||""; desde.dataset.dia = d; desde.dataset.campo = "desde";
-      const hasta = document.createElement("input");
-      hasta.type = "time"; hasta.value = h.hasta||""; hasta.dataset.dia = d; hasta.dataset.campo = "hasta";
-      td2.append(desde, " a ", hasta);
-    }
+    const armarTramo = (suf)=>{
+      const cont = document.createElement("div");
+      cont.style.margin = "2px 0";
+      if (esDocente){
+        const inicio = document.createElement("input");
+        inicio.type = "time"; inicio.value = h["desde"+suf]||""; inicio.dataset.dia = d; inicio.dataset.campo = "desde"+suf;
+        const mods = document.createElement("input");
+        mods.type = "number"; mods.min = "0"; mods.max = "15"; mods.value = h["modulos"+suf]||""; mods.placeholder = "hs cát.";
+        mods.dataset.dia = d; mods.dataset.campo = "modulos"+suf;
+        const calc = document.createElement("span");
+        calc.className = "hasta-calc";
+        const actualizar = ()=>{
+          calc.textContent = (inicio.value && Number(mods.value)>0)
+            ? "→ hasta "+aHHMM(aMin(inicio.value)+Number(mods.value)*DUR_MODULO) : "";
+        };
+        inicio.oninput = actualizar; mods.oninput = actualizar; actualizar();
+        cont.append(inicio, " ", mods, " ", calc);
+      } else {
+        const desde = document.createElement("input");
+        desde.type = "time"; desde.value = h["desde"+suf]||""; desde.dataset.dia = d; desde.dataset.campo = "desde"+suf;
+        const hasta = document.createElement("input");
+        hasta.type = "time"; hasta.value = h["hasta"+suf]||""; hasta.dataset.dia = d; hasta.dataset.campo = "hasta"+suf;
+        cont.append(desde, " a ", hasta);
+      }
+      return cont;
+    };
+    td2.appendChild(armarTramo(""));   // turno 1 (ej.: mañana)
+    td2.appendChild(armarTramo("2"));  // turno 2 opcional (ej.: tarde)
     tr.appendChild(td2);
     tabla.appendChild(tr);
   }
   $("#ovPersona").classList.add("visible");
+}
+function funcionTildada(f, p){
+  if (!f.hecha) return false;
+  if (estado.opciones.resetFunciones && p.rol!=="Docente") return f.hecha === lunesDe(hoyISO());
+  return true;
+}
+function renderFunciones(p){
+  const cont = $("#listaFunciones");
+  cont.innerHTML = "";
+  if (!p.funciones.length){
+    cont.innerHTML = '<p class="sin-datos" style="padding:4px 2px;">Sin funciones cargadas.</p>';
+    return;
+  }
+  for (const f of p.funciones){
+    const fila = document.createElement("div");
+    fila.className = "funcion";
+    const chk = document.createElement("input");
+    chk.type = "checkbox";
+    chk.checked = funcionTildada(f, p);
+    chk.onchange = ()=>{ f.hecha = chk.checked ? lunesDe(hoyISO()) : ""; guardar(); renderFunciones(p); };
+    const tx = document.createElement("span");
+    tx.textContent = f.texto;
+    if (funcionTildada(f, p)) tx.classList.add("tachada");
+    const del = document.createElement("button");
+    del.textContent = "🗑️"; del.className = "btn-borrar-func"; del.title = "Eliminar función";
+    del.onclick = ()=>{
+      if (confirm("¿Eliminar la función \""+f.texto+"\"?")){
+        p.funciones = p.funciones.filter(x=>x.id!==f.id);
+        guardar(); renderFunciones(p);
+      }
+    };
+    fila.append(chk, tx, del);
+    cont.appendChild(fila);
+  }
 }
 function guardarPersona(){
   const p = personaDe(personaEnCurso);
@@ -1009,6 +1211,8 @@ function guardarPersona(){
   p.telefono = $("#pTelefono").value.trim();
   p.correo = $("#pCorreo").value.trim();
   p.notas = $("#pNotas").value.trim();
+  p.direccion = $("#pDireccion").value.trim();
+  p.zona = $("#pZona").value;
   if (esDocente){
     p.materia = $("#pMateria").value.trim();
     p.materiasSec = $("#pMateriasSec").value.trim();
@@ -1018,14 +1222,24 @@ function guardarPersona(){
     const campos = document.querySelectorAll('#tablaHorarios input[data-dia="'+d+'"]');
     const vals = {};
     campos.forEach(inp=>{ vals[inp.dataset.campo] = inp.value; });
-    if (esDocente){
-      if (vals.desde && Number(vals.modulos)>0) nuevos[d] = {desde: vals.desde, modulos: Number(vals.modulos)};
-    } else {
-      if (vals.desde && vals.hasta){
-        if (aMin(vals.hasta) <= aMin(vals.desde)){ toast("En "+NOMBRE_DIA[d]+" la salida debe ser después de la entrada"); return; }
-        nuevos[d] = {desde: vals.desde, hasta: vals.hasta};
+    const h = {};
+    for (const suf of ["","2"]){
+      if (esDocente){
+        if (vals["desde"+suf] && Number(vals["modulos"+suf])>0){
+          h["desde"+suf] = vals["desde"+suf];
+          h["modulos"+suf] = Number(vals["modulos"+suf]);
+        }
+      } else {
+        if (vals["desde"+suf] && vals["hasta"+suf]){
+          if (aMin(vals["hasta"+suf]) <= aMin(vals["desde"+suf])){
+            toast("En "+NOMBRE_DIA[d]+" la salida debe ser después de la entrada"); return;
+          }
+          h["desde"+suf] = vals["desde"+suf];
+          h["hasta"+suf] = vals["hasta"+suf];
+        }
       }
     }
+    if (Object.keys(h).length) nuevos[d] = h;
   }
   p.horarios = nuevos;
   cerrar("ovPersona");
@@ -1042,56 +1256,95 @@ function borrarPersona(){
 }
 
 // ---------- Disponible ----------
-function rangoDe(p, dia){
+function rangosDe(p, dia){
   const h = p.horarios && p.horarios[dia];
-  if (!h || !h.desde) return null;
-  if (p.rol==="Docente"){
-    if (!h.modulos) return null;
-    return {desde: aMin(h.desde), hasta: aMin(h.desde)+h.modulos*DUR_MODULO};
+  if (!h) return [];
+  const res = [];
+  for (const suf of ["","2"]){
+    const desde = h["desde"+suf];
+    if (!desde) continue;
+    if (p.rol==="Docente"){
+      const m = h["modulos"+suf];
+      if (m) res.push({desde: aMin(desde), hasta: aMin(desde)+m*DUR_MODULO});
+    } else if (h["hasta"+suf]){
+      res.push({desde: aMin(desde), hasta: aMin(h["hasta"+suf])});
+    }
   }
-  if (!h.hasta) return null;
-  return {desde: aMin(h.desde), hasta: aMin(h.hasta)};
+  return res;
 }
-function presenciasDia(dia){
+function ownerDePersona(p){
+  return (estado.equipo.includes(p) ? "eq:" : "doc:")+p.id;
+}
+function tieneLicencia(p, fecha){
+  const oid = ownerDePersona(p);
+  return estado.licencias.some(l=>l.persona===oid && l.desde<=fecha && fecha<=(l.hasta||l.desde));
+}
+function tieneParo(p, fecha){
+  const oid = ownerDePersona(p);
+  return estado.paros.some(x=>x.persona===oid && x.fecha===fecha);
+}
+function presenciasDia(dia, fecha){
   const res = [];
   for (const p of [...estado.equipo, ...estado.docentes]){
-    const r = rangoDe(p, dia);
-    if (r) res.push({nombre: nombreDe(p)||p.rol, rol: p.rol + (p.materia ? " · "+p.materia : ""), ...r});
+    for (const r of rangosDe(p, dia)){
+      res.push({nombre: nombreDe(p)||p.rol, rol: p.rol + (p.materia ? " · "+p.materia : ""),
+        zona: claseZona(p),
+        lic: fecha ? tieneLicencia(p, fecha) : false,
+        paro: fecha ? tieneParo(p, fecha) : false,
+        ...r});
+    }
   }
   res.sort((a,b)=>a.desde-b.desde || a.hasta-b.hasta);
   return res;
 }
+function etiquetasPr(pr){
+  if (pr.paro) return " <span class='tag-paro'>PARO</span>";
+  if (pr.lic) return " <span class='tag-lic'>LICENCIA</span>";
+  return "";
+}
 function renderDisponible(){
+  if (!semanaRef) semanaRef = lunesDe(hoyISO());
   const cont = $("#contDisponible");
   cont.innerHTML = "";
-  if (diaDetalle){
+  if (diaDetalle!==null){
     renderDiaDetalle(cont);
     return;
   }
+  const nav = document.createElement("div");
+  nav.className = "fila-orden";
+  const bAnt = document.createElement("button"); bAnt.textContent = "◀ Anterior";
+  const bHoy = document.createElement("button"); bHoy.textContent = "Semana actual";
+  const bSig = document.createElement("button"); bSig.textContent = "Siguiente ▶";
+  bAnt.onclick = ()=>{ semanaRef = sumarDias(semanaRef,-7); renderDisponible(); };
+  bHoy.onclick = ()=>{ semanaRef = lunesDe(hoyISO()); renderDisponible(); };
+  bSig.onclick = ()=>{ semanaRef = sumarDias(semanaRef,7); renderDisponible(); };
+  nav.append(bAnt, bHoy, bSig);
+  cont.appendChild(nav);
   const titulo = document.createElement("h2");
   titulo.className = "sub";
-  titulo.textContent = "Semana — tocá un día para ver la grilla por horas";
+  titulo.textContent = etiquetaSemana(semanaRef)+" — tocá un día para ver la grilla por horas";
   cont.appendChild(titulo);
   const grid = document.createElement("div");
   grid.className = "grilla-dias";
-  for (const d of DIAS_SEMANA){
+  DIAS_SEMANA.forEach((d, i)=>{
+    const fecha = sumarDias(semanaRef, i);
     const card = document.createElement("div");
     card.className = "dia-card";
-    card.innerHTML = "<h4>"+NOMBRE_DIA[d]+"</h4>";
-    const pres = presenciasDia(d);
+    card.innerHTML = "<h4>"+NOMBRE_DIA[d]+" "+fmtCorto(fecha).slice(0,5)+"</h4>";
+    const pres = presenciasDia(d, fecha);
     if (!pres.length){
       card.innerHTML += '<div class="nadie">Sin personal cargado</div>';
     } else {
       for (const pr of pres){
         const fila = document.createElement("div");
-        fila.className = "pers";
-        fila.innerHTML = aHHMM(pr.desde)+"–"+aHHMM(pr.hasta)+" · <b>"+escapar(pr.nombre)+"</b> <span class='rol-tag'>"+escapar(pr.rol)+"</span>";
+        fila.className = "pers"+(pr.paro ? " en-paro" : (pr.lic ? " en-lic" : ""));
+        fila.innerHTML = aHHMM(pr.desde)+"–"+aHHMM(pr.hasta)+" · <b class='"+pr.zona+"'>"+escapar(pr.nombre)+"</b> <span class='rol-tag'>"+escapar(pr.rol)+"</span>"+etiquetasPr(pr);
         card.appendChild(fila);
       }
     }
-    card.onclick = ()=>{ diaDetalle = d; renderDisponible(); };
+    card.onclick = ()=>{ diaDetalle = i; renderDisponible(); };
     grid.appendChild(card);
-  }
+  });
   cont.appendChild(grid);
 }
 function renderDiaDetalle(cont){
@@ -1101,12 +1354,14 @@ function renderDiaDetalle(cont){
   btn.onclick = ()=>{ diaDetalle = null; renderDisponible(); };
   cont.appendChild(btn);
 
+  const diaClave = DIAS_SEMANA[diaDetalle];
+  const fecha = sumarDias(semanaRef, diaDetalle);
   const titulo = document.createElement("h2");
   titulo.className = "sub";
-  titulo.textContent = "Grilla del "+NOMBRE_DIA[diaDetalle].toLowerCase();
+  titulo.textContent = "Grilla del "+fmtLargo(fecha).toLowerCase();
   cont.appendChild(titulo);
 
-  const pres = presenciasDia(diaDetalle);
+  const pres = presenciasDia(diaClave, fecha);
   if (!pres.length){
     cont.innerHTML += '<p class="sin-datos">No hay personal cargado para este día.</p>';
     return;
@@ -1132,7 +1387,7 @@ function renderDiaDetalle(cont){
     if (!gente.length){
       tdG.innerHTML = '<span class="vacio">Sin personal</span>';
     } else {
-      tdG.innerHTML = gente.map(p=>'<div class="p-item"><b>'+escapar(p.nombre)+'</b> <span class="rol-tag">'+escapar(p.rol)+'</span></div>').join("");
+      tdG.innerHTML = gente.map(p=>'<div class="p-item'+(p.paro ? ' en-paro' : (p.lic ? ' en-lic' : ''))+'"><b class="'+p.zona+'">'+escapar(p.nombre)+'</b> <span class="rol-tag">'+escapar(p.rol)+'</span>'+etiquetasPr(p)+'</div>').join("");
     }
     tr.appendChild(tdG);
     tabla.appendChild(tr);
@@ -1140,9 +1395,199 @@ function renderDiaDetalle(cont){
   cont.appendChild(tabla);
 }
 
+// ---------- Licencias ----------
+function llenarSelectPersonas(sel){
+  const el = $(sel);
+  const valorPrevio = el.value;
+  el.innerHTML = '<option value="">— Elegir persona —</option>';
+  const todos = [...estado.equipo.map(p=>({p, owner:"eq:"+p.id})),
+                 ...estado.docentes.map(p=>({p, owner:"doc:"+p.id}))];
+  for (const {p, owner} of todos){
+    const nom = nombreDe(p);
+    if (!nom) continue;
+    const o = document.createElement("option");
+    o.value = owner;
+    o.textContent = nom+" ("+p.rol+")";
+    el.appendChild(o);
+  }
+  el.value = valorPrevio;
+}
+function agregarLicencia(){
+  const persona = $("#licPersona").value;
+  const desde = $("#licDesde").value;
+  if (!persona || !desde){ toast("Elegí la persona y la fecha de inicio"); return; }
+  const hasta = $("#licHasta").value || desde;
+  if (hasta < desde){ toast("La fecha 'hasta' no puede ser anterior al inicio"); return; }
+  estado.licencias.push({id: uid(), persona, desde, hasta,
+    tipo: $("#licTipo").value.trim(),
+    cert: $("#licCert").checked,
+    pedido: $("#licPedido").checked});
+  $("#licDesde").value=""; $("#licHasta").value=""; $("#licTipo").value="";
+  $("#licCert").checked=false; $("#licPedido").checked=false;
+  guardar(); renderTodo();
+  toast("Licencia cargada ✔");
+}
+function renderLicencias(){
+  llenarSelectPersonas("#licPersona");
+  const cont = $("#contLicencias");
+  cont.innerHTML = "";
+  if (!estado.licencias.length){
+    cont.innerHTML = '<p class="sin-datos">No hay licencias cargadas. La persona con licencia aparece tachada en Disponible.</p>';
+    return;
+  }
+  const tabla = document.createElement("table");
+  tabla.className = "intervalos";
+  tabla.innerHTML = "<tr><th>Persona</th><th>Desde</th><th>Hasta</th><th>Tipo</th><th>Certificado</th><th>Pedido</th><th></th></tr>";
+  const ordenLic = [...estado.licencias].sort((a,b)=>b.desde.localeCompare(a.desde));
+  for (const l of ordenLic){
+    const p = personaDe(l.persona);
+    const tr = document.createElement("tr");
+    const tdP = document.createElement("td");
+    tdP.innerHTML = p ? "<b class='"+claseZona(p)+"'>"+escapar(nombreDe(p))+"</b> <span class='rol-tag'>"+escapar(p.rol)+"</span>" : "(persona eliminada)";
+    tr.appendChild(tdP);
+    for (const txt of [fmtCorto(l.desde), fmtCorto(l.hasta), l.tipo||"—"]){
+      const td = document.createElement("td");
+      td.textContent = txt;
+      tr.appendChild(td);
+    }
+    for (const campo of ["cert","pedido"]){
+      const td = document.createElement("td");
+      const chk = document.createElement("input");
+      chk.type = "checkbox";
+      chk.checked = !!l[campo];
+      chk.onchange = ()=>{ l[campo] = chk.checked; guardar(); };
+      td.appendChild(chk);
+      tr.appendChild(td);
+    }
+    const tdDel = document.createElement("td");
+    const del = document.createElement("button");
+    del.textContent = "🗑️";
+    del.style.cssText = "border:none;background:none;cursor:pointer;";
+    del.onclick = ()=>{
+      if (confirm("¿Eliminar esta licencia?")){
+        estado.licencias = estado.licencias.filter(x=>x.id!==l.id);
+        guardar(); renderTodo();
+      }
+    };
+    tdDel.appendChild(del);
+    tr.appendChild(tdDel);
+    tabla.appendChild(tr);
+  }
+  cont.appendChild(tabla);
+}
+
+// ---------- Paro ----------
+function agregarParo(){
+  const persona = $("#paroPersona").value;
+  const fecha = $("#paroFecha").value;
+  if (!persona || !fecha){ toast("Elegí la persona y la fecha del paro"); return; }
+  if (estado.paros.some(x=>x.persona===persona && x.fecha===fecha)){ toast("Ese paro ya está cargado"); return; }
+  estado.paros.push({id: uid(), persona, fecha});
+  guardar(); renderTodo();
+  toast("Paro cargado ✔");
+}
+function parosDeFecha(fecha){
+  return estado.paros.filter(x=>x.fecha===fecha)
+    .map(x=>({...x, p: personaDe(x.persona)}))
+    .filter(x=>x.p);
+}
+function renderParo(){
+  llenarSelectPersonas("#paroPersona");
+  const fechaVer = $("#paroVerFecha").value;
+  const contDia = $("#contParoDia");
+  contDia.innerHTML = "";
+  if (fechaVer){
+    const lista = parosDeFecha(fechaVer);
+    if (!lista.length){
+      contDia.innerHTML = '<p class="sin-datos">Nadie hizo paro el '+fmtCorto(fechaVer)+'.</p>';
+    } else {
+      const ul = document.createElement("ul");
+      ul.className = "lista-modal";
+      for (const x of lista){
+        const li = document.createElement("li");
+        li.innerHTML = "<b class='"+claseZona(x.p)+"'>"+escapar(nombreDe(x.p))+"</b> <span class='rol-tag'>"+escapar(x.p.rol)+"</span>";
+        ul.appendChild(li);
+      }
+      contDia.appendChild(ul);
+    }
+  }
+  const cont = $("#contParo");
+  cont.innerHTML = "";
+  if (!estado.paros.length){
+    cont.innerHTML = '<p class="sin-datos">No hay paros cargados. Quien esté de paro aparece tachado y en rojo en Disponible.</p>';
+    return;
+  }
+  const tabla = document.createElement("table");
+  tabla.className = "intervalos";
+  tabla.innerHTML = "<tr><th>Fecha</th><th>Persona</th><th></th></tr>";
+  const ordenParo = [...estado.paros].sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  for (const x of ordenParo){
+    const p = personaDe(x.persona);
+    const tr = document.createElement("tr");
+    const tdF = document.createElement("td");
+    tdF.textContent = fmtCorto(x.fecha);
+    tr.appendChild(tdF);
+    const tdP = document.createElement("td");
+    tdP.innerHTML = p ? "<b class='"+claseZona(p)+"'>"+escapar(nombreDe(p))+"</b> <span class='rol-tag'>"+escapar(p.rol)+"</span>" : "(persona eliminada)";
+    tr.appendChild(tdP);
+    const tdDel = document.createElement("td");
+    const del = document.createElement("button");
+    del.textContent = "🗑️";
+    del.style.cssText = "border:none;background:none;cursor:pointer;";
+    del.onclick = ()=>{
+      if (confirm("¿Eliminar este registro de paro?")){
+        estado.paros = estado.paros.filter(y=>y.id!==x.id);
+        guardar(); renderTodo();
+      }
+    };
+    tdDel.appendChild(del);
+    tr.appendChild(tdDel);
+    tabla.appendChild(tr);
+  }
+  cont.appendChild(tabla);
+}
+function paroWord(){
+  const fecha = $("#paroVerFecha").value;
+  if (!fecha){ toast("Elegí la fecha del listado"); return; }
+  const lista = parosDeFecha(fecha);
+  if (!lista.length){ toast("No hay paros ese día"); return; }
+  let cuerpo = "<ul>";
+  for (const x of lista){
+    cuerpo += "<li><b>"+escapar(nombreDe(x.p))+"</b> ("+escapar(x.p.rol)+")</li>";
+  }
+  cuerpo += "</ul>";
+  const html = "<html xmlns:w='urn:schemas-microsoft-com:office:word'><head><meta charset='utf-8'>"+
+    "<title>Paro</title></head><body style=\"font-family:Calibri,Arial,sans-serif;\">"+
+    "<h1 style='color:#2c5f8a;'>Listado de paro — "+escapar(fmtLargo(fecha))+"</h1>"+
+    "<p>Total: "+lista.length+"</p>"+cuerpo+"</body></html>";
+  const blob = new Blob(["﻿", html], {type:"application/msword"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "paro_"+fecha+".doc";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+}
+async function paroCopiar(){
+  const fecha = $("#paroVerFecha").value;
+  if (!fecha){ toast("Elegí la fecha del listado"); return; }
+  const lista = parosDeFecha(fecha);
+  if (!lista.length){ toast("No hay paros ese día"); return; }
+  let texto = "LISTADO DE PARO — "+fmtLargo(fecha)+"\nTotal: "+lista.length+"\n\n";
+  for (const x of lista) texto += "  • "+nombreDe(x.p)+" ("+x.p.rol+")\n";
+  try{
+    await navigator.clipboard.writeText(texto);
+    toast("Copiado al portapapeles ✔");
+  }catch(e){
+    console.error(e);
+    toast("No se pudo copiar automáticamente");
+  }
+}
+
 // ---------- Generales ----------
 function cerrar(id){ document.getElementById(id).classList.remove("visible"); }
-function renderTodo(){ renderTareas(); renderBitacora(); renderEquipo(); renderDocentes(); renderDisponible(); }
+function renderTodo(){ renderTareas(); renderBitacora(); renderEquipo(); renderDocentes(); renderDisponible(); renderLicencias(); renderParo(); }
 
 // Tabs
 document.querySelectorAll("nav.tabs button").forEach(b=>{
@@ -1173,6 +1618,32 @@ $("#btnWord").onclick = descargarWord;
 $("#btnCopiar").onclick = copiarSeleccion;
 $("#calAnt").onclick = ()=>{ calRef.setMonth(calRef.getMonth()-1); renderCalendario(); };
 $("#calSig").onclick = ()=>{ calRef.setMonth(calRef.getMonth()+1); renderCalendario(); };
+$("#btnAgregarLic").onclick = agregarLicencia;
+$("#btnAgregarParo").onclick = agregarParo;
+$("#paroVerFecha").onchange = renderParo;
+$("#btnParoWord").onclick = paroWord;
+$("#btnParoCopiar").onclick = paroCopiar;
+$("#btnAgregarFuncion").onclick = ()=>{
+  const p = personaDe(personaEnCurso);
+  const texto = $("#nuevaFuncion").value.trim();
+  if (!p) return;
+  if (!texto){ toast("Escribí la función"); return; }
+  p.funciones.push({id: uid(), texto, hecha: ""});
+  $("#nuevaFuncion").value = "";
+  guardar(); renderFunciones(p);
+};
+$("#btnOpciones").onclick = ()=>{
+  $("#optTema").value = estado.opciones.tema || "claro";
+  $("#optReset").checked = !!estado.opciones.resetFunciones;
+  $("#ovOpciones").classList.add("visible");
+};
+$("#btnGuardarOpciones").onclick = ()=>{
+  estado.opciones.tema = $("#optTema").value;
+  estado.opciones.resetFunciones = $("#optReset").checked;
+  aplicarTema();
+  cerrar("ovOpciones");
+  guardar(); renderTodo();
+};
 document.querySelectorAll("[data-cerrar]").forEach(b=>{ b.onclick = ()=>cerrar(b.dataset.cerrar); });
 document.querySelectorAll(".overlay").forEach(ov=>{
   ov.addEventListener("click", (e)=>{ if (e.target===ov) ov.classList.remove("visible"); });
@@ -1180,6 +1651,7 @@ document.querySelectorAll(".overlay").forEach(ov=>{
 
 // ---------- Inicio ----------
 refrescarEstrellasNueva();
+$("#paroVerFecha").value = hoyISO();
 if (FIREBASE_ACTIVO){
   iniciarFirebase();
 } else {
@@ -1187,6 +1659,7 @@ if (FIREBASE_ACTIVO){
   $("#authZone").innerHTML = "<span>Modo local</span>";
   cargarLocal();
 }
+aplicarTema();
 renderTodo();
 </script>
 </body>
