@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MDAgenda</title>
+<style>
+  :root{
+    --azul:#2c5f8a; --azul-osc:#1e4260; --crema:#f6f4ee; --papel:#ffffff;
+    --gris:#6b7280; --borde:#d8d4c8; --rojo:#c0392b; --verde:#2e8b57; --amarillo:#e6a817;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:'Segoe UI', system-ui, sans-serif; background:var(--crema); color:#2b2b2b; min-height:100vh;}
+
+  header.top{display:flex; align-items:center; justify-content:space-between; padding:14px 22px 0 22px;}
+  .logo{font-size:1.5rem; font-weight:700; color:var(--azul-osc); letter-spacing:.5px;}
+  .logo span{color:var(--amarillo);}
+  .auth-zone{display:flex; align-items:center; gap:10px; font-size:.85rem; color:var(--gris);}
+  .auth-zone button{padding:6px 14px; border:1px solid var(--borde); background:var(--papel); border-radius:6px; cursor:pointer; font-size:.85rem;}
+  .auth-zone button:hover{background:#eee;}
+
+  .aviso-local{background:#fff3cd; border:1px solid #e6d9a0; color:#7a6420; padding:8px 22px; font-size:.85rem; margin:10px 22px 0 22px; border-radius:6px; display:none;}
+
+  /* Solapas estilo fichero */
+  nav.tabs{display:flex; gap:4px; padding:18px 22px 0 22px; flex-wrap:wrap;}
+  nav.tabs button{
+    padding:10px 20px 12px 20px; border:1px solid var(--borde); border-bottom:none;
+    border-radius:10px 10px 0 0; background:#e9e5da; color:#555; cursor:pointer;
+    font-size:.93rem; font-weight:600; position:relative; top:1px;
+  }
+  nav.tabs button.activa{background:var(--papel); color:var(--azul-osc); border-color:var(--borde);
+    box-shadow:0 -2px 4px rgba(0,0,0,.05); z-index:2;}
+
+  main{background:var(--papel); border:1px solid var(--borde); margin:0 22px 30px 22px;
+    border-radius:0 10px 10px 10px; padding:22px; min-height:60vh;}
+  section.panel{display:none;}
+  section.panel.activa{display:block;}
+  h2.sub{font-size:1.05rem; color:var(--azul-osc); margin-bottom:12px;}
+
+  /* ---- TAREAS ---- */
+  .fila-orden{display:flex; align-items:center; gap:8px; margin-bottom:14px; flex-wrap:wrap;}
+  .fila-orden span{font-size:.85rem; color:var(--gris);}
+  .fila-orden button{padding:5px 12px; border:1px solid var(--borde); background:#f4f2ec; border-radius:6px; cursor:pointer; font-size:.83rem;}
+  .fila-orden button.sel{background:var(--azul); color:#fff; border-color:var(--azul);}
+
+  .form-alta{display:flex; gap:8px; align-items:center; flex-wrap:wrap; background:#f6f4ee;
+    border:1px dashed var(--borde); border-radius:8px; padding:10px 12px; margin-bottom:16px;}
+  .form-alta input[type=text]{flex:1; min-width:180px; padding:8px 10px; border:1px solid var(--borde); border-radius:6px; font-size:.95rem;}
+  .form-alta input[type=date]{padding:7px 8px; border:1px solid var(--borde); border-radius:6px; font-size:.88rem;}
+  .btn-mas{width:38px; height:38px; border-radius:50%; border:none; background:var(--verde); color:#fff;
+    font-size:1.5rem; line-height:1; cursor:pointer; flex-shrink:0;}
+  .btn-mas:hover{filter:brightness(1.1);}
+
+  .estrellas{display:inline-flex; gap:2px; cursor:pointer; user-select:none;}
+  .estrellas .e{font-size:1.25rem; color:#c9c4b6;}
+  .estrellas .e.on{color:var(--amarillo);}
+
+  ul.lista-tareas{list-style:none;}
+  ul.lista-tareas li{display:flex; align-items:center; gap:10px; padding:10px 8px;
+    border-bottom:1px solid #eee; flex-wrap:wrap;}
+  ul.lista-tareas li.vencida{background:#fdf1ef; border-left:4px solid var(--rojo);}
+  .t-texto{flex:1; min-width:160px;}
+  li.vencida .t-texto{color:var(--rojo); font-weight:600;}
+  .chip-fecha{font-size:.8rem; padding:3px 9px; border-radius:12px; background:#eef2f6; color:var(--azul-osc); white-space:nowrap;}
+  li.vencida .chip-fecha{background:var(--rojo); color:#fff;}
+  .acciones{display:flex; gap:6px;}
+  .acciones button{border:none; background:none; cursor:pointer; font-size:1.1rem; padding:4px 6px; border-radius:6px;}
+  .acciones button:hover{background:#eee;}
+  .sin-datos{color:var(--gris); font-style:italic; padding:14px 4px;}
+
+  /* Calendario */
+  .calendario{margin-top:26px; border:1px solid var(--borde); border-radius:10px; padding:14px; background:#fbfaf6; max-width:560px;}
+  .cal-cab{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
+  .cal-cab b{color:var(--azul-osc); text-transform:capitalize;}
+  .cal-cab button{border:1px solid var(--borde); background:#fff; border-radius:6px; cursor:pointer; padding:4px 12px; font-size:1rem;}
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:4px;}
+  .cal-grid .enc{text-align:center; font-size:.72rem; color:var(--gris); font-weight:700; padding:4px 0;}
+  .cal-dia{min-height:52px; border:1px solid #eee; border-radius:6px; background:#fff; padding:4px; font-size:.8rem; position:relative; cursor:default;}
+  .cal-dia.con-tareas{cursor:pointer; border-color:var(--azul);}
+  .cal-dia.con-tareas:hover{background:#eef2f6;}
+  .cal-dia.hoy{outline:2px solid var(--amarillo);}
+  .cal-dia.fuera{background:transparent; border:none;}
+  .cal-num{color:#555;}
+  .cal-badge{position:absolute; bottom:4px; right:4px; background:var(--azul); color:#fff;
+    border-radius:10px; font-size:.72rem; padding:1px 7px; font-weight:700;}
+  .cal-badge.venc{background:var(--rojo);}
+
+  /* ---- BITÁCORA ---- */
+  .barra-export{display:none; gap:10px; margin-bottom:16px; align-items:center; flex-wrap:wrap;}
+  .barra-export.visible{display:flex;}
+  .barra-export button{padding:8px 16px; border:none; border-radius:6px; cursor:pointer; font-size:.9rem; font-weight:600;}
+  .btn-word{background:var(--azul); color:#fff;}
+  .btn-copiar{background:#e9e5da; color:#444;}
+  .semana{margin-bottom:22px;}
+  .semana>h3{font-size:1rem; color:var(--azul-osc); background:#eef2f6; padding:8px 12px; border-radius:6px; margin-bottom:8px;}
+  .dia{margin:10px 0 4px 10px;}
+  .dia-cab{display:flex; align-items:center; gap:8px; font-weight:600; font-size:.92rem; color:#444; cursor:pointer;}
+  .dia-cab input{width:16px; height:16px; cursor:pointer;}
+  .dia ul{list-style:none; margin:6px 0 0 26px;}
+  .dia ul li{padding:5px 0; border-bottom:1px dotted #e5e0d4; font-size:.92rem;}
+  .coment{color:var(--gris); font-style:italic;}
+  .quien{color:var(--verde); font-size:.85rem; font-weight:600;}
+
+  /* ---- EQUIPO / DOCENTES ---- */
+  .grilla-personas{display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:16px;}
+  .bloque-persona{border:1px solid var(--borde); border-radius:10px; background:#fbfaf6; overflow:hidden;}
+  .bp-cab{padding:13px 14px; cursor:pointer; border-bottom:1px solid var(--borde); background:#fff;
+    display:flex; justify-content:space-between; align-items:center; gap:8px;}
+  .bp-cab:hover{background:#eef2f6;}
+  .bp-cab .rol{font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--azul); font-weight:700;}
+  .bp-cab .nombre{font-size:1rem; font-weight:600; margin-top:2px;}
+  .bp-cab .nombre.vacio{color:#aaa; font-weight:400; font-style:italic;}
+  .bp-cab .ver{font-size:.75rem; color:var(--gris); white-space:nowrap;}
+  .bp-tareas{padding:10px 12px;}
+  .bp-tareas ul.lista-tareas li{padding:7px 4px; font-size:.9rem;}
+  .btn-mini-tarea{margin-top:6px; padding:6px 12px; border:1px dashed var(--borde); background:#fff;
+    border-radius:6px; cursor:pointer; font-size:.83rem; color:var(--azul); width:100%;}
+  .btn-mini-tarea:hover{background:#eef2f6;}
+  .btn-agregar-doc{margin-bottom:16px; padding:9px 18px; border:none; border-radius:8px; background:var(--verde);
+    color:#fff; font-size:.92rem; font-weight:600; cursor:pointer;}
+
+  /* ---- DISPONIBLE ---- */
+  .grilla-dias{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:12px;}
+  .dia-card{border:1px solid var(--borde); border-radius:10px; background:#fbfaf6; padding:12px; cursor:pointer;}
+  .dia-card:hover{box-shadow:0 3px 10px rgba(0,0,0,.1);}
+  .dia-card h4{color:var(--azul-osc); margin-bottom:8px; font-size:.95rem;}
+  .dia-card .pers{font-size:.85rem; padding:3px 0; border-bottom:1px dotted #e5e0d4;}
+  .dia-card .pers b{color:#333;}
+  .dia-card .rol-tag{font-size:.72rem; color:var(--azul); font-weight:700;}
+  .dia-card .nadie{color:var(--gris); font-style:italic; font-size:.85rem;}
+  .btn-volver{margin-bottom:14px; padding:7px 16px; border:1px solid var(--borde); background:#f4f2ec;
+    border-radius:6px; cursor:pointer; font-size:.88rem;}
+  table.intervalos{width:100%; border-collapse:collapse; max-width:720px;}
+  table.intervalos th{background:#eef2f6; color:var(--azul-osc); padding:8px 10px; text-align:left; font-size:.85rem;}
+  table.intervalos td{padding:8px 10px; border-bottom:1px solid #eee; font-size:.9rem; vertical-align:top;}
+  table.intervalos td.hora{white-space:nowrap; font-weight:600; color:#444; width:130px;}
+  table.intervalos .vacio{color:#bbb; font-style:italic;}
+  table.intervalos .p-item .rol-tag{font-size:.72rem; color:var(--azul); font-weight:700;}
+
+  /* ---- MODALES ---- */
+  .overlay{position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:50; padding:16px;}
+  .overlay.visible{display:flex;}
+  .modal{background:#fff; border-radius:12px; padding:22px; width:100%; max-width:540px; max-height:90vh; overflow-y:auto;}
+  .modal h3{color:var(--azul-osc); margin-bottom:14px;}
+  .modal label{display:block; font-size:.83rem; color:var(--gris); margin:10px 0 4px 0;}
+  .modal input[type=text], .modal input[type=date], .modal input[type=tel], .modal input[type=email],
+  .modal input[type=time], .modal input[type=number], .modal textarea{
+    width:100%; padding:8px 10px; border:1px solid var(--borde); border-radius:6px; font-size:.93rem; font-family:inherit;}
+  .modal textarea{min-height:70px; resize:vertical;}
+  .modal .pie{display:flex; justify-content:flex-end; gap:10px; margin-top:18px; flex-wrap:wrap;}
+  .modal .pie button{padding:8px 18px; border-radius:6px; border:none; cursor:pointer; font-size:.9rem; font-weight:600;}
+  .b-guardar{background:var(--verde); color:#fff;}
+  .b-cancelar{background:#e9e5da; color:#444;}
+  .b-rojo{background:var(--rojo); color:#fff; margin-right:auto;}
+  table.horarios{width:100%; border-collapse:collapse; margin-top:4px;}
+  table.horarios td{padding:4px 6px; border-bottom:1px solid #f0ede4; font-size:.88rem;}
+  table.horarios td:first-child{width:80px; color:var(--gris);}
+  table.horarios input[type=time]{width:110px; padding:5px 6px; border:1px solid var(--borde); border-radius:6px; font-size:.85rem;}
+  table.horarios input[type=number]{width:64px; padding:5px 6px; border:1px solid var(--borde); border-radius:6px; font-size:.85rem;}
+  table.horarios .hasta-calc{color:var(--gris); font-size:.8rem; white-space:nowrap;}
+  ul.lista-modal{list-style:none; margin-top:8px;}
+  ul.lista-modal li{padding:7px 4px; border-bottom:1px solid #eee; font-size:.92rem; display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+  ul.lista-modal li.vencida{color:var(--rojo); font-weight:600;}
+
+  .toast{position:fixed; bottom:22px; left:50%; transform:translateX(-50%); background:#333; color:#fff;
+    padding:10px 20px; border-radius:8px; font-size:.9rem; opacity:0; transition:opacity .3s; pointer-events:none; z-index:99;}
+  .toast.visible{opacity:1;}
+
+  @media (max-width:560px){
+    header.top{padding:10px 12px 0 12px;}
+    nav.tabs{padding:14px 12px 0 12px;}
+    nav.tabs button{padding:8px 10px; font-size:.8rem;}
+    main{margin:0 12px 20px 12px; padding:14px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="logo">MD<span>Agenda</span></div>
+  <div class="auth-zone" id="authZone"></div>
+</header>
+
+<div class="aviso-local" id="avisoLocal">
+  ⚠ Modo local: los datos se guardan solo en este dispositivo. Para sincronizar entre dispositivos, configurá Firebase (ver instrucciones en el README).
+</div>
+
+<nav class="tabs">
+  <button data-tab="tareas" class="activa">📋 Tareas</button>
+  <button data-tab="bitacora">📖 Bitácora</button>
+  <button data-tab="equipo">👥 Equipo</button>
+  <button data-tab="docentes">🎓 Docentes</button>
+  <button data-tab="disponible">🕐 Disponible</button>
+</nav>
+
+<main>
+  <!-- TAREAS -->
+  <section class="panel activa" id="panel-tareas">
+    <div class="fila-orden">
+      <span>Ordenar por:</span>
+      <button data-orden="carga">Orden de carga</button>
+      <button data-orden="prioridad">Prioridad</button>
+      <button data-orden="fecha">Fecha límite</button>
+    </div>
+    <div class="form-alta">
+      <input type="text" id="nuevaDesc" placeholder="Nueva tarea..." maxlength="300">
+      <input type="date" id="nuevaFecha" title="Fecha límite">
+      <div class="estrellas" id="nuevaEstrellas" title="Prioridad (0 a 4 estrellas)"></div>
+      <button class="btn-mas" id="btnAgregar" title="Agregar tarea">+</button>
+    </div>
+    <ul class="lista-tareas" id="listaTareas"></ul>
+
+    <div class="calendario">
+      <div class="cal-cab">
+        <button id="calAnt">◀</button>
+        <b id="calTitulo"></b>
+        <button id="calSig">▶</button>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
+  </section>
+
+  <!-- BITÁCORA -->
+  <section class="panel" id="panel-bitacora">
+    <div class="barra-export" id="barraExport">
+      <span id="cuentaSel" style="font-size:.85rem;color:var(--gris);"></span>
+      <button class="btn-word" id="btnWord">⬇ Descargar Word</button>
+      <button class="btn-copiar" id="btnCopiar">📋 Copiar</button>
+    </div>
+    <div id="contBitacora"></div>
+  </section>
+
+  <!-- EQUIPO -->
+  <section class="panel" id="panel-equipo">
+    <div class="grilla-personas" id="grillaEquipo"></div>
+  </section>
+
+  <!-- DOCENTES -->
+  <section class="panel" id="panel-docentes">
+    <button class="btn-agregar-doc" id="btnAgregarDoc">➕ Agregar docente</button>
+    <div class="grilla-personas" id="grillaDocentes"></div>
+  </section>
+
+  <!-- DISPONIBLE -->
+  <section class="panel" id="panel-disponible">
+    <div id="contDisponible"></div>
+  </section>
+</main>
+
+<!-- Modal completar tarea -->
+<div class="overlay" id="ovCompletar">
+  <div class="modal">
+    <h3>✅ Marcar tarea como lista</h3>
+    <p id="compTexto" style="font-size:.93rem;"></p>
+    <label>Comentario (opcional)</label>
+    <textarea id="compComentario" placeholder="Observaciones sobre la tarea realizada..."></textarea>
+    <div class="pie">
+      <button class="b-cancelar" data-cerrar="ovCompletar">Cancelar</button>
+      <button class="b-guardar" id="btnConfirmarComp">Guardar en bitácora</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal nueva/editar tarea -->
+<div class="overlay" id="ovTarea">
+  <div class="modal">
+    <h3 id="tituloTarea">Tarea</h3>
+    <label>Descripción</label>
+    <input type="text" id="editDesc" maxlength="300">
+    <label>Fecha límite</label>
+    <input type="date" id="editFecha">
+    <label>Prioridad</label>
+    <div class="estrellas" id="editEstrellas"></div>
+    <div class="pie">
+      <button class="b-cancelar" data-cerrar="ovTarea">Cancelar</button>
+      <button class="b-guardar" id="btnGuardarTarea">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal ficha de persona -->
+<div class="overlay" id="ovPersona">
+  <div class="modal">
+    <h3 id="fichaTitulo">Ficha</h3>
+    <label>Nombre</label>
+    <input type="text" id="pNombre">
+    <label>Apellido</label>
+    <input type="text" id="pApellido">
+    <label>Teléfono</label>
+    <input type="tel" id="pTelefono">
+    <label>Correo</label>
+    <input type="email" id="pCorreo">
+    <label id="lblHorarios">Días y horarios que cumple</label>
+    <table class="horarios" id="tablaHorarios"></table>
+    <label>Notas</label>
+    <textarea id="pNotas" placeholder="Observaciones, acuerdos, etc."></textarea>
+    <div class="pie">
+      <button class="b-rojo" id="btnBorrarPersona" style="display:none;">Eliminar docente</button>
+      <button class="b-cancelar" data-cerrar="ovPersona">Cancelar</button>
+      <button class="b-guardar" id="btnGuardarPersona">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal tareas de un día (calendario) -->
+<div class="overlay" id="ovDia">
+  <div class="modal">
+    <h3 id="diaTitulo"></h3>
+    <ul class="lista-modal" id="diaLista"></ul>
+    <div class="pie">
+      <button class="b-cancelar" data-cerrar="ovDia">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+/* ================= CONFIGURACIÓN DE FIREBASE =================
+   Pegá acá los datos de tu proyecto de Firebase (ver README.md).
+   Mientras diga "PEGAR_...", el sitio funciona en modo local
+   (guarda solo en este dispositivo, sin sincronizar).            */
+const firebaseConfig = {
+  apiKey: "AIzaSyCI58lM6vag-99e5_ShW0VqACGio7F0RU0",
+  authDomain: "mdagenda-0802.firebaseapp.com",
+  projectId: "mdagenda-0802",
+  storageBucket: "mdagenda-0802.firebasestorage.app",
+  messagingSenderId: "983031404524",
+  appId: "1:983031404524:web:17b3bc91e0547d39b912c9"
+};
+/* ============================================================== */
+
+const FIREBASE_ACTIVO = !String(firebaseConfig.apiKey).startsWith("PEGAR");
+const DIAS_SEMANA = ["lun","mar","mie","jue","vie","sab","dom"];
+const NOMBRE_DIA = {lun:"Lunes",mar:"Martes",mie:"Miércoles",jue:"Jueves",vie:"Viernes",sab:"Sábado",dom:"Domingo"};
+const MIN_ESCUELA = 8*60, MAX_ESCUELA = 18*60; // rango de la grilla: 8:00 a 18:00
+const DUR_MODULO = 40; // hora cátedra en minutos
+
+// ---------- Estado ----------
+function personaBase(id, rol){
+  return {id, rol, nombre:"", apellido:"", telefono:"", correo:"", notas:"", horarios:{}, tareas:[]};
+}
+function equipoInicial(){
+  return [personaBase("pot1","POT"), personaBase("pot2","POT"),
+          personaBase("coord1","Coordinador/a"), personaBase("coord2","Coordinador/a")];
+}
+let estado = { tareas: [], bitacora: [], equipo: equipoInicial(), docentes: [] };
+let orden = "carga";
+let ordenDir = 1;
+let diasSeleccionados = new Set();
+let estrellasNueva = 0;
+let estrellasModal = 0;
+let pendiente = null;      // {owner, id} para completar / editar
+let personaEnCurso = null; // owner de la ficha abierta
+let calRef = new Date(); calRef.setDate(1);
+let diaDetalle = null;     // clave de día ("lun"...) en Disponible
+
+// ---------- Utilidades ----------
+const $ = (s)=>document.querySelector(s);
+const uid = ()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const hoyISO = ()=>{ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
+const parseISO = (iso)=> new Date(iso+"T00:00:00");
+function fmtLargo(iso){
+  const t = parseISO(iso).toLocaleDateString("es-AR",{weekday:"long", day:"numeric", month:"long", year:"numeric"});
+  return t.charAt(0).toUpperCase()+t.slice(1);
+}
+function fmtCorto(iso){
+  return parseISO(iso).toLocaleDateString("es-AR",{day:"2-digit", month:"2-digit", year:"numeric"});
+}
+function lunesDe(iso){
+  const d = parseISO(iso);
+  const dif = (d.getDay()+6)%7;
+  d.setDate(d.getDate()-dif);
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function etiquetaSemana(lunesISO){
+  const l = parseISO(lunesISO);
+  const dm = new Date(l); dm.setDate(dm.getDate()+6);
+  const ini = l.toLocaleDateString("es-AR", {day:"numeric", month:"long"});
+  const fin = dm.toLocaleDateString("es-AR", {day:"numeric", month:"long", year:"numeric"});
+  return "Semana del "+ini+" al "+fin;
+}
+const aMin = (hhmm)=>{ const [h,m]=String(hhmm).split(":").map(Number); return h*60+(m||0); };
+const aHHMM = (min)=> String(Math.floor(min/60)).padStart(2,"0")+":"+String(min%60).padStart(2,"0");
+function toast(msg){
+  const t = $("#toast");
+  t.textContent = msg;
+  t.classList.add("visible");
+  setTimeout(()=>t.classList.remove("visible"), 2400);
+}
+function escapar(s){
+  return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function nombreDe(p){ return (p.nombre+" "+p.apellido).trim(); }
+
+// ---------- Acceso a listas por dueño ----------
+// owner: "propia" | "eq:<id>" | "doc:<id>"
+function personaDe(owner){
+  if (owner==="propia") return null;
+  const [tipo,id] = owner.split(":");
+  const lista = tipo==="eq" ? estado.equipo : estado.docentes;
+  return lista.find(p=>p.id===id) || null;
+}
+function listaDe(owner){
+  if (owner==="propia") return estado.tareas;
+  const p = personaDe(owner);
+  return p ? p.tareas : [];
+}
+
+// ---------- Persistencia ----------
+let guardarRemoto = null;
+let timerGuardar = null;
+function guardar(){
+  if (FIREBASE_ACTIVO && guardarRemoto){
+    clearTimeout(timerGuardar);
+    timerGuardar = setTimeout(guardarRemoto, 400);
+  } else {
+    localStorage.setItem("mdagenda", JSON.stringify(estado));
+  }
+}
+function cargarLocal(){
+  try{
+    const raw = localStorage.getItem("mdagenda");
+    if (raw) aplicarEstado(JSON.parse(raw));
+  }catch(e){ console.warn("No se pudo leer el guardado local", e); }
+}
+function normalizarPersona(p, esDocente){
+  if (!Array.isArray(p.tareas)) p.tareas = [];
+  if (!p.horarios || typeof p.horarios !== "object") p.horarios = {};
+  for (const d of DIAS_SEMANA){
+    const h = p.horarios[d];
+    if (typeof h === "string"){
+      // dato viejo en texto libre: intentar rescatar "8:00 a 12:00"
+      const m = h.match(/(\d{1,2})[:.h](\d{2}).*?(\d{1,2})[:.h](\d{2})/);
+      if (m && !esDocente) p.horarios[d] = {desde: m[1].padStart(2,"0")+":"+m[2], hasta: m[3].padStart(2,"0")+":"+m[4]};
+      else delete p.horarios[d];
+    }
+  }
+  return p;
+}
+function aplicarEstado(nuevo){
+  if (!nuevo || typeof nuevo !== "object") return;
+  estado.tareas = Array.isArray(nuevo.tareas) ? nuevo.tareas : [];
+  estado.bitacora = Array.isArray(nuevo.bitacora) ? nuevo.bitacora : [];
+  estado.equipo = (Array.isArray(nuevo.equipo) && nuevo.equipo.length===4)
+    ? nuevo.equipo.map(p=>normalizarPersona(p,false)) : equipoInicial();
+  estado.docentes = Array.isArray(nuevo.docentes)
+    ? nuevo.docentes.map(p=>normalizarPersona(p,true)) : [];
+  renderTodo();
+}
+
+// ---------- Firebase ----------
+async function iniciarFirebase(){
+  const zona = $("#authZone");
+  try{
+    const [{initializeApp}, authMod, fsMod] = await Promise.all([
+      import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"),
+      import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"),
+      import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js")
+    ]);
+    const app = initializeApp(firebaseConfig);
+    const auth = authMod.getAuth(app);
+    const db = fsMod.getFirestore(app);
+    let cancelarEscucha = null;
+
+    authMod.onAuthStateChanged(auth, (usuario)=>{
+      if (cancelarEscucha){ cancelarEscucha(); cancelarEscucha = null; }
+      if (usuario){
+        zona.innerHTML = '<span>'+escapar(usuario.email)+'</span> <button id="btnSalir">Salir</button>';
+        $("#btnSalir").onclick = ()=>authMod.signOut(auth);
+        const ref = fsMod.doc(db, "usuarios", usuario.uid);
+        guardarRemoto = ()=>fsMod.setDoc(ref, estado).catch(e=>{
+          console.error(e); toast("Error al guardar en la nube");
+        });
+        cancelarEscucha = fsMod.onSnapshot(ref, (snap)=>{
+          if (snap.metadata.hasPendingWrites) return;
+          if (snap.exists()) aplicarEstado(snap.data());
+          else fsMod.setDoc(ref, estado);
+        });
+      } else {
+        guardarRemoto = null;
+        zona.innerHTML = '<button id="btnEntrar">Iniciar sesión con Google</button>';
+        $("#btnEntrar").onclick = async ()=>{
+          try{ await authMod.signInWithPopup(auth, new authMod.GoogleAuthProvider()); }
+          catch(e){
+            console.error(e);
+            toast("No se pudo abrir la ventana de Google. Probá de nuevo.");
+          }
+        };
+        estado = { tareas: [], bitacora: [], equipo: equipoInicial(), docentes: [] };
+        renderTodo();
+      }
+    });
+  }catch(e){
+    console.error("Firebase no disponible:", e);
+    zona.innerHTML = '<span>Sin conexión con Firebase</span>';
+    $("#avisoLocal").style.display = "block";
+    cargarLocal();
+  }
+}
+
+// ---------- Estrellas ----------
+function pintarEstrellas(cont, valor, alCambiar){
+  cont.innerHTML = "";
+  for (let i=1; i<=4; i++){
+    const e = document.createElement("span");
+    e.className = "e"+(i<=valor ? " on" : "");
+    e.textContent = "★";
+    if (alCambiar){
+      e.onclick = (ev)=>{ ev.stopPropagation(); alCambiar(valor===i ? i-1 : i); };
+    }
+    cont.appendChild(e);
+  }
+}
+function refrescarEstrellasNueva(){
+  pintarEstrellas($("#nuevaEstrellas"), estrellasNueva, (n)=>{ estrellasNueva=n; refrescarEstrellasNueva(); });
+}
+function refrescarEstrellasModal(){
+  pintarEstrellas($("#editEstrellas"), estrellasModal, (n)=>{ estrellasModal=n; refrescarEstrellasModal(); });
+}
+
+// ---------- Filas de tarea (compartido) ----------
+function filaTarea(t, owner){
+  const li = document.createElement("li");
+  const vencida = t.fecha && t.fecha < hoyISO();
+  if (vencida) li.classList.add("vencida");
+
+  const est = document.createElement("div");
+  est.className = "estrellas";
+  est.title = "Prioridad";
+  pintarEstrellas(est, t.estrellas, (n)=>{ t.estrellas = n; guardar(); renderTodo(); });
+  li.appendChild(est);
+
+  const tx = document.createElement("span");
+  tx.className = "t-texto";
+  tx.textContent = t.texto;
+  li.appendChild(tx);
+
+  if (t.fecha){
+    const ch = document.createElement("span");
+    ch.className = "chip-fecha";
+    ch.textContent = (vencida ? "⚠ Venció " : "📅 ") + fmtCorto(t.fecha);
+    li.appendChild(ch);
+  }
+
+  const acc = document.createElement("div");
+  acc.className = "acciones";
+  acc.innerHTML =
+    '<button title="Marcar como lista">✅</button>'+
+    '<button title="Editar">✏️</button>'+
+    '<button title="Eliminar">🗑️</button>';
+  const [bOk, bEd, bDel] = acc.querySelectorAll("button");
+  bOk.onclick = ()=>abrirCompletar(owner, t.id);
+  bEd.onclick = ()=>abrirTarea(owner, t.id);
+  bDel.onclick = ()=>{
+    if (confirm("¿Eliminar la tarea \""+t.texto+"\"? No se guardará en la bitácora.")){
+      const lista = listaDe(owner);
+      const i = lista.findIndex(x=>x.id===t.id);
+      if (i>=0) lista.splice(i,1);
+      guardar(); renderTodo();
+    }
+  };
+  li.appendChild(acc);
+  return li;
+}
+
+// ---------- Render: Tareas propias ----------
+function tareasOrdenadas(){
+  const lista = [...estado.tareas];
+  if (orden==="prioridad") lista.sort((a,b)=>(b.estrellas-a.estrellas)*ordenDir);
+  else if (orden==="fecha") lista.sort((a,b)=>{
+    const fa = a.fecha||"9999-12-31", fb = b.fecha||"9999-12-31";
+    return fa.localeCompare(fb)*ordenDir;
+  });
+  else if (ordenDir===-1) lista.reverse();
+  return lista;
+}
+function renderTareas(){
+  document.querySelectorAll(".fila-orden button").forEach(b=>{
+    b.classList.toggle("sel", b.dataset.orden===orden);
+    b.textContent = b.textContent.replace(/ [▲▼]$/,"");
+    if (b.dataset.orden===orden) b.textContent += ordenDir===1 ? " ▲" : " ▼";
+  });
+  const ul = $("#listaTareas");
+  ul.innerHTML = "";
+  const lista = tareasOrdenadas();
+  if (!lista.length){
+    ul.innerHTML = '<li class="sin-datos" style="border:none;">No hay tareas pendientes. Agregá una con el botón +.</li>';
+  } else {
+    for (const t of lista) ul.appendChild(filaTarea(t, "propia"));
+  }
+  renderCalendario();
+}
+function agregarTarea(){
+  const texto = $("#nuevaDesc").value.trim();
+  if (!texto){ toast("Escribí la descripción de la tarea"); return; }
+  estado.tareas.push({
+    id: uid(), texto,
+    fecha: $("#nuevaFecha").value || null,
+    estrellas: estrellasNueva,
+    creada: Date.now()
+  });
+  $("#nuevaDesc").value = "";
+  $("#nuevaFecha").value = "";
+  estrellasNueva = 0;
+  refrescarEstrellasNueva();
+  guardar(); renderTareas();
+}
+
+// ---------- Calendario ----------
+function renderCalendario(){
+  const anio = calRef.getFullYear(), mes = calRef.getMonth();
+  const titulo = calRef.toLocaleDateString("es-AR",{month:"long", year:"numeric"});
+  $("#calTitulo").textContent = titulo.charAt(0).toUpperCase()+titulo.slice(1);
+
+  const conteo = {}; // iso -> {n, vencidas}
+  const hoy = hoyISO();
+  for (const t of estado.tareas){
+    if (!t.fecha) continue;
+    if (!conteo[t.fecha]) conteo[t.fecha] = {n:0, venc:false};
+    conteo[t.fecha].n++;
+    if (t.fecha < hoy) conteo[t.fecha].venc = true;
+  }
+
+  const grid = $("#calGrid");
+  grid.innerHTML = "";
+  for (const e of ["L","M","M","J","V","S","D"]){
+    const d = document.createElement("div");
+    d.className = "enc"; d.textContent = e;
+    grid.appendChild(d);
+  }
+  const primero = new Date(anio, mes, 1);
+  const desplaz = (primero.getDay()+6)%7;
+  const diasMes = new Date(anio, mes+1, 0).getDate();
+  for (let i=0;i<desplaz;i++){
+    const v = document.createElement("div");
+    v.className = "cal-dia fuera";
+    grid.appendChild(v);
+  }
+  for (let d=1; d<=diasMes; d++){
+    const iso = anio+"-"+String(mes+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");
+    const cel = document.createElement("div");
+    cel.className = "cal-dia";
+    if (iso===hoy) cel.classList.add("hoy");
+    cel.innerHTML = '<span class="cal-num">'+d+'</span>';
+    const c = conteo[iso];
+    if (c){
+      cel.classList.add("con-tareas");
+      const b = document.createElement("span");
+      b.className = "cal-badge"+(c.venc ? " venc" : "");
+      b.textContent = c.n;
+      cel.appendChild(b);
+      cel.onclick = ()=>abrirDiaCalendario(iso);
+    }
+    grid.appendChild(cel);
+  }
+}
+function abrirDiaCalendario(iso){
+  $("#diaTitulo").textContent = "Tareas que vencen el "+fmtLargo(iso).toLowerCase();
+  const ul = $("#diaLista");
+  ul.innerHTML = "";
+  const hoy = hoyISO();
+  for (const t of estado.tareas.filter(x=>x.fecha===iso)){
+    const li = document.createElement("li");
+    if (iso < hoy) li.classList.add("vencida");
+    const est = document.createElement("div");
+    est.className = "estrellas";
+    pintarEstrellas(est, t.estrellas, null);
+    li.appendChild(est);
+    li.appendChild(document.createTextNode(t.texto));
+    ul.appendChild(li);
+  }
+  $("#ovDia").classList.add("visible");
+}
+
+// ---------- Modal nueva/editar tarea ----------
+function abrirTarea(owner, id){ // id null = nueva
+  pendiente = {owner, id};
+  const p = personaDe(owner);
+  $("#tituloTarea").textContent = (id ? "✏ Editar tarea" : "➕ Nueva tarea") + (p ? " — "+(nombreDe(p)||p.rol) : "");
+  if (id){
+    const t = listaDe(owner).find(x=>x.id===id);
+    $("#editDesc").value = t.texto;
+    $("#editFecha").value = t.fecha || "";
+    estrellasModal = t.estrellas;
+  } else {
+    $("#editDesc").value = "";
+    $("#editFecha").value = "";
+    estrellasModal = 0;
+  }
+  refrescarEstrellasModal();
+  $("#ovTarea").classList.add("visible");
+  $("#editDesc").focus();
+}
+function guardarTarea(){
+  const texto = $("#editDesc").value.trim();
+  if (!texto){ toast("La descripción no puede quedar vacía"); return; }
+  const lista = listaDe(pendiente.owner);
+  if (pendiente.id){
+    const t = lista.find(x=>x.id===pendiente.id);
+    if (!t) return;
+    t.texto = texto;
+    t.fecha = $("#editFecha").value || null;
+    t.estrellas = estrellasModal;
+  } else {
+    lista.push({id: uid(), texto, fecha: $("#editFecha").value || null, estrellas: estrellasModal, creada: Date.now()});
+  }
+  cerrar("ovTarea");
+  guardar(); renderTodo();
+}
+
+// ---------- Completar ----------
+function abrirCompletar(owner, id){
+  pendiente = {owner, id};
+  const t = listaDe(owner).find(x=>x.id===id);
+  const p = personaDe(owner);
+  $("#compTexto").textContent = "“"+t.texto+"”" + (p ? " — realizada por "+(nombreDe(p)||p.rol) : "");
+  $("#compComentario").value = "";
+  $("#ovCompletar").classList.add("visible");
+  $("#compComentario").focus();
+}
+function confirmarCompletar(){
+  const lista = listaDe(pendiente.owner);
+  const t = lista.find(x=>x.id===pendiente.id);
+  if (!t) return;
+  const p = personaDe(pendiente.owner);
+  estado.bitacora.push({
+    id: t.id, texto: t.texto,
+    comentario: $("#compComentario").value.trim(),
+    fechaFin: hoyISO(),
+    estrellas: t.estrellas,
+    persona: p ? (nombreDe(p)||p.rol) : "",
+    rol: p ? p.rol : ""
+  });
+  const i = lista.findIndex(x=>x.id===t.id);
+  if (i>=0) lista.splice(i,1);
+  cerrar("ovCompletar");
+  guardar(); renderTodo();
+  toast("Tarea guardada en la bitácora ✔");
+}
+
+// ---------- Render: Bitácora ----------
+function textoRealizador(e){
+  return e.persona ? " · Realizada por "+e.persona+(e.rol ? " ("+e.rol+")" : "") : "";
+}
+function renderBitacora(){
+  const cont = $("#contBitacora");
+  cont.innerHTML = "";
+  if (!estado.bitacora.length){
+    cont.innerHTML = '<p class="sin-datos">Todavía no hay tareas terminadas. Cuando marques una tarea como lista, aparecerá acá.</p>';
+    actualizarBarraExport();
+    return;
+  }
+  const semanas = new Map();
+  for (const e of estado.bitacora){
+    const sem = lunesDe(e.fechaFin);
+    if (!semanas.has(sem)) semanas.set(sem, new Map());
+    const dias = semanas.get(sem);
+    if (!dias.has(e.fechaFin)) dias.set(e.fechaFin, []);
+    dias.get(e.fechaFin).push(e);
+  }
+  const semanasOrd = [...semanas.keys()].sort().reverse();
+  for (const sem of semanasOrd){
+    const divS = document.createElement("div");
+    divS.className = "semana";
+    divS.innerHTML = "<h3>"+escapar(etiquetaSemana(sem))+"</h3>";
+    const dias = semanas.get(sem);
+    const diasOrd = [...dias.keys()].sort().reverse();
+    for (const dia of diasOrd){
+      const divD = document.createElement("div");
+      divD.className = "dia";
+      const cab = document.createElement("label");
+      cab.className = "dia-cab";
+      const chk = document.createElement("input");
+      chk.type = "checkbox";
+      chk.checked = diasSeleccionados.has(dia);
+      chk.onchange = ()=>{
+        if (chk.checked) diasSeleccionados.add(dia); else diasSeleccionados.delete(dia);
+        actualizarBarraExport();
+      };
+      cab.appendChild(chk);
+      cab.appendChild(document.createTextNode(fmtLargo(dia)));
+      divD.appendChild(cab);
+      const ul = document.createElement("ul");
+      for (const e of dias.get(dia)){
+        const li = document.createElement("li");
+        li.textContent = "• "+e.texto;
+        if (e.comentario){
+          const c = document.createElement("span");
+          c.className = "coment";
+          c.textContent = " — "+e.comentario;
+          li.appendChild(c);
+        }
+        if (e.persona){
+          const q = document.createElement("span");
+          q.className = "quien";
+          q.textContent = " ✔ "+e.persona+(e.rol ? " ("+e.rol+")" : "");
+          li.appendChild(q);
+        }
+        ul.appendChild(li);
+      }
+      divD.appendChild(ul);
+      divS.appendChild(divD);
+    }
+    cont.appendChild(divS);
+  }
+  actualizarBarraExport();
+}
+function actualizarBarraExport(){
+  const n = diasSeleccionados.size;
+  $("#barraExport").classList.toggle("visible", n>0);
+  $("#cuentaSel").textContent = n===1 ? "1 día seleccionado" : n+" días seleccionados";
+}
+function entradasSeleccionadas(){
+  const dias = [...diasSeleccionados].sort();
+  return dias.map(d=>({
+    dia: d,
+    entradas: estado.bitacora.filter(e=>e.fechaFin===d)
+  })).filter(g=>g.entradas.length);
+}
+function descargarWord(){
+  const grupos = entradasSeleccionadas();
+  if (!grupos.length){ toast("Seleccioná al menos un día"); return; }
+  let cuerpo = "";
+  for (const g of grupos){
+    cuerpo += "<h2 style='color:#1e4260;'>"+escapar(fmtLargo(g.dia))+"</h2><ul>";
+    for (const e of g.entradas){
+      cuerpo += "<li><b>"+escapar(e.texto)+"</b>";
+      if (e.comentario) cuerpo += " — <i>"+escapar(e.comentario)+"</i>";
+      if (e.persona) cuerpo += " <span style='color:#2e8b57;'>· Realizada por "+escapar(e.persona)+(e.rol?" ("+escapar(e.rol)+")":"")+"</span>";
+      cuerpo += "</li>";
+    }
+    cuerpo += "</ul>";
+  }
+  const html = "<html xmlns:w='urn:schemas-microsoft-com:office:word'><head><meta charset='utf-8'>"+
+    "<title>Bitácora MDAgenda</title></head><body style=\"font-family:Calibri,Arial,sans-serif;\">"+
+    "<h1 style='color:#2c5f8a;'>Bitácora — MDAgenda</h1>"+cuerpo+"</body></html>";
+  const blob = new Blob(["﻿", html], {type:"application/msword"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "bitacora_"+hoyISO()+".doc";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+}
+async function copiarSeleccion(){
+  const grupos = entradasSeleccionadas();
+  if (!grupos.length){ toast("Seleccioná al menos un día"); return; }
+  let texto = "BITÁCORA — MDAgenda\n\n";
+  for (const g of grupos){
+    texto += fmtLargo(g.dia)+"\n";
+    for (const e of g.entradas){
+      texto += "  • "+e.texto+(e.comentario ? " — "+e.comentario : "")+textoRealizador(e)+"\n";
+    }
+    texto += "\n";
+  }
+  try{
+    await navigator.clipboard.writeText(texto);
+    toast("Copiado al portapapeles ✔");
+  }catch(e){
+    console.error(e);
+    toast("No se pudo copiar automáticamente");
+  }
+}
+
+// ---------- Render: Equipo y Docentes ----------
+function bloquePersona(p, owner){
+  const div = document.createElement("div");
+  div.className = "bloque-persona";
+
+  const cab = document.createElement("div");
+  cab.className = "bp-cab";
+  const nom = nombreDe(p);
+  cab.innerHTML = '<div><div class="rol">'+escapar(p.rol)+'</div>'+
+    '<div class="nombre'+(nom?"":" vacio")+'">'+(nom?escapar(nom):"Sin asignar — tocá para cargar")+'</div></div>'+
+    '<span class="ver">Ver ficha ›</span>';
+  cab.onclick = ()=>abrirFicha(owner);
+  div.appendChild(cab);
+
+  const zona = document.createElement("div");
+  zona.className = "bp-tareas";
+  const ul = document.createElement("ul");
+  ul.className = "lista-tareas";
+  if (!p.tareas.length){
+    ul.innerHTML = '<li class="sin-datos" style="border:none; padding:6px 4px;">Sin tareas asignadas.</li>';
+  } else {
+    for (const t of p.tareas) ul.appendChild(filaTarea(t, owner));
+  }
+  zona.appendChild(ul);
+  const btn = document.createElement("button");
+  btn.className = "btn-mini-tarea";
+  btn.textContent = "➕ Asignar tarea";
+  btn.onclick = ()=>abrirTarea(owner, null);
+  zona.appendChild(btn);
+  div.appendChild(zona);
+  return div;
+}
+function renderEquipo(){
+  const g = $("#grillaEquipo");
+  g.innerHTML = "";
+  for (const p of estado.equipo) g.appendChild(bloquePersona(p, "eq:"+p.id));
+}
+function renderDocentes(){
+  const g = $("#grillaDocentes");
+  g.innerHTML = "";
+  if (!estado.docentes.length){
+    g.innerHTML = '<p class="sin-datos">Todavía no cargaste docentes. Usá el botón "Agregar docente".</p>';
+    return;
+  }
+  for (const p of estado.docentes) g.appendChild(bloquePersona(p, "doc:"+p.id));
+}
+function agregarDocente(){
+  const p = personaBase(uid(), "Docente");
+  estado.docentes.push(p);
+  guardar(); renderDocentes();
+  abrirFicha("doc:"+p.id);
+}
+
+// ---------- Ficha ----------
+function abrirFicha(owner){
+  personaEnCurso = owner;
+  const p = personaDe(owner);
+  if (!p) return;
+  const esDocente = owner.startsWith("doc:");
+  $("#fichaTitulo").textContent = "Ficha — "+p.rol;
+  $("#pNombre").value = p.nombre||"";
+  $("#pApellido").value = p.apellido||"";
+  $("#pTelefono").value = p.telefono||"";
+  $("#pCorreo").value = p.correo||"";
+  $("#pNotas").value = p.notas||"";
+  $("#btnBorrarPersona").style.display = esDocente ? "inline-block" : "none";
+  $("#lblHorarios").textContent = esDocente
+    ? "Días y horarios (hora de inicio + horas cátedra de "+DUR_MODULO+" min)"
+    : "Días y horarios que cumple (entrada y salida)";
+  const tabla = $("#tablaHorarios");
+  tabla.innerHTML = "";
+  for (const d of DIAS_SEMANA){
+    const h = p.horarios[d] || {};
+    const tr = document.createElement("tr");
+    const td1 = document.createElement("td");
+    td1.textContent = NOMBRE_DIA[d];
+    tr.appendChild(td1);
+    const td2 = document.createElement("td");
+    if (esDocente){
+      const inicio = document.createElement("input");
+      inicio.type = "time"; inicio.value = h.desde||""; inicio.dataset.dia = d; inicio.dataset.campo = "desde";
+      const mods = document.createElement("input");
+      mods.type = "number"; mods.min = "0"; mods.max = "15"; mods.value = h.modulos||""; mods.placeholder = "hs cát.";
+      mods.dataset.dia = d; mods.dataset.campo = "modulos";
+      const calc = document.createElement("span");
+      calc.className = "hasta-calc";
+      const actualizar = ()=>{
+        calc.textContent = (inicio.value && Number(mods.value)>0)
+          ? "→ hasta "+aHHMM(aMin(inicio.value)+Number(mods.value)*DUR_MODULO) : "";
+      };
+      inicio.oninput = actualizar; mods.oninput = actualizar; actualizar();
+      td2.append(inicio, " ", mods, " ", calc);
+    } else {
+      const desde = document.createElement("input");
+      desde.type = "time"; desde.value = h.desde||""; desde.dataset.dia = d; desde.dataset.campo = "desde";
+      const hasta = document.createElement("input");
+      hasta.type = "time"; hasta.value = h.hasta||""; hasta.dataset.dia = d; hasta.dataset.campo = "hasta";
+      td2.append(desde, " a ", hasta);
+    }
+    tr.appendChild(td2);
+    tabla.appendChild(tr);
+  }
+  $("#ovPersona").classList.add("visible");
+}
+function guardarPersona(){
+  const p = personaDe(personaEnCurso);
+  if (!p) return;
+  const esDocente = personaEnCurso.startsWith("doc:");
+  p.nombre = $("#pNombre").value.trim();
+  p.apellido = $("#pApellido").value.trim();
+  p.telefono = $("#pTelefono").value.trim();
+  p.correo = $("#pCorreo").value.trim();
+  p.notas = $("#pNotas").value.trim();
+  const nuevos = {};
+  for (const d of DIAS_SEMANA){
+    const campos = document.querySelectorAll('#tablaHorarios input[data-dia="'+d+'"]');
+    const vals = {};
+    campos.forEach(inp=>{ vals[inp.dataset.campo] = inp.value; });
+    if (esDocente){
+      if (vals.desde && Number(vals.modulos)>0) nuevos[d] = {desde: vals.desde, modulos: Number(vals.modulos)};
+    } else {
+      if (vals.desde && vals.hasta){
+        if (aMin(vals.hasta) <= aMin(vals.desde)){ toast("En "+NOMBRE_DIA[d]+" la salida debe ser después de la entrada"); return; }
+        nuevos[d] = {desde: vals.desde, hasta: vals.hasta};
+      }
+    }
+  }
+  p.horarios = nuevos;
+  cerrar("ovPersona");
+  guardar(); renderTodo();
+  toast("Ficha guardada ✔");
+}
+function borrarPersona(){
+  const p = personaDe(personaEnCurso);
+  if (!p || !personaEnCurso.startsWith("doc:")) return;
+  if (!confirm("¿Eliminar a "+(nombreDe(p)||"este docente")+"? Se borran también sus tareas pendientes (lo ya guardado en la bitácora se conserva).")) return;
+  estado.docentes = estado.docentes.filter(x=>x.id!==p.id);
+  cerrar("ovPersona");
+  guardar(); renderTodo();
+}
+
+// ---------- Disponible ----------
+function rangoDe(p, dia){
+  const h = p.horarios && p.horarios[dia];
+  if (!h || !h.desde) return null;
+  if (p.rol==="Docente"){
+    if (!h.modulos) return null;
+    return {desde: aMin(h.desde), hasta: aMin(h.desde)+h.modulos*DUR_MODULO};
+  }
+  if (!h.hasta) return null;
+  return {desde: aMin(h.desde), hasta: aMin(h.hasta)};
+}
+function presenciasDia(dia){
+  const res = [];
+  for (const p of [...estado.equipo, ...estado.docentes]){
+    const r = rangoDe(p, dia);
+    if (r) res.push({nombre: nombreDe(p)||p.rol, rol: p.rol, ...r});
+  }
+  res.sort((a,b)=>a.desde-b.desde || a.hasta-b.hasta);
+  return res;
+}
+function renderDisponible(){
+  const cont = $("#contDisponible");
+  cont.innerHTML = "";
+  if (diaDetalle){
+    renderDiaDetalle(cont);
+    return;
+  }
+  const titulo = document.createElement("h2");
+  titulo.className = "sub";
+  titulo.textContent = "Semana — tocá un día para ver la grilla por horas";
+  cont.appendChild(titulo);
+  const grid = document.createElement("div");
+  grid.className = "grilla-dias";
+  for (const d of DIAS_SEMANA){
+    const card = document.createElement("div");
+    card.className = "dia-card";
+    card.innerHTML = "<h4>"+NOMBRE_DIA[d]+"</h4>";
+    const pres = presenciasDia(d);
+    if (!pres.length){
+      card.innerHTML += '<div class="nadie">Sin personal cargado</div>';
+    } else {
+      for (const pr of pres){
+        const fila = document.createElement("div");
+        fila.className = "pers";
+        fila.innerHTML = aHHMM(pr.desde)+"–"+aHHMM(pr.hasta)+" · <b>"+escapar(pr.nombre)+"</b> <span class='rol-tag'>"+escapar(pr.rol)+"</span>";
+        card.appendChild(fila);
+      }
+    }
+    card.onclick = ()=>{ diaDetalle = d; renderDisponible(); };
+    grid.appendChild(card);
+  }
+  cont.appendChild(grid);
+}
+function renderDiaDetalle(cont){
+  const btn = document.createElement("button");
+  btn.className = "btn-volver";
+  btn.textContent = "‹ Volver a la semana";
+  btn.onclick = ()=>{ diaDetalle = null; renderDisponible(); };
+  cont.appendChild(btn);
+
+  const titulo = document.createElement("h2");
+  titulo.className = "sub";
+  titulo.textContent = "Grilla del "+NOMBRE_DIA[diaDetalle].toLowerCase();
+  cont.appendChild(titulo);
+
+  const pres = presenciasDia(diaDetalle);
+  if (!pres.length){
+    cont.innerHTML += '<p class="sin-datos">No hay personal cargado para este día.</p>';
+    return;
+  }
+  const cortes = new Set([MIN_ESCUELA, MAX_ESCUELA]);
+  for (const p of pres){ cortes.add(p.desde); cortes.add(p.hasta); }
+  const ord = [...cortes].sort((a,b)=>a-b);
+
+  const tabla = document.createElement("table");
+  tabla.className = "intervalos";
+  tabla.innerHTML = "<tr><th>Horario</th><th>Quiénes están</th></tr>";
+  for (let i=0; i<ord.length-1; i++){
+    const t0 = ord[i], t1 = ord[i+1];
+    const gente = pres.filter(p=>p.desde<t1 && p.hasta>t0);
+    // fuera del rango escolar solo mostrar si hay alguien
+    if ((t1<=MIN_ESCUELA || t0>=MAX_ESCUELA) && !gente.length) continue;
+    const tr = document.createElement("tr");
+    const tdH = document.createElement("td");
+    tdH.className = "hora";
+    tdH.textContent = aHHMM(t0)+" – "+aHHMM(t1);
+    tr.appendChild(tdH);
+    const tdG = document.createElement("td");
+    if (!gente.length){
+      tdG.innerHTML = '<span class="vacio">Sin personal</span>';
+    } else {
+      tdG.innerHTML = gente.map(p=>'<div class="p-item"><b>'+escapar(p.nombre)+'</b> <span class="rol-tag">'+escapar(p.rol)+'</span></div>').join("");
+    }
+    tr.appendChild(tdG);
+    tabla.appendChild(tr);
+  }
+  cont.appendChild(tabla);
+}
+
+// ---------- Generales ----------
+function cerrar(id){ document.getElementById(id).classList.remove("visible"); }
+function renderTodo(){ renderTareas(); renderBitacora(); renderEquipo(); renderDocentes(); renderDisponible(); }
+
+// Tabs
+document.querySelectorAll("nav.tabs button").forEach(b=>{
+  b.onclick = ()=>{
+    document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.remove("activa"));
+    document.querySelectorAll("section.panel").forEach(x=>x.classList.remove("activa"));
+    b.classList.add("activa");
+    document.getElementById("panel-"+b.dataset.tab).classList.add("activa");
+  };
+});
+// Orden
+document.querySelectorAll(".fila-orden button").forEach(b=>{
+  b.onclick = ()=>{
+    if (orden===b.dataset.orden) ordenDir *= -1;
+    else { orden = b.dataset.orden; ordenDir = 1; }
+    renderTareas();
+  };
+});
+// Botones
+$("#btnAgregar").onclick = agregarTarea;
+$("#nuevaDesc").addEventListener("keydown", (e)=>{ if (e.key==="Enter") agregarTarea(); });
+$("#btnConfirmarComp").onclick = confirmarCompletar;
+$("#btnGuardarTarea").onclick = guardarTarea;
+$("#btnGuardarPersona").onclick = guardarPersona;
+$("#btnBorrarPersona").onclick = borrarPersona;
+$("#btnAgregarDoc").onclick = agregarDocente;
+$("#btnWord").onclick = descargarWord;
+$("#btnCopiar").onclick = copiarSeleccion;
+$("#calAnt").onclick = ()=>{ calRef.setMonth(calRef.getMonth()-1); renderCalendario(); };
+$("#calSig").onclick = ()=>{ calRef.setMonth(calRef.getMonth()+1); renderCalendario(); };
+document.querySelectorAll("[data-cerrar]").forEach(b=>{ b.onclick = ()=>cerrar(b.dataset.cerrar); });
+document.querySelectorAll(".overlay").forEach(ov=>{
+  ov.addEventListener("click", (e)=>{ if (e.target===ov) ov.classList.remove("visible"); });
+});
+
+// ---------- Inicio ----------
+refrescarEstrellasNueva();
+if (FIREBASE_ACTIVO){
+  iniciarFirebase();
+} else {
+  $("#avisoLocal").style.display = "block";
+  $("#authZone").innerHTML = "<span>Modo local</span>";
+  cargarLocal();
+}
+renderTodo();
+</script>
+</body>
+</html>
