@@ -21,14 +21,20 @@
 
   .aviso-local{background:#fff3cd; border:1px solid #e6d9a0; color:#7a6420; padding:8px 22px; font-size:.85rem; margin:10px 22px 0 22px; border-radius:6px; display:none;}
 
-  /* Solapas estilo fichero */
+  /* Solapas estilo fichero, cada una de un tono pastel */
   nav.tabs{display:flex; gap:4px; padding:18px 22px 0 22px; flex-wrap:wrap;}
   nav.tabs button{
     padding:10px 20px 12px 20px; border:1px solid var(--borde); border-bottom:none;
-    border-radius:10px 10px 0 0; background:#e9e5da; color:#555; cursor:pointer;
+    border-radius:10px 10px 0 0; background:#e9e5da; color:#666; cursor:pointer;
     font-size:.93rem; font-weight:600; position:relative; top:1px;
   }
-  nav.tabs button.activa{background:var(--papel); color:var(--azul-osc); border-color:var(--borde);
+  nav.tabs button[data-tab="tareas"]{--ct:#f7d9c4;}
+  nav.tabs button[data-tab="bitacora"]{--ct:#c9e4de;}
+  nav.tabs button[data-tab="equipo"]{--ct:#c6def1;}
+  nav.tabs button[data-tab="docentes"]{--ct:#dbcdf0;}
+  nav.tabs button[data-tab="disponible"]{--ct:#f2c6de;}
+  nav.tabs button{background:color-mix(in srgb, var(--ct) 38%, #efece5);}
+  nav.tabs button.activa{background:var(--ct); color:#3a3a3a; border-color:var(--borde);
     box-shadow:0 -2px 4px rgba(0,0,0,.05); z-index:2;}
 
   main{background:var(--papel); border:1px solid var(--borde); margin:0 22px 30px 22px;
@@ -110,6 +116,8 @@
   .bp-cab .rol{font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--azul); font-weight:700;}
   .bp-cab .nombre{font-size:1rem; font-weight:600; margin-top:2px;}
   .bp-cab .nombre.vacio{color:#aaa; font-weight:400; font-style:italic;}
+  .bp-cab .materia{font-size:.8rem; color:var(--azul-osc); margin-top:2px; font-weight:600;}
+  .bp-cab .materia .mat-sec{font-weight:400; color:var(--gris);}
   .bp-cab .ver{font-size:.75rem; color:var(--gris); white-space:nowrap;}
   .bp-tareas{padding:10px 12px;}
   .bp-tareas ul.lista-tareas li{padding:7px 4px; font-size:.9rem;}
@@ -290,6 +298,12 @@
     <input type="tel" id="pTelefono">
     <label>Correo</label>
     <input type="email" id="pCorreo">
+    <div id="zonaMaterias" style="display:none;">
+      <label>Materia principal</label>
+      <input type="text" id="pMateria" placeholder="Ej.: Lengua">
+      <label>Materias secundarias que puede dar (separadas por coma)</label>
+      <input type="text" id="pMateriasSec" placeholder="Ej.: Literatura, Historia">
+    </div>
     <label id="lblHorarios">Días y horarios que cumple</label>
     <table class="horarios" id="tablaHorarios"></table>
     <label>Notas</label>
@@ -481,10 +495,19 @@ async function iniciarFirebase(){
         guardarRemoto = null;
         zona.innerHTML = '<button id="btnEntrar">Iniciar sesión con Google</button>';
         $("#btnEntrar").onclick = async ()=>{
-          try{ await authMod.signInWithPopup(auth, new authMod.GoogleAuthProvider()); }
+          const proveedor = new authMod.GoogleAuthProvider();
+          try{ await authMod.signInWithPopup(auth, proveedor); }
           catch(e){
             console.error(e);
-            toast("No se pudo abrir la ventana de Google. Probá de nuevo.");
+            if (e.code==="auth/unauthorized-domain"){
+              alert("Este dominio no está autorizado en Firebase.\n\nAgregá \""+location.hostname+"\" en:\nAuthentication → Configuración → Dominios autorizados.");
+            } else if (e.code==="auth/popup-blocked" || e.code==="auth/popup-closed-by-user" || e.code==="auth/cancelled-popup-request"){
+              toast("Ventana bloqueada. Probando con redirección...");
+              try{ await authMod.signInWithRedirect(auth, proveedor); }
+              catch(e2){ console.error(e2); alert("Error al iniciar sesión: "+(e2.code||e2.message)); }
+            } else {
+              alert("Error al iniciar sesión: "+(e.code||e.message));
+            }
           }
         };
         estado = { tareas: [], bitacora: [], equipo: equipoInicial(), docentes: [] };
@@ -872,8 +895,14 @@ function bloquePersona(p, owner){
   const cab = document.createElement("div");
   cab.className = "bp-cab";
   const nom = nombreDe(p);
+  let materias = "";
+  if (p.rol==="Docente" && p.materia){
+    materias = '<div class="materia">'+escapar(p.materia)+
+      (p.materiasSec ? ' <span class="mat-sec">(también: '+escapar(p.materiasSec)+')</span>' : '')+'</div>';
+  }
   cab.innerHTML = '<div><div class="rol">'+escapar(p.rol)+'</div>'+
-    '<div class="nombre'+(nom?"":" vacio")+'">'+(nom?escapar(nom):"Sin asignar — tocá para cargar")+'</div></div>'+
+    '<div class="nombre'+(nom?"":" vacio")+'">'+(nom?escapar(nom):"Sin asignar — tocá para cargar")+'</div>'+
+    materias+'</div>'+
     '<span class="ver">Ver ficha ›</span>';
   cab.onclick = ()=>abrirFicha(owner);
   div.appendChild(cab);
@@ -929,6 +958,9 @@ function abrirFicha(owner){
   $("#pTelefono").value = p.telefono||"";
   $("#pCorreo").value = p.correo||"";
   $("#pNotas").value = p.notas||"";
+  $("#zonaMaterias").style.display = esDocente ? "block" : "none";
+  $("#pMateria").value = p.materia||"";
+  $("#pMateriasSec").value = p.materiasSec||"";
   $("#btnBorrarPersona").style.display = esDocente ? "inline-block" : "none";
   $("#lblHorarios").textContent = esDocente
     ? "Días y horarios (hora de inicio + horas cátedra de "+DUR_MODULO+" min)"
@@ -977,6 +1009,10 @@ function guardarPersona(){
   p.telefono = $("#pTelefono").value.trim();
   p.correo = $("#pCorreo").value.trim();
   p.notas = $("#pNotas").value.trim();
+  if (esDocente){
+    p.materia = $("#pMateria").value.trim();
+    p.materiasSec = $("#pMateriasSec").value.trim();
+  }
   const nuevos = {};
   for (const d of DIAS_SEMANA){
     const campos = document.querySelectorAll('#tablaHorarios input[data-dia="'+d+'"]');
@@ -1020,7 +1056,7 @@ function presenciasDia(dia){
   const res = [];
   for (const p of [...estado.equipo, ...estado.docentes]){
     const r = rangoDe(p, dia);
-    if (r) res.push({nombre: nombreDe(p)||p.rol, rol: p.rol, ...r});
+    if (r) res.push({nombre: nombreDe(p)||p.rol, rol: p.rol + (p.materia ? " · "+p.materia : ""), ...r});
   }
   res.sort((a,b)=>a.desde-b.desde || a.hasta-b.hasta);
   return res;
