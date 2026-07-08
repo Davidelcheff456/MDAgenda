@@ -131,6 +131,11 @@
   .btn-mini-tarea:hover{background:#eef2f6;}
   .btn-agregar-doc{margin-bottom:16px; padding:9px 18px; border:none; border-radius:8px; background:var(--verde);
     color:#fff; font-size:.92rem; font-weight:600; cursor:pointer;}
+  .bp-funciones{border-bottom:1px dashed var(--borde); padding-bottom:8px; margin-bottom:8px;}
+  .bp-sub-titulo{font-size:.7rem; text-transform:uppercase; letter-spacing:.5px; color:var(--gris); font-weight:700; margin:6px 0 4px;}
+  .func-card{display:flex; align-items:center; gap:8px; padding:4px 2px; font-size:.9rem; cursor:pointer;}
+  .func-card input[type=checkbox]{width:15px; height:15px; cursor:pointer; flex-shrink:0;}
+  .func-card .tachada{text-decoration:line-through; color:var(--gris);}
 
   /* ---- DISPONIBLE ---- */
   .grilla-dias{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:12px;}
@@ -632,8 +637,15 @@ function personaBase(id, rol){
   return {id, rol, nombre:"", apellido:"", telefono:"", correo:"", notas:"", direccion:"", zona:"", horarios:{}, tareas:[], funciones:[]};
 }
 function equipoInicial(){
-  return [personaBase("pot1","POT"), personaBase("pot2","POT"),
+  return [personaBase("dir1","Director"),
+          personaBase("pot1","POT"), personaBase("pot2","POT"),
           personaBase("coord1","Coordinador/a"), personaBase("coord2","Coordinador/a")];
+}
+function migrarEquipo(arr){
+  if (!Array.isArray(arr) || !arr.length) return equipoInicial();
+  const eq = arr.map(p=>normalizarPersona(p,false));
+  if (!eq.some(p=>p.rol==="Director")) eq.unshift(personaBase("dir1","Director"));
+  return eq;
 }
 const OPCIONES_BASE = {tema:"claro", resetFunciones:true};
 function estadoInicial(){
@@ -771,8 +783,7 @@ function aplicarEstado(nuevo){
   if (!nuevo || typeof nuevo !== "object") return;
   estado.tareas = Array.isArray(nuevo.tareas) ? nuevo.tareas : [];
   estado.bitacora = Array.isArray(nuevo.bitacora) ? nuevo.bitacora : [];
-  estado.equipo = (Array.isArray(nuevo.equipo) && nuevo.equipo.length===4)
-    ? nuevo.equipo.map(p=>normalizarPersona(p,false)) : equipoInicial();
+  estado.equipo = migrarEquipo(nuevo.equipo);
   estado.docentes = Array.isArray(nuevo.docentes)
     ? nuevo.docentes.map(p=>normalizarPersona(p,true)) : [];
   estado.licencias = Array.isArray(nuevo.licencias) ? nuevo.licencias : [];
@@ -1269,6 +1280,35 @@ function bloquePersona(p, owner){
 
   const zona = document.createElement("div");
   zona.className = "bp-tareas";
+
+  // Funciones fijas: visibles en la tarjeta y tildables (aparte de las tareas de la semana)
+  if (p.funciones && p.funciones.length){
+    const divF = document.createElement("div");
+    divF.className = "bp-funciones";
+    const hF = document.createElement("div");
+    hF.className = "bp-sub-titulo";
+    hF.textContent = "Funciones fijas";
+    divF.appendChild(hF);
+    for (const f of p.funciones){
+      const fila = document.createElement("label");
+      fila.className = "func-card";
+      const chk = document.createElement("input");
+      chk.type = "checkbox";
+      chk.checked = funcionTildada(f, p);
+      chk.onchange = ()=>{ f.hecha = chk.checked ? lunesDe(hoyISO()) : ""; guardar(); renderTodo(); };
+      const tx = document.createElement("span");
+      tx.textContent = f.texto;
+      if (funcionTildada(f, p)) tx.classList.add("tachada");
+      fila.append(chk, tx);
+      divF.appendChild(fila);
+    }
+    zona.appendChild(divF);
+  }
+
+  const hT = document.createElement("div");
+  hT.className = "bp-sub-titulo";
+  hT.textContent = "Tareas de la semana";
+  zona.appendChild(hT);
   const ul = document.createElement("ul");
   ul.className = "lista-tareas";
   if (!p.tareas.length){
