@@ -37,6 +37,7 @@
   nav.tabs button[data-tab="disponible"]{--ct:#f28cc0;}
   nav.tabs button[data-tab="licencias"]{--ct:#f5d266;}
   nav.tabs button[data-tab="paro"]{--ct:#f28b82;}
+  nav.tabs button[data-tab="progreso"]{--ct:#7fcf8e;}
   nav.tabs button{background:color-mix(in srgb, var(--ct) 38%, #efece5);}
   nav.tabs button.activa{background:var(--ct); color:#3a3a3a; border-color:var(--borde);
     box-shadow:0 -2px 4px rgba(0,0,0,.05); z-index:2;}
@@ -232,6 +233,49 @@
   body.tema-oscuro .zona-sur{color:#7fd8a4 !important;}
   body.tema-oscuro .aviso-local{background:#4a4020; border-color:#6b5d2e; color:#e8d999;}
 
+  /* ---- BITÁCORA: acciones por entrada ---- */
+  .bit-acciones{display:inline-flex; gap:2px; margin-left:6px; vertical-align:middle;}
+  .bit-acciones button{border:none; background:none; cursor:pointer; font-size:.95rem; padding:1px 4px; border-radius:4px;}
+  .bit-acciones button:hover{background:#eee;}
+  body.tema-oscuro .bit-acciones button:hover{background:#3a414b;}
+
+  /* ---- PROGRESO ---- */
+  .meta-card{border:1px solid var(--borde); border-radius:10px; background:#fbfaf6; padding:16px; margin-bottom:16px;}
+  body.tema-oscuro .meta-card{background:#2f353e;}
+  body.tema-sepia .meta-card{background:#f6efdd;}
+  .meta-cab{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px;}
+  .meta-cab h3{color:var(--azul-osc); font-size:1.05rem; flex:1;}
+  body.tema-oscuro .meta-cab h3{color:#a8c6e8;}
+  .barra-prog{height:10px; background:#e3ded2; border-radius:6px; overflow:hidden; flex:1; min-width:120px;}
+  body.tema-oscuro .barra-prog{background:#454c56;}
+  .barra-prog>div{height:100%; background:var(--verde); border-radius:6px;}
+  .barra-prog.tiempo>div{background:var(--azul);}
+  .prog-pct{font-size:.85rem; font-weight:700; color:var(--verde); white-space:nowrap;}
+  .prog-pct.tiempo{color:var(--azul);}
+  body.tema-oscuro .prog-pct.tiempo{color:#8fb9e8;}
+  .linea-tiempo{margin:14px 0 6px 10px; border-left:3px solid #d8d4c8; min-height:20px;}
+  body.tema-oscuro .linea-tiempo{border-color:#4a4f57;}
+  .hito{position:relative; padding:7px 0 7px 22px;}
+  .hito::before{content:""; position:absolute; left:-9px; top:11px; width:12px; height:12px;
+    border-radius:50%; background:#cfc9ba; border:3px solid var(--papel);}
+  .hito.hecha::before{background:var(--verde);}
+  .hito.vencida::before{background:var(--rojo);}
+  .hito.hecha .texto-hito{text-decoration:line-through; color:var(--gris);}
+  .hito .chip-fecha{margin-left:6px;}
+  .hito input[type=checkbox]{width:15px; height:15px; margin-right:6px; vertical-align:middle; cursor:pointer;}
+  .hito-hoy{position:relative; padding:2px 0 2px 22px; font-size:.72rem; font-weight:800; color:#c98f00; letter-spacing:1px;}
+  .hito-hoy::before{content:"➤"; position:absolute; left:-8px; top:1px; color:#c98f00;}
+
+  /* ---- PAPELERA / ACCESOS (configuración) ---- */
+  .seccion-admin{border-top:1px solid var(--borde); margin-top:18px; padding-top:12px;}
+  .papelera-item{display:flex; gap:8px; align-items:center; padding:5px 2px; border-bottom:1px solid #f0ede4; font-size:.88rem; flex-wrap:wrap;}
+  body.tema-oscuro .papelera-item{border-color:#3d434c;}
+  .papelera-item button{border:1px solid var(--borde); background:#f4f2ec; border-radius:6px; cursor:pointer; font-size:.78rem; padding:3px 10px;}
+  body.tema-oscuro .papelera-item button{background:#3a414b; color:#dfe3e8;}
+  .chks-pestanas{display:grid; grid-template-columns:repeat(2,1fr); gap:4px; margin-top:6px;}
+  .chks-pestanas label{display:flex; align-items:center; gap:5px; font-size:.85rem;}
+  .chks-pestanas input{width:15px; height:15px;}
+
   @media (max-width:560px){
     header.top{padding:10px 12px 0 12px;}
     nav.tabs{padding:14px 12px 0 12px;}
@@ -262,6 +306,7 @@
   <button data-tab="disponible">🕐 Disponible</button>
   <button data-tab="licencias">📄 Licencias</button>
   <button data-tab="paro">✊ Paro</button>
+  <button data-tab="progreso">📈 Progreso</button>
 </nav>
 
 <main>
@@ -293,6 +338,11 @@
 
   <!-- BITÁCORA -->
   <section class="panel" id="panel-bitacora">
+    <div class="fila-orden">
+      <span>Ver día:</span>
+      <input type="date" id="bitFiltro" style="padding:6px 8px; border:1px solid var(--borde); border-radius:6px;">
+      <button id="btnBitTodo">Ver todo</button>
+    </div>
     <div class="barra-export" id="barraExport">
       <span id="cuentaSel" style="font-size:.85rem;color:var(--gris);"></span>
       <button class="btn-word" id="btnWord">⬇ Descargar Word</button>
@@ -347,6 +397,12 @@
     <div id="contParoDia"></div>
     <h2 class="sub" style="margin-top:20px;">Todos los registros</h2>
     <div id="contParo"></div>
+  </section>
+
+  <!-- PROGRESO -->
+  <section class="panel" id="panel-progreso">
+    <button class="btn-agregar-doc" id="btnAgregarMeta">➕ Nueva meta</button>
+    <div id="contProgreso"></div>
   </section>
 </main>
 
@@ -451,9 +507,72 @@
       Reiniciar cada lunes las funciones tildadas de POTs y coordinadores
     </label>
     <p style="font-size:.8rem; color:var(--gris); margin-top:6px;">Las funciones de los docentes nunca se reinician solas.</p>
+
+    <div class="seccion-admin" id="zonaPapelera">
+      <label>🗑 Papelera de la bitácora</label>
+      <div id="contPapelera"></div>
+      <button type="button" class="b-rojo" id="btnVaciarPapelera" style="margin:10px 0 0 0; padding:6px 14px; border:none; border-radius:6px; cursor:pointer; font-size:.85rem;">Vaciar papelera</button>
+    </div>
+
+    <div class="seccion-admin" id="zonaAccesos">
+      <label>👥 Accesos de otros usuarios</label>
+      <p style="font-size:.8rem; color:var(--gris);">Cada cuenta ve sus propios datos, no los tuyos. Cualquier mail sin acceso especial entra como invitado (sin Licencias, Paro ni Progreso). Acá le habilitás más pestañas a un mail.</p>
+      <input type="email" id="accMail" placeholder="correo@gmail.com" style="margin-top:6px;">
+      <div class="chks-pestanas" id="accChks"></div>
+      <button type="button" class="b-guardar" id="btnGuardarAcceso" style="margin-top:8px; padding:7px 14px; border:none; border-radius:6px; cursor:pointer; font-size:.85rem;">Guardar acceso</button>
+      <div id="contAccesos" style="margin-top:8px;"></div>
+    </div>
+
     <div class="pie">
       <button class="b-cancelar" data-cerrar="ovOpciones">Cancelar</button>
       <button class="b-guardar" id="btnGuardarOpciones">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal editar entrada de bitácora -->
+<div class="overlay" id="ovBitacora">
+  <div class="modal">
+    <h3>✏ Editar entrada de bitácora</h3>
+    <label>Tarea</label>
+    <input type="text" id="bitTexto" maxlength="300">
+    <label>Comentario</label>
+    <textarea id="bitComentario"></textarea>
+    <label>Fecha de finalización</label>
+    <input type="date" id="bitFecha">
+    <div class="pie">
+      <button class="b-cancelar" data-cerrar="ovBitacora">Cancelar</button>
+      <button class="b-guardar" id="btnGuardarBit">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal meta -->
+<div class="overlay" id="ovMeta">
+  <div class="modal">
+    <h3 id="tituloMeta">Meta</h3>
+    <label>Título de la meta</label>
+    <input type="text" id="metaTitulo" maxlength="200" placeholder="Ej.: Etapa 1 — Diagnóstico de ambas sedes">
+    <div class="pie">
+      <button class="b-cancelar" data-cerrar="ovMeta">Cancelar</button>
+      <button class="b-guardar" id="btnGuardarMeta">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal submeta -->
+<div class="overlay" id="ovSubmeta">
+  <div class="modal">
+    <h3 id="tituloSubmeta">Submeta</h3>
+    <label>Descripción</label>
+    <input type="text" id="subTexto" maxlength="250" placeholder="Ej.: Reunión con docentes">
+    <label>Fecha (opcional)</label>
+    <input type="date" id="subFecha">
+    <label>Número a cumplir (opcional)</label>
+    <input type="number" id="subNumero" min="0" placeholder="Ej.: 5">
+    <div class="pie">
+      <button class="b-cancelar" data-cerrar="ovSubmeta">Cancelar</button>
+      <button class="b-guardar" id="btnGuardarSubmeta">Guardar</button>
     </div>
   </div>
 </div>
@@ -476,6 +595,11 @@ const firebaseConfig = {
 /* ============================================================== */
 
 const FIREBASE_ACTIVO = !String(firebaseConfig.apiKey).startsWith("PEGAR");
+const ADMIN_EMAIL = "caseres.marcosdavid@gmail.com";
+const TODAS_PESTANAS = ["tareas","bitacora","equipo","docentes","disponible","licencias","paro","progreso"];
+const PESTANAS_INVITADO = ["tareas","bitacora","equipo","docentes","disponible"];
+const NOMBRE_PESTANA = {tareas:"Tareas", bitacora:"Bitácora", equipo:"Equipo", docentes:"Docentes",
+  disponible:"Disponible", licencias:"Licencias", paro:"Paro", progreso:"Progreso"};
 const DIAS_SEMANA = ["lun","mar","mie","jue","vie","sab","dom"];
 const NOMBRE_DIA = {lun:"Lunes",mar:"Martes",mie:"Miércoles",jue:"Jueves",vie:"Viernes",sab:"Sábado",dom:"Domingo"};
 const MIN_ESCUELA = 8*60, MAX_ESCUELA = 18*60; // rango de la grilla: 8:00 a 18:00
@@ -492,7 +616,7 @@ function equipoInicial(){
 const OPCIONES_BASE = {tema:"claro", resetFunciones:true};
 function estadoInicial(){
   return { tareas: [], bitacora: [], equipo: equipoInicial(), docentes: [],
-           licencias: [], paros: [], opciones: {...OPCIONES_BASE} };
+           licencias: [], paros: [], papelera: [], metas: [], opciones: {...OPCIONES_BASE} };
 }
 let estado = estadoInicial();
 let orden = "carga";
@@ -505,6 +629,13 @@ let personaEnCurso = null; // owner de la ficha abierta
 let calRef = new Date(); calRef.setDate(1);
 let diaDetalle = null;     // índice 0-6 del día abierto en Disponible
 let semanaRef = null;      // lunes (ISO) de la semana mostrada en Disponible
+let rol = "admin";         // "admin" | "colaborador" | "invitado" (modo local: admin)
+let pestanasPermitidas = TODAS_PESTANAS;
+let dbRef = null, fsRef = null; // referencias de Firestore para la gestión de accesos
+let bitFiltroFecha = "";   // filtro por día en Bitácora
+let bitEnCurso = null;     // entrada de bitácora en edición
+let metaEnCurso = null;    // meta en edición / destino de submeta
+let submetaEnCurso = null; // submeta en edición
 
 // ---------- Utilidades ----------
 const $ = (s)=>document.querySelector(s);
@@ -607,6 +738,8 @@ function aplicarEstado(nuevo){
     ? nuevo.docentes.map(p=>normalizarPersona(p,true)) : [];
   estado.licencias = Array.isArray(nuevo.licencias) ? nuevo.licencias : [];
   estado.paros = Array.isArray(nuevo.paros) ? nuevo.paros : [];
+  estado.papelera = Array.isArray(nuevo.papelera) ? nuevo.papelera : [];
+  estado.metas = Array.isArray(nuevo.metas) ? nuevo.metas : [];
   estado.opciones = Object.assign({...OPCIONES_BASE},
     (nuevo.opciones && typeof nuevo.opciones==="object") ? nuevo.opciones : {});
   aplicarTema();
@@ -636,6 +769,24 @@ async function iniciarFirebase(){
     authMod.onAuthStateChanged(auth, (usuario)=>{
       if (cancelarEscucha){ cancelarEscucha(); cancelarEscucha = null; }
       if (usuario){
+        const email = (usuario.email||"").toLowerCase();
+        dbRef = db; fsRef = fsMod;
+        if (email === ADMIN_EMAIL){
+          rol = "admin";
+          pestanasPermitidas = TODAS_PESTANAS;
+          aplicarPermisos();
+        } else {
+          rol = "invitado";
+          pestanasPermitidas = [...PESTANAS_INVITADO];
+          aplicarPermisos();
+          fsMod.getDoc(fsMod.doc(db, "permisos", email)).then(s=>{
+            if (s.exists() && Array.isArray(s.data().pestanas) && s.data().pestanas.length){
+              rol = "colaborador";
+              pestanasPermitidas = s.data().pestanas;
+            }
+            aplicarPermisos();
+          }).catch(e=>console.warn("Sin permisos extra:", e));
+        }
         zona.innerHTML = '<span>'+escapar(usuario.email)+'</span> <button id="btnSalir">Salir</button>';
         $("#btnSalir").onclick = ()=>authMod.signOut(auth);
         const ref = fsMod.doc(db, "usuarios", usuario.uid);
@@ -649,6 +800,9 @@ async function iniciarFirebase(){
         });
       } else {
         guardarRemoto = null;
+        rol = "invitado";
+        pestanasPermitidas = TODAS_PESTANAS;
+        aplicarPermisos();
         zona.innerHTML = '<button id="btnEntrar">Iniciar sesión con Google</button>';
         $("#btnEntrar").onclick = async ()=>{
           const proveedor = new authMod.GoogleAuthProvider();
@@ -926,13 +1080,16 @@ function textoRealizador(e){
 function renderBitacora(){
   const cont = $("#contBitacora");
   cont.innerHTML = "";
-  if (!estado.bitacora.length){
-    cont.innerHTML = '<p class="sin-datos">Todavía no hay tareas terminadas. Cuando marques una tarea como lista, aparecerá acá.</p>';
+  const entradas = bitFiltroFecha ? estado.bitacora.filter(e=>e.fechaFin===bitFiltroFecha) : estado.bitacora;
+  if (!entradas.length){
+    cont.innerHTML = '<p class="sin-datos">'+(bitFiltroFecha
+      ? "No hay tareas terminadas el "+fmtCorto(bitFiltroFecha)+"."
+      : "Todavía no hay tareas terminadas. Cuando marques una tarea como lista, aparecerá acá.")+'</p>';
     actualizarBarraExport();
     return;
   }
   const semanas = new Map();
-  for (const e of estado.bitacora){
+  for (const e of entradas){
     const sem = lunesDe(e.fechaFin);
     if (!semanas.has(sem)) semanas.set(sem, new Map());
     const dias = semanas.get(sem);
@@ -977,6 +1134,13 @@ function renderBitacora(){
           q.textContent = " ✔ "+e.persona+(e.rol ? " ("+e.rol+")" : "");
           li.appendChild(q);
         }
+        const accB = document.createElement("span");
+        accB.className = "bit-acciones";
+        accB.innerHTML = '<button title="Editar">✏️</button><button title="Enviar a la papelera">🗑️</button>';
+        const [bEdB, bDelB] = accB.querySelectorAll("button");
+        bEdB.onclick = ()=>abrirBitEntrada(e.id);
+        bDelB.onclick = ()=>borrarBitEntrada(e.id);
+        li.appendChild(accB);
         ul.appendChild(li);
       }
       divD.appendChild(ul);
@@ -1585,9 +1749,328 @@ async function paroCopiar(){
   }
 }
 
+// ---------- Bitácora: edición y papelera ----------
+function abrirBitEntrada(id){
+  bitEnCurso = id;
+  const e = estado.bitacora.find(x=>x.id===id);
+  if (!e) return;
+  $("#bitTexto").value = e.texto;
+  $("#bitComentario").value = e.comentario||"";
+  $("#bitFecha").value = e.fechaFin;
+  $("#ovBitacora").classList.add("visible");
+}
+function guardarBitEntrada(){
+  const e = estado.bitacora.find(x=>x.id===bitEnCurso);
+  if (!e) return;
+  const texto = $("#bitTexto").value.trim();
+  if (!texto){ toast("La tarea no puede quedar vacía"); return; }
+  if (!$("#bitFecha").value){ toast("Poné la fecha de finalización"); return; }
+  e.texto = texto;
+  e.comentario = $("#bitComentario").value.trim();
+  e.fechaFin = $("#bitFecha").value;
+  cerrar("ovBitacora");
+  guardar(); renderBitacora();
+}
+function borrarBitEntrada(id){
+  const e = estado.bitacora.find(x=>x.id===id);
+  if (!e) return;
+  if (!confirm("¿Enviar \""+e.texto+"\" a la papelera?")) return;
+  estado.bitacora = estado.bitacora.filter(x=>x.id!==id);
+  estado.papelera.push({...e, borradaEl: hoyISO()});
+  guardar(); renderBitacora();
+  toast("Enviada a la papelera (en ⚙ Configuración)");
+}
+function renderPapelera(){
+  const cont = $("#contPapelera");
+  cont.innerHTML = "";
+  if (!estado.papelera.length){
+    cont.innerHTML = '<p class="sin-datos" style="padding:4px 2px;">La papelera está vacía.</p>';
+    return;
+  }
+  for (const e of estado.papelera){
+    const fila = document.createElement("div");
+    fila.className = "papelera-item";
+    const tx = document.createElement("span");
+    tx.style.flex = "1";
+    tx.textContent = e.texto+" ("+fmtCorto(e.fechaFin)+")"+(e.persona ? " · "+e.persona : "");
+    const btn = document.createElement("button");
+    btn.textContent = "Restaurar";
+    btn.onclick = ()=>{
+      estado.papelera = estado.papelera.filter(x=>x.id!==e.id);
+      const copia = {...e};
+      delete copia.borradaEl;
+      estado.bitacora.push(copia);
+      guardar(); renderPapelera(); renderBitacora();
+      toast("Entrada restaurada ✔");
+    };
+    fila.append(tx, btn);
+    cont.appendChild(fila);
+  }
+}
+function vaciarPapelera(){
+  if (!estado.papelera.length){ toast("La papelera ya está vacía"); return; }
+  if (!confirm("¿Vaciar la papelera? Se eliminan definitivamente "+estado.papelera.length+" entradas.")) return;
+  estado.papelera = [];
+  guardar(); renderPapelera();
+}
+
+// ---------- Permisos y accesos ----------
+function aplicarPermisos(){
+  document.querySelectorAll("nav.tabs button").forEach(b=>{
+    b.style.display = pestanasPermitidas.includes(b.dataset.tab) ? "" : "none";
+  });
+  $("#btnOpciones").style.display = (rol==="admin") ? "" : "none";
+  const activa = document.querySelector("nav.tabs button.activa");
+  if (activa && !pestanasPermitidas.includes(activa.dataset.tab)){
+    const primera = document.querySelector('nav.tabs button[data-tab="'+pestanasPermitidas[0]+'"]');
+    if (primera) primera.click();
+  }
+}
+function renderChksPestanas(){
+  const cont = $("#accChks");
+  cont.innerHTML = "";
+  for (const t of TODAS_PESTANAS){
+    const lab = document.createElement("label");
+    const chk = document.createElement("input");
+    chk.type = "checkbox";
+    chk.value = t;
+    chk.checked = PESTANAS_INVITADO.includes(t);
+    lab.appendChild(chk);
+    lab.appendChild(document.createTextNode(" "+NOMBRE_PESTANA[t]));
+    cont.appendChild(lab);
+  }
+}
+async function guardarAcceso(){
+  if (!dbRef){ toast("Requiere Firebase activo y sesión iniciada"); return; }
+  const mail = $("#accMail").value.trim().toLowerCase();
+  if (!mail || !mail.includes("@")){ toast("Escribí un correo válido"); return; }
+  const pestanas = [...document.querySelectorAll("#accChks input:checked")].map(c=>c.value);
+  if (!pestanas.length){ toast("Elegí al menos una pestaña"); return; }
+  try{
+    await fsRef.setDoc(fsRef.doc(dbRef, "permisos", mail), {pestanas});
+    $("#accMail").value = "";
+    toast("Acceso guardado ✔");
+    cargarAccesos();
+  }catch(e){
+    console.error(e);
+    alert("No se pudo guardar el acceso: "+(e.code||e.message)+"\n¿Actualizaste las reglas de Firestore? (ver instrucciones)");
+  }
+}
+async function cargarAccesos(){
+  const cont = $("#contAccesos");
+  if (!dbRef){
+    cont.innerHTML = '<p class="sin-datos" style="padding:2px;">Disponible con Firebase activo y sesión iniciada.</p>';
+    return;
+  }
+  cont.innerHTML = "";
+  try{
+    const snap = await fsRef.getDocs(fsRef.collection(dbRef, "permisos"));
+    if (snap.empty){
+      cont.innerHTML = '<p class="sin-datos" style="padding:2px;">No hay colaboradores cargados.</p>';
+      return;
+    }
+    snap.forEach(docu=>{
+      const fila = document.createElement("div");
+      fila.className = "papelera-item";
+      const tx = document.createElement("span");
+      tx.style.flex = "1";
+      const ps = (docu.data().pestanas||[]).map(t=>NOMBRE_PESTANA[t]||t).join(", ");
+      tx.textContent = docu.id+" → "+ps;
+      const btn = document.createElement("button");
+      btn.textContent = "Quitar";
+      btn.onclick = async ()=>{
+        if (!confirm("¿Quitar el acceso de "+docu.id+"? Pasará a ser invitado.")) return;
+        try{
+          await fsRef.deleteDoc(fsRef.doc(dbRef, "permisos", docu.id));
+          cargarAccesos();
+        }catch(e){ console.error(e); toast("No se pudo quitar"); }
+      };
+      fila.append(tx, btn);
+      cont.appendChild(fila);
+    });
+  }catch(e){
+    console.error(e);
+    cont.innerHTML = '<p class="sin-datos">No se pudieron leer los accesos ('+(e.code||"error")+'). Revisá las reglas de Firestore.</p>';
+  }
+}
+
+// ---------- Progreso ----------
+function abrirMeta(id){
+  metaEnCurso = id;
+  $("#tituloMeta").textContent = id ? "✏ Editar meta" : "➕ Nueva meta";
+  const m = id ? estado.metas.find(x=>x.id===id) : null;
+  $("#metaTitulo").value = m ? m.titulo : "";
+  $("#ovMeta").classList.add("visible");
+  $("#metaTitulo").focus();
+}
+function guardarMeta(){
+  const titulo = $("#metaTitulo").value.trim();
+  if (!titulo){ toast("Escribí el título de la meta"); return; }
+  if (metaEnCurso){
+    const m = estado.metas.find(x=>x.id===metaEnCurso);
+    if (m) m.titulo = titulo;
+  } else {
+    estado.metas.push({id: uid(), titulo, submetas: []});
+  }
+  cerrar("ovMeta");
+  guardar(); renderProgreso();
+}
+function abrirSubmeta(metaId, subId){
+  metaEnCurso = metaId;
+  submetaEnCurso = subId;
+  const m = estado.metas.find(x=>x.id===metaId);
+  if (!m) return;
+  const s = subId ? m.submetas.find(x=>x.id===subId) : null;
+  $("#tituloSubmeta").textContent = (subId ? "✏ Editar submeta" : "➕ Nueva submeta")+" — "+m.titulo;
+  $("#subTexto").value = s ? s.texto : "";
+  $("#subFecha").value = s ? (s.fecha||"") : "";
+  $("#subNumero").value = (s && s.numero!==null && s.numero!==undefined) ? s.numero : "";
+  $("#ovSubmeta").classList.add("visible");
+  $("#subTexto").focus();
+}
+function guardarSubmeta(){
+  const m = estado.metas.find(x=>x.id===metaEnCurso);
+  if (!m) return;
+  const texto = $("#subTexto").value.trim();
+  if (!texto){ toast("Escribí la descripción de la submeta"); return; }
+  const fecha = $("#subFecha").value || "";
+  const numero = $("#subNumero").value !== "" ? Number($("#subNumero").value) : null;
+  if (submetaEnCurso){
+    const s = m.submetas.find(x=>x.id===submetaEnCurso);
+    if (s){ s.texto = texto; s.fecha = fecha; s.numero = numero; }
+  } else {
+    m.submetas.push({id: uid(), texto, fecha, numero, hecha: false});
+  }
+  cerrar("ovSubmeta");
+  guardar(); renderProgreso();
+}
+function renderProgreso(){
+  const cont = $("#contProgreso");
+  cont.innerHTML = "";
+  if (!estado.metas.length){
+    cont.innerHTML = '<p class="sin-datos">Sin metas todavía. Creá la primera con "Nueva meta".</p>';
+    return;
+  }
+  const hoy = hoyISO();
+  for (const m of estado.metas){
+    const card = document.createElement("div");
+    card.className = "meta-card";
+    const total = m.submetas.length;
+    const hechas = m.submetas.filter(s=>s.hecha).length;
+    const pct = total ? Math.round(hechas*100/total) : 0;
+    const fechas = m.submetas.map(s=>s.fecha).filter(Boolean).sort();
+    let pctTiempo = null;
+    if (fechas.length >= 2){
+      const ini = parseISO(fechas[0]).getTime();
+      const fin = parseISO(fechas[fechas.length-1]).getTime();
+      const ahora = parseISO(hoy).getTime();
+      pctTiempo = fin > ini ? Math.round(Math.min(100, Math.max(0, (ahora-ini)*100/(fin-ini)))) : 100;
+    }
+
+    const cab = document.createElement("div");
+    cab.className = "meta-cab";
+    const h3 = document.createElement("h3");
+    h3.textContent = m.titulo;
+    cab.appendChild(h3);
+    const acc = document.createElement("div");
+    acc.className = "acciones";
+    acc.innerHTML = '<button title="Editar meta">✏️</button><button title="Eliminar meta">🗑️</button>';
+    const [mEd, mDel] = acc.querySelectorAll("button");
+    mEd.onclick = ()=>abrirMeta(m.id);
+    mDel.onclick = ()=>{
+      if (confirm("¿Eliminar la meta \""+m.titulo+"\" con todas sus submetas?")){
+        estado.metas = estado.metas.filter(x=>x.id!==m.id);
+        guardar(); renderProgreso();
+      }
+    };
+    cab.appendChild(acc);
+    card.appendChild(cab);
+
+    const filaPct = document.createElement("div");
+    filaPct.className = "meta-cab";
+    filaPct.innerHTML = '<span class="prog-pct">'+pct+'% cumplido ('+hechas+'/'+total+')</span>'+
+      '<div class="barra-prog"><div style="width:'+pct+'%"></div></div>';
+    card.appendChild(filaPct);
+    if (pctTiempo !== null){
+      const filaT = document.createElement("div");
+      filaT.className = "meta-cab";
+      filaT.innerHTML = '<span class="prog-pct tiempo">'+pctTiempo+'% del tiempo</span>'+
+        '<div class="barra-prog tiempo"><div style="width:'+pctTiempo+'%"></div></div>';
+      card.appendChild(filaT);
+    }
+
+    const linea = document.createElement("div");
+    linea.className = "linea-tiempo";
+    const ordenadas = [...m.submetas].sort((a,b)=>(a.fecha||"9999").localeCompare(b.fecha||"9999"));
+    let hoyPuesto = false;
+    for (const s of ordenadas){
+      if (!hoyPuesto && s.fecha && s.fecha > hoy){
+        const marca = document.createElement("div");
+        marca.className = "hito-hoy";
+        marca.textContent = "HOY";
+        linea.appendChild(marca);
+        hoyPuesto = true;
+      }
+      const hito = document.createElement("div");
+      hito.className = "hito"+(s.hecha ? " hecha" : (s.fecha && s.fecha < hoy ? " vencida" : ""));
+      const chk = document.createElement("input");
+      chk.type = "checkbox";
+      chk.checked = !!s.hecha;
+      chk.onchange = ()=>{ s.hecha = chk.checked; guardar(); renderProgreso(); };
+      hito.appendChild(chk);
+      const tx = document.createElement("span");
+      tx.className = "texto-hito";
+      tx.textContent = s.texto;
+      hito.appendChild(tx);
+      if (s.fecha){
+        const ch = document.createElement("span");
+        ch.className = "chip-fecha";
+        ch.textContent = "📅 "+fmtCorto(s.fecha);
+        hito.appendChild(ch);
+      }
+      if (s.numero !== null && s.numero !== undefined){
+        const nn = document.createElement("span");
+        nn.className = "chip-fecha";
+        nn.textContent = "🎯 "+s.numero;
+        hito.appendChild(nn);
+      }
+      const accS = document.createElement("span");
+      accS.className = "bit-acciones";
+      accS.innerHTML = '<button title="Editar">✏️</button><button title="Eliminar">🗑️</button>';
+      const [sEd, sDel] = accS.querySelectorAll("button");
+      sEd.onclick = ()=>abrirSubmeta(m.id, s.id);
+      sDel.onclick = ()=>{
+        if (confirm("¿Eliminar la submeta \""+s.texto+"\"?")){
+          m.submetas = m.submetas.filter(x=>x.id!==s.id);
+          guardar(); renderProgreso();
+        }
+      };
+      hito.appendChild(accS);
+      linea.appendChild(hito);
+    }
+    if (!hoyPuesto && ordenadas.some(s=>s.fecha)){
+      const marca = document.createElement("div");
+      marca.className = "hito-hoy";
+      marca.textContent = "HOY";
+      linea.appendChild(marca);
+    }
+    if (!ordenadas.length){
+      linea.innerHTML = '<p class="sin-datos" style="padding:4px 8px;">Sin submetas. Agregá la primera.</p>';
+    }
+    card.appendChild(linea);
+
+    const btnSub = document.createElement("button");
+    btnSub.className = "btn-mini-tarea";
+    btnSub.textContent = "➕ Agregar submeta";
+    btnSub.onclick = ()=>abrirSubmeta(m.id, null);
+    card.appendChild(btnSub);
+    cont.appendChild(card);
+  }
+}
+
 // ---------- Generales ----------
 function cerrar(id){ document.getElementById(id).classList.remove("visible"); }
-function renderTodo(){ renderTareas(); renderBitacora(); renderEquipo(); renderDocentes(); renderDisponible(); renderLicencias(); renderParo(); }
+function renderTodo(){ renderTareas(); renderBitacora(); renderEquipo(); renderDocentes(); renderDisponible(); renderLicencias(); renderParo(); renderProgreso(); }
 
 // Tabs
 document.querySelectorAll("nav.tabs button").forEach(b=>{
@@ -1635,6 +2118,9 @@ $("#btnAgregarFuncion").onclick = ()=>{
 $("#btnOpciones").onclick = ()=>{
   $("#optTema").value = estado.opciones.tema || "claro";
   $("#optReset").checked = !!estado.opciones.resetFunciones;
+  renderPapelera();
+  renderChksPestanas();
+  cargarAccesos();
   $("#ovOpciones").classList.add("visible");
 };
 $("#btnGuardarOpciones").onclick = ()=>{
@@ -1644,6 +2130,14 @@ $("#btnGuardarOpciones").onclick = ()=>{
   cerrar("ovOpciones");
   guardar(); renderTodo();
 };
+$("#btnGuardarBit").onclick = guardarBitEntrada;
+$("#btnVaciarPapelera").onclick = vaciarPapelera;
+$("#btnGuardarAcceso").onclick = guardarAcceso;
+$("#btnAgregarMeta").onclick = ()=>abrirMeta(null);
+$("#btnGuardarMeta").onclick = guardarMeta;
+$("#btnGuardarSubmeta").onclick = guardarSubmeta;
+$("#bitFiltro").onchange = ()=>{ bitFiltroFecha = $("#bitFiltro").value; renderBitacora(); };
+$("#btnBitTodo").onclick = ()=>{ bitFiltroFecha = ""; $("#bitFiltro").value = ""; renderBitacora(); };
 document.querySelectorAll("[data-cerrar]").forEach(b=>{ b.onclick = ()=>cerrar(b.dataset.cerrar); });
 document.querySelectorAll(".overlay").forEach(ov=>{
   ov.addEventListener("click", (e)=>{ if (e.target===ov) ov.classList.remove("visible"); });
@@ -1660,6 +2154,7 @@ if (FIREBASE_ACTIVO){
   cargarLocal();
 }
 aplicarTema();
+aplicarPermisos();
 renderTodo();
 </script>
 </body>
