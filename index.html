@@ -193,6 +193,8 @@
   .en-paro, .en-paro b{text-decoration:line-through; color:var(--rojo) !important; font-weight:700;}
   .tag-lic{font-size:.68rem; background:var(--amarillo); color:#fff; border-radius:8px; padding:1px 6px; font-weight:700; text-decoration:none; display:inline-block;}
   .tag-paro{font-size:.68rem; background:var(--rojo); color:#fff; border-radius:8px; padding:1px 6px; font-weight:700; text-decoration:none; display:inline-block;}
+  .en-ausente, .en-ausente b{text-decoration:line-through; color:#c76b1e !important; font-weight:700;}
+  .tag-ausente{font-size:.68rem; background:#c76b1e; color:#fff; border-radius:8px; padding:1px 6px; font-weight:700; text-decoration:none; display:inline-block;}
 
   /* ---- FUNCIONES ---- */
   .funcion{display:flex; gap:8px; align-items:center; padding:5px 2px; border-bottom:1px solid #f0ede4;}
@@ -381,13 +383,19 @@
       <input type="text" id="licNumero" placeholder="N° (ej.: 36)" title="Número de licencia (opcional)" style="max-width:100px;">
       <input type="text" id="licLetra" placeholder="Letra" title="Letra (opcional, ej.: C)" maxlength="4" style="max-width:75px;">
       <input type="text" id="licDescripcion" placeholder="Descripción / comentarios" title="Descripción o comentarios (opcional)" style="max-width:230px;">
+      <label class="chk"><input type="checkbox" id="licAusente"> Ausente (sin aviso)</label>
       <label class="chk"><input type="checkbox" id="licCert"> Certificado</label>
       <label class="chk"><input type="checkbox" id="licPedido"> Pedido</label>
       <button class="btn-mas" id="btnAgregarLic" title="Agregar licencia">+</button>
     </div>
     <div id="contLicSemana"></div>
-    <h2 class="sub" style="margin-top:20px;">Todos los registros</h2>
-    <div id="contLicencias"></div>
+    <h2 class="sub" style="margin-top:20px;">Registros por mes</h2>
+    <div class="barra-export" id="barraLicExport">
+      <span id="cuentaLicSel" style="font-size:.85rem;color:var(--gris);"></span>
+      <button class="btn-word" id="btnLicWord">⬇ Descargar Word</button>
+      <button class="btn-copiar" id="btnLicCopiar">📋 Copiar</button>
+    </div>
+    <div id="contLicMes"></div>
   </section>
 
   <!-- PARO -->
@@ -664,6 +672,8 @@ let calRef = new Date(); calRef.setDate(1);
 let diaDetalle = null;     // índice 0-6 del día abierto en Disponible
 let semanaRef = null;      // lunes (ISO) de la semana mostrada en Disponible
 let licSemanaRef = null;   // lunes (ISO) de la semana mostrada en Licencias
+let licMesRef = null;          // "YYYY-MM" del mes mostrado en Licencias
+let licSeleccionadas = new Set(); // ids de registros seleccionados para exportar
 let rol = "admin";         // "admin" | "colaborador" | "invitado" (modo local: admin)
 let pestanasPermitidas = TODAS_PESTANAS;
 let dbRef = null, fsRef = null; // referencias de Firestore para la gestión de accesos
@@ -1520,7 +1530,11 @@ function ownerDePersona(p){
 }
 function tieneLicencia(p, fecha){
   const oid = ownerDePersona(p);
-  return estado.licencias.some(l=>l.persona===oid && l.desde<=fecha && fecha<=(l.hasta||l.desde));
+  return estado.licencias.some(l=>!l.ausente && l.persona===oid && l.desde<=fecha && fecha<=(l.hasta||l.desde));
+}
+function tieneAusente(p, fecha){
+  const oid = ownerDePersona(p);
+  return estado.licencias.some(l=>l.ausente && l.persona===oid && l.desde<=fecha && fecha<=(l.hasta||l.desde));
 }
 function tieneParo(p, fecha){
   const oid = ownerDePersona(p);
@@ -1533,6 +1547,7 @@ function presenciasDia(dia, fecha){
       res.push({nombre: nombreDe(p)||p.rol, rol: p.rol + (p.materia ? " · "+p.materia : ""),
         zona: claseZona(p),
         lic: fecha ? tieneLicencia(p, fecha) : false,
+        ausente: fecha ? tieneAusente(p, fecha) : false,
         paro: fecha ? tieneParo(p, fecha) : false,
         ...r});
     }
@@ -1542,6 +1557,7 @@ function presenciasDia(dia, fecha){
 }
 function etiquetasPr(pr){
   if (pr.paro) return " <span class='tag-paro'>PARO</span>";
+  if (pr.ausente) return " <span class='tag-ausente'>AUSENTE</span>";
   if (pr.lic) return " <span class='tag-lic'>LICENCIA</span>";
   return "";
 }
@@ -1580,7 +1596,7 @@ function renderDisponible(){
     } else {
       for (const pr of pres){
         const fila = document.createElement("div");
-        fila.className = "pers"+(pr.paro ? " en-paro" : (pr.lic ? " en-lic" : ""));
+        fila.className = "pers"+(pr.paro ? " en-paro" : (pr.ausente ? " en-ausente" : (pr.lic ? " en-lic" : "")));
         fila.innerHTML = aHHMM(pr.desde)+"–"+aHHMM(pr.hasta)+" · <b class='"+pr.zona+"'>"+escapar(pr.nombre)+"</b> <span class='rol-tag'>"+escapar(pr.rol)+"</span>"+etiquetasPr(pr);
         card.appendChild(fila);
       }
@@ -1633,7 +1649,7 @@ function renderDiaDetalle(cont){
     if (!gente.length){
       tdG.innerHTML = '<span class="vacio">Sin personal</span>';
     } else {
-      tdG.innerHTML = gente.map(p=>'<div class="p-item'+(p.paro ? ' en-paro' : (p.lic ? ' en-lic' : ''))+'"><b class="'+p.zona+'">'+escapar(p.nombre)+'</b> <span class="rol-tag">'+escapar(p.rol)+'</span>'+etiquetasPr(p)+'</div>').join("");
+      tdG.innerHTML = gente.map(p=>'<div class="p-item'+(p.paro ? ' en-paro' : (p.ausente ? ' en-ausente' : (p.lic ? ' en-lic' : '')))+'"><b class="'+p.zona+'">'+escapar(p.nombre)+'</b> <span class="rol-tag">'+escapar(p.rol)+'</span>'+etiquetasPr(p)+'</div>').join("");
     }
     tr.appendChild(tdG);
     tabla.appendChild(tr);
@@ -1694,19 +1710,20 @@ function agregarLicencia(){
   const numero = $("#licNumero").value.trim();
   const letra = $("#licLetra").value.trim();
   const descripcion = $("#licDescripcion").value.trim();
+  const ausente = $("#licAusente").checked;
   if (numero==="36"){
     const v = validar36(persona, diasEntre(desde, hasta));
     if (!v.ok){ alert(v.mensaje); toast("Licencia 36: límite alcanzado"); return; }
   }
   estado.licencias.push({id: uid(), persona, desde, hasta,
-    numero, letra, descripcion,
+    numero, letra, descripcion, ausente,
     cert: $("#licCert").checked,
     pedido: $("#licPedido").checked});
   $("#licDesde").value=""; $("#licHasta").value="";
   $("#licNumero").value=""; $("#licLetra").value=""; $("#licDescripcion").value="";
-  $("#licCert").checked=false; $("#licPedido").checked=false;
+  $("#licAusente").checked=false; $("#licCert").checked=false; $("#licPedido").checked=false;
   guardar(); renderTodo();
-  toast("Licencia cargada ✔");
+  toast(ausente ? "Ausencia cargada ✔" : "Licencia cargada ✔");
 }
 function etiquetaNumLic(l){
   const num = String(l.numero||"").trim();
@@ -1714,18 +1731,28 @@ function etiquetaNumLic(l){
   if (!num && !letra) return "—";
   return (num+" "+letra).trim();
 }
-function descLic(l){ return (l.descripcion || l.tipo || "").trim(); }
-function tablaLicVacia(){
+function descLic(l){ return (l.descripcion || l.tipo || (l.ausente ? "Ausente sin aviso" : "")).trim(); }
+function tablaLicVacia(conSel){
   const tabla = document.createElement("table");
   tabla.className = "intervalos";
-  tabla.innerHTML = "<tr><th>Persona</th><th>Desde</th><th>Hasta</th><th>N°</th><th>Descripción</th><th>Cert.</th><th>Pedido</th><th></th></tr>";
+  tabla.innerHTML = "<tr>"+(conSel?"<th style='width:28px;'></th>":"")+"<th>Persona</th><th>Desde</th><th>Hasta</th><th>N°</th><th>Descripción</th><th>Cert.</th><th>Pedido</th><th></th></tr>";
   return tabla;
 }
-function filaLicencia(l, tabla){
+function filaLicencia(l, tabla, conSel){
   const p = personaDe(l.persona);
   const tr = document.createElement("tr");
+  if (conSel){
+    const tdS = document.createElement("td");
+    const chk = document.createElement("input");
+    chk.type = "checkbox";
+    chk.checked = licSeleccionadas.has(l.id);
+    chk.onchange = ()=>{ if (chk.checked) licSeleccionadas.add(l.id); else licSeleccionadas.delete(l.id); actualizarBarraLic(); };
+    tdS.appendChild(chk);
+    tr.appendChild(tdS);
+  }
   const tdP = document.createElement("td");
-  tdP.innerHTML = p ? "<b class='"+claseZona(p)+"'>"+escapar(nombreDe(p))+"</b> <span class='rol-tag'>"+escapar(p.rol)+"</span>" : "(persona eliminada)";
+  tdP.innerHTML = (p ? "<b class='"+claseZona(p)+"'>"+escapar(nombreDe(p))+"</b> <span class='rol-tag'>"+escapar(p.rol)+"</span>" : "(persona eliminada)")
+    + (l.ausente ? " <span class='tag-ausente'>AUSENTE</span>" : "");
   tr.appendChild(tdP);
   for (const txt of [fmtCorto(l.desde), fmtCorto(l.hasta), etiquetaNumLic(l), descLic(l)||"—"]){
     const td = document.createElement("td");
@@ -1746,8 +1773,9 @@ function filaLicencia(l, tabla){
   del.textContent = "🗑️";
   del.style.cssText = "border:none;background:none;cursor:pointer;";
   del.onclick = ()=>{
-    if (confirm("¿Eliminar esta licencia?")){
+    if (confirm("¿Eliminar este registro?")){
       estado.licencias = estado.licencias.filter(x=>x.id!==l.id);
+      licSeleccionadas.delete(l.id);
       guardar(); renderTodo();
     }
   };
@@ -1780,27 +1808,142 @@ function renderLicSemana(){
   if (!enSem.length){
     const p = document.createElement("p");
     p.className = "sin-datos";
-    p.textContent = "No hay licencias en esta semana.";
+    p.textContent = "No hay registros en esta semana.";
     cont.appendChild(p);
     return;
   }
-  const tabla = tablaLicVacia();
-  for (const l of enSem) filaLicencia(l, tabla);
+  const tabla = tablaLicVacia(false);
+  for (const l of enSem) filaLicencia(l, tabla, false);
   cont.appendChild(tabla);
+}
+function licDeMes(anioMes){ // "YYYY-MM": registros que tocan ese mes
+  const ini = anioMes+"-01";
+  const fin = anioMes+"-31";
+  return estado.licencias
+    .filter(l => (l.desde||"") <= fin && (l.hasta||l.desde||"") >= ini)
+    .sort((a,b)=>a.desde.localeCompare(b.desde));
+}
+function actualizarBarraLic(){
+  const n = licSeleccionadas.size;
+  $("#barraLicExport").classList.toggle("visible", n>0);
+  $("#cuentaLicSel").textContent = n===1 ? "1 registro seleccionado" : n+" registros seleccionados";
+}
+function renderLicMes(){
+  if (!licMesRef){ const d = new Date(); licMesRef = d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); }
+  const cont = $("#contLicMes");
+  cont.innerHTML = "";
+  const nav = document.createElement("div");
+  nav.className = "fila-orden";
+  const bAnt = document.createElement("button"); bAnt.textContent = "◀ Mes anterior";
+  const bHoy = document.createElement("button"); bHoy.textContent = "Mes actual";
+  const bSig = document.createElement("button"); bSig.textContent = "Mes siguiente ▶";
+  const cambiarMes = (delta)=>{
+    const [y,m] = licMesRef.split("-").map(Number);
+    const d = new Date(y, m-1+delta, 1);
+    licMesRef = d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+    renderLicMes();
+  };
+  bAnt.onclick = ()=>cambiarMes(-1);
+  bSig.onclick = ()=>cambiarMes(1);
+  bHoy.onclick = ()=>{ const d=new Date(); licMesRef = d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); renderLicMes(); };
+  nav.append(bAnt, bHoy, bSig);
+  cont.appendChild(nav);
+  const titulo = document.createElement("h2");
+  titulo.className = "sub";
+  titulo.textContent = mesLargo(licMesRef+"-01");
+  cont.appendChild(titulo);
+  const lista = licDeMes(licMesRef);
+  if (!lista.length){
+    const p = document.createElement("p");
+    p.className = "sin-datos";
+    p.textContent = "No hay registros en este mes.";
+    cont.appendChild(p);
+    actualizarBarraLic();
+    return;
+  }
+  const selAll = document.createElement("label");
+  selAll.style.cssText = "display:flex; align-items:center; gap:6px; font-size:.85rem; color:var(--gris); margin-bottom:6px; cursor:pointer;";
+  const chkAll = document.createElement("input");
+  chkAll.type = "checkbox";
+  chkAll.checked = lista.every(l=>licSeleccionadas.has(l.id));
+  chkAll.onchange = ()=>{
+    if (chkAll.checked) lista.forEach(l=>licSeleccionadas.add(l.id));
+    else lista.forEach(l=>licSeleccionadas.delete(l.id));
+    renderLicMes();
+  };
+  selAll.append(chkAll, document.createTextNode("Seleccionar todo el mes"));
+  cont.appendChild(selAll);
+  const tabla = tablaLicVacia(true);
+  for (const l of lista) filaLicencia(l, tabla, true);
+  cont.appendChild(tabla);
+  actualizarBarraLic();
+}
+function registrosSeleccionados(){
+  return estado.licencias
+    .filter(l=>licSeleccionadas.has(l.id))
+    .sort((a,b)=>a.desde.localeCompare(b.desde));
+}
+function textoLicLinea(l){
+  const p = personaDe(l.persona);
+  const quien = p ? nombreDe(p)+" ("+p.rol+")" : "(persona eliminada)";
+  const rango = l.desde===(l.hasta||l.desde) ? fmtCorto(l.desde) : fmtCorto(l.desde)+" al "+fmtCorto(l.hasta||l.desde);
+  const tipo = l.ausente ? "AUSENTE sin aviso" : ("Licencia"+(etiquetaNumLic(l)!=="—" ? " N° "+etiquetaNumLic(l) : ""));
+  const desc = descLic(l);
+  const extras = [];
+  if (!l.ausente && l.cert) extras.push("certificado");
+  if (!l.ausente && l.pedido) extras.push("pedido");
+  return {quien, rango, tipo, desc, extras};
+}
+function licenciasWord(){
+  const sel = registrosSeleccionados();
+  if (!sel.length){ toast("Seleccioná al menos un registro"); return; }
+  const porMes = new Map();
+  for (const l of sel){ const k=(l.desde||"").slice(0,7); if(!porMes.has(k)) porMes.set(k,[]); porMes.get(k).push(l); }
+  let cuerpo = "";
+  for (const [k, arr] of [...porMes.entries()].sort((a,b)=>a[0].localeCompare(b[0]))){
+    cuerpo += "<h2 style='color:#1e4260;'>"+escapar(mesLargo(k+"-01"))+"</h2><ul>";
+    for (const l of arr){
+      const d = textoLicLinea(l);
+      cuerpo += "<li><b>"+escapar(d.rango)+"</b> — "+escapar(d.quien)+" · "+escapar(d.tipo);
+      if (d.desc) cuerpo += " — <i>"+escapar(d.desc)+"</i>";
+      if (d.extras.length) cuerpo += " ("+escapar(d.extras.join(", "))+")";
+      cuerpo += "</li>";
+    }
+    cuerpo += "</ul>";
+  }
+  const html = "<html xmlns:w='urn:schemas-microsoft-com:office:word'><head><meta charset='utf-8'>"+
+    "<title>Licencias MDAgenda</title></head><body style=\"font-family:Calibri,Arial,sans-serif;\">"+
+    "<h1 style='color:#2c5f8a;'>Licencias y ausencias — MDAgenda</h1>"+cuerpo+"</body></html>";
+  const blob = new Blob(["﻿", html], {type:"application/msword"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "licencias_"+hoyISO()+".doc";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+}
+async function licenciasCopiar(){
+  const sel = registrosSeleccionados();
+  if (!sel.length){ toast("Seleccioná al menos un registro"); return; }
+  const porMes = new Map();
+  for (const l of sel){ const k=(l.desde||"").slice(0,7); if(!porMes.has(k)) porMes.set(k,[]); porMes.get(k).push(l); }
+  let texto = "LICENCIAS Y AUSENCIAS — MDAgenda\n\n";
+  for (const [k, arr] of [...porMes.entries()].sort((a,b)=>a[0].localeCompare(b[0]))){
+    texto += mesLargo(k+"-01")+"\n";
+    for (const l of arr){
+      const d = textoLicLinea(l);
+      texto += "  • "+d.rango+" — "+d.quien+" · "+d.tipo+(d.desc?" — "+d.desc:"")+(d.extras.length?" ("+d.extras.join(", ")+")":"")+"\n";
+    }
+    texto += "\n";
+  }
+  try{ await navigator.clipboard.writeText(texto); toast("Copiado al portapapeles ✔"); }
+  catch(e){ console.error(e); toast("No se pudo copiar automáticamente"); }
 }
 function renderLicencias(){
   llenarSelectPersonas("#licPersona");
   renderLicSemana();
-  const cont = $("#contLicencias");
-  cont.innerHTML = "";
-  if (!estado.licencias.length){
-    cont.innerHTML = '<p class="sin-datos">No hay licencias cargadas. La persona con licencia aparece tachada en Disponible.</p>';
-    return;
-  }
-  const tabla = tablaLicVacia();
-  const ordenLic = [...estado.licencias].sort((a,b)=>b.desde.localeCompare(a.desde));
-  for (const l of ordenLic) filaLicencia(l, tabla);
-  cont.appendChild(tabla);
+  renderLicMes();
 }
 
 // ---------- Paro ----------
@@ -2365,6 +2508,8 @@ $("#btnCopiar").onclick = copiarSeleccion;
 $("#calAnt").onclick = ()=>{ calRef.setMonth(calRef.getMonth()-1); renderCalendario(); };
 $("#calSig").onclick = ()=>{ calRef.setMonth(calRef.getMonth()+1); renderCalendario(); };
 $("#btnAgregarLic").onclick = agregarLicencia;
+$("#btnLicWord").onclick = licenciasWord;
+$("#btnLicCopiar").onclick = licenciasCopiar;
 $("#btnAgregarParo").onclick = agregarParo;
 $("#paroVerFecha").onchange = renderParo;
 $("#btnParoWord").onclick = paroWord;
