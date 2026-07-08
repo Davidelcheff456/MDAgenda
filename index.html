@@ -1609,15 +1609,18 @@ function renderDiaDetalle(cont){
     cont.innerHTML += '<p class="sin-datos">No hay personal cargado para este día.</p>';
     return;
   }
-  const cortes = new Set([MIN_ESCUELA, MAX_ESCUELA]);
-  for (const p of pres){ cortes.add(p.desde); cortes.add(p.hasta); }
-  const ord = [...cortes].sort((a,b)=>a-b);
+  // Bloques fijos de 40 min (hora cátedra) anclados a las 8:00; el Director (por
+  // horario de reloj) aparece en los bloques que se solapan con su entrada/salida.
+  let ini = MIN_ESCUELA, fin = MAX_ESCUELA;
+  for (const p of pres){ ini = Math.min(ini, p.desde); fin = Math.max(fin, p.hasta); }
+  ini = MIN_ESCUELA + Math.floor((ini - MIN_ESCUELA)/DUR_MODULO)*DUR_MODULO;
+  fin = MIN_ESCUELA + Math.ceil((fin - MIN_ESCUELA)/DUR_MODULO)*DUR_MODULO;
 
   const tabla = document.createElement("table");
   tabla.className = "intervalos";
   tabla.innerHTML = "<tr><th>Horario</th><th>Quiénes están</th></tr>";
-  for (let i=0; i<ord.length-1; i++){
-    const t0 = ord[i], t1 = ord[i+1];
+  for (let t0 = ini; t0 < fin; t0 += DUR_MODULO){
+    const t1 = t0 + DUR_MODULO;
     const gente = pres.filter(p=>p.desde<t1 && p.hasta>t0);
     // fuera del rango escolar solo mostrar si hay alguien
     if ((t1<=MIN_ESCUELA || t0>=MAX_ESCUELA) && !gente.length) continue;
