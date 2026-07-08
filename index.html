@@ -67,6 +67,9 @@
   .estrellas .e.on{color:var(--amarillo);}
 
   ul.lista-tareas{list-style:none;}
+  .caja-tareas{background:#dceefb; border:1px solid #b8d9f0; border-radius:14px; padding:6px 14px; margin-bottom:4px;}
+  body.tema-sepia .caja-tareas{background:#e9eff3; border-color:#cdd8e0;}
+  body.tema-oscuro .caja-tareas{background:#26333f; border-color:#3a4a5a;}
   ul.lista-tareas li{display:flex; align-items:center; gap:10px; padding:10px 8px;
     border-bottom:1px solid #eee; flex-wrap:wrap;}
   ul.lista-tareas li.vencida{background:#fdf1ef; border-left:4px solid var(--rojo);}
@@ -331,7 +334,7 @@
       <div class="estrellas" id="nuevaEstrellas" title="Prioridad (0 a 4 estrellas)"></div>
       <button class="btn-mas" id="btnAgregar" title="Agregar tarea">+</button>
     </div>
-    <ul class="lista-tareas" id="listaTareas"></ul>
+    <div class="caja-tareas"><ul class="lista-tareas" id="listaTareas"></ul></div>
 
     <div class="calendario">
       <div class="cal-cab">
@@ -377,16 +380,9 @@
   <!-- LICENCIAS -->
   <section class="panel" id="panel-licencias">
     <div class="form-alta">
+      <span style="font-size:.9rem; color:var(--gris);">Cargar licencia o ausencia para:</span>
       <select id="licPersona"></select>
-      <input type="date" id="licDesde" title="Desde">
-      <input type="date" id="licHasta" title="Hasta (si es de un solo día, dejalo vacío)">
-      <input type="text" id="licNumero" placeholder="N° (ej.: 36)" title="Número de licencia (opcional)" style="max-width:100px;">
-      <input type="text" id="licLetra" placeholder="Letra" title="Letra (opcional, ej.: C)" maxlength="4" style="max-width:75px;">
-      <input type="text" id="licDescripcion" placeholder="Descripción / comentarios" title="Descripción o comentarios (opcional)" style="max-width:230px;">
-      <label class="chk"><input type="checkbox" id="licAusente"> Ausente (sin aviso)</label>
-      <label class="chk"><input type="checkbox" id="licCert"> Certificado</label>
-      <label class="chk"><input type="checkbox" id="licPedido"> Pedido</label>
-      <button class="btn-mas" id="btnAgregarLic" title="Agregar licencia">+</button>
+      <button class="btn-mas" id="btnAbrirLic" title="Cargar licencia o ausencia">+</button>
     </div>
     <div id="contLicSemana"></div>
     <h2 class="sub" style="margin-top:20px;">Registros por mes</h2>
@@ -612,6 +608,31 @@
   </div>
 </div>
 
+<!-- Modal licencia / ausencia -->
+<div class="overlay" id="ovLicencia">
+  <div class="modal">
+    <h3 id="licTitulo">Licencia / ausencia</h3>
+    <label>Fecha de inicio</label>
+    <input type="date" id="licMDesde">
+    <label class="chk" style="display:flex; align-items:center; gap:8px; margin:10px 0 4px;"><input type="checkbox" id="licMContinua" style="width:16px;height:16px;"> Continúa (sin fecha de finalización todavía)</label>
+    <label id="licMLblHasta">Fecha de finalización</label>
+    <input type="date" id="licMHasta">
+    <label class="chk" style="display:flex; align-items:center; gap:8px; margin:12px 0 4px;"><input type="checkbox" id="licMAusente" style="width:16px;height:16px;"> Ausente (faltó sin aviso de licencia)</label>
+    <label>N° de licencia (opcional)</label>
+    <input type="text" id="licMNumero" placeholder="Ej.: 36">
+    <label>Letra (opcional)</label>
+    <input type="text" id="licMLetra" maxlength="4" placeholder="Ej.: C">
+    <label>Descripción / comentarios (opcional)</label>
+    <input type="text" id="licMDescripcion" placeholder="Ej.: artículo especial, permiso en otra escuela...">
+    <label class="chk" style="display:flex; align-items:center; gap:8px; margin:12px 0 4px;"><input type="checkbox" id="licMCert" style="width:16px;height:16px;"> Entregó certificado</label>
+    <label class="chk" style="display:flex; align-items:center; gap:8px; margin:6px 0 4px;"><input type="checkbox" id="licMPedido" style="width:16px;height:16px;"> Entregó pedido</label>
+    <div class="pie">
+      <button class="b-cancelar" data-cerrar="ovLicencia">Cancelar</button>
+      <button class="b-guardar" id="btnGuardarLic">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script type="module">
@@ -674,6 +695,8 @@ let semanaRef = null;      // lunes (ISO) de la semana mostrada en Disponible
 let licSemanaRef = null;   // lunes (ISO) de la semana mostrada en Licencias
 let licMesRef = null;          // "YYYY-MM" del mes mostrado en Licencias
 let licSeleccionadas = new Set(); // ids de registros seleccionados para exportar
+let licEnCurso = null;         // id de licencia en edición (null = nueva)
+let licPersonaNueva = "";      // owner de la persona para una licencia nueva
 let rol = "admin";         // "admin" | "colaborador" | "invitado" (modo local: admin)
 let pestanasPermitidas = TODAS_PESTANAS;
 let dbRef = null, fsRef = null; // referencias de Firestore para la gestión de accesos
@@ -1528,13 +1551,14 @@ function rangosDe(p, dia){
 function ownerDePersona(p){
   return (estado.equipo.includes(p) ? "eq:" : "doc:")+p.id;
 }
+function finLic(l){ return l.continua ? "9999-12-31" : (l.hasta || l.desde); }
 function tieneLicencia(p, fecha){
   const oid = ownerDePersona(p);
-  return estado.licencias.some(l=>!l.ausente && l.persona===oid && l.desde<=fecha && fecha<=(l.hasta||l.desde));
+  return estado.licencias.some(l=>!l.ausente && l.persona===oid && l.desde<=fecha && fecha<=finLic(l));
 }
 function tieneAusente(p, fecha){
   const oid = ownerDePersona(p);
-  return estado.licencias.some(l=>l.ausente && l.persona===oid && l.desde<=fecha && fecha<=(l.hasta||l.desde));
+  return estado.licencias.some(l=>l.ausente && l.persona===oid && l.desde<=fecha && fecha<=finLic(l));
 }
 function tieneParo(p, fecha){
   const oid = ownerDePersona(p);
@@ -1683,8 +1707,8 @@ function dias36DePersona(persona, exceptId){
   }
   return dias;
 }
-function validar36(persona, nuevosDias){
-  const existentes = dias36DePersona(persona);
+function validar36(persona, nuevosDias, exceptId){
+  const existentes = dias36DePersona(persona, exceptId);
   const mesCount = {}, anioCount = {};
   for (const d of existentes){ mesCount[d.slice(0,7)] = (mesCount[d.slice(0,7)]||0)+1; anioCount[d.slice(0,4)] = (anioCount[d.slice(0,4)]||0)+1; }
   const nMes = {}, nAnio = {};
@@ -1701,29 +1725,69 @@ function validar36(persona, nuevosDias){
   }
   return {ok:true};
 }
-function agregarLicencia(){
-  const persona = $("#licPersona").value;
-  const desde = $("#licDesde").value;
-  if (!persona || !desde){ toast("Elegí la persona y la fecha de inicio"); return; }
-  const hasta = $("#licHasta").value || desde;
-  if (hasta < desde){ toast("La fecha 'hasta' no puede ser anterior al inicio"); return; }
-  const numero = $("#licNumero").value.trim();
-  const letra = $("#licLetra").value.trim();
-  const descripcion = $("#licDescripcion").value.trim();
-  const ausente = $("#licAusente").checked;
+function aplicarContinua(){
+  const cont = $("#licMContinua").checked;
+  $("#licMHasta").disabled = cont;
+  $("#licMLblHasta").style.opacity = cont ? ".45" : "1";
+  if (cont) $("#licMHasta").value = "";
+}
+function abrirLicencia(id){
+  licEnCurso = id || null;
+  const l = id ? estado.licencias.find(x=>x.id===id) : null;
+  if (id && !l) return;
+  let persona;
+  if (l){ persona = l.persona; }
+  else {
+    persona = $("#licPersona").value;
+    if (!persona){ toast("Elegí primero la persona"); return; }
+  }
+  licPersonaNueva = persona;
+  const p = personaDe(persona);
+  $("#licTitulo").textContent = (id ? "✏ Editar" : "➕ Nueva") + " — " + (p ? (nombreDe(p)||p.rol)+" ("+p.rol+")" : "licencia / ausencia");
+  $("#licMDesde").value = l ? (l.desde||"") : hoyISO();
+  $("#licMContinua").checked = l ? (!!l.continua) : false;
+  $("#licMHasta").value = l ? (l.hasta||"") : "";
+  $("#licMAusente").checked = l ? (!!l.ausente) : false;
+  $("#licMNumero").value = l ? (l.numero||"") : "";
+  $("#licMLetra").value = l ? (l.letra||"") : "";
+  $("#licMDescripcion").value = l ? (l.descripcion||l.tipo||"") : "";
+  $("#licMCert").checked = l ? (!!l.cert) : false;
+  $("#licMPedido").checked = l ? (!!l.pedido) : false;
+  aplicarContinua();
+  $("#ovLicencia").classList.add("visible");
+  $("#licMDesde").focus();
+}
+function guardarLicenciaModal(){
+  const persona = licPersonaNueva;
+  if (!persona){ toast("Falta la persona"); return; }
+  const desde = $("#licMDesde").value;
+  if (!desde){ toast("Poné la fecha de inicio"); return; }
+  const continua = $("#licMContinua").checked;
+  let hasta = null;
+  if (!continua){
+    hasta = $("#licMHasta").value || desde;
+    if (hasta < desde){ toast("La finalización no puede ser anterior al inicio"); return; }
+  }
+  const numero = $("#licMNumero").value.trim();
+  const letra = $("#licMLetra").value.trim();
+  const descripcion = $("#licMDescripcion").value.trim();
+  const ausente = $("#licMAusente").checked;
   if (numero==="36"){
-    const v = validar36(persona, diasEntre(desde, hasta));
+    const v = validar36(persona, diasEntre(desde, hasta||desde), licEnCurso);
     if (!v.ok){ alert(v.mensaje); toast("Licencia 36: límite alcanzado"); return; }
   }
-  estado.licencias.push({id: uid(), persona, desde, hasta,
-    numero, letra, descripcion, ausente,
-    cert: $("#licCert").checked,
-    pedido: $("#licPedido").checked});
-  $("#licDesde").value=""; $("#licHasta").value="";
-  $("#licNumero").value=""; $("#licLetra").value=""; $("#licDescripcion").value="";
-  $("#licAusente").checked=false; $("#licCert").checked=false; $("#licPedido").checked=false;
+  const datos = {persona, desde, hasta, continua, numero, letra, descripcion, ausente,
+    cert: $("#licMCert").checked, pedido: $("#licMPedido").checked};
+  if (licEnCurso){
+    const l = estado.licencias.find(x=>x.id===licEnCurso);
+    if (!l) return;
+    Object.assign(l, datos);
+  } else {
+    estado.licencias.push({id: uid(), ...datos});
+  }
+  cerrar("ovLicencia");
   guardar(); renderTodo();
-  toast(ausente ? "Ausencia cargada ✔" : "Licencia cargada ✔");
+  toast(ausente ? "Ausencia guardada ✔" : "Licencia guardada ✔");
 }
 function etiquetaNumLic(l){
   const num = String(l.numero||"").trim();
@@ -1754,7 +1818,7 @@ function filaLicencia(l, tabla, conSel){
   tdP.innerHTML = (p ? "<b class='"+claseZona(p)+"'>"+escapar(nombreDe(p))+"</b> <span class='rol-tag'>"+escapar(p.rol)+"</span>" : "(persona eliminada)")
     + (l.ausente ? " <span class='tag-ausente'>AUSENTE</span>" : "");
   tr.appendChild(tdP);
-  for (const txt of [fmtCorto(l.desde), fmtCorto(l.hasta), etiquetaNumLic(l), descLic(l)||"—"]){
+  for (const txt of [fmtCorto(l.desde), (l.continua ? "Continúa" : fmtCorto(l.hasta||l.desde)), etiquetaNumLic(l), descLic(l)||"—"]){
     const td = document.createElement("td");
     td.textContent = txt;
     tr.appendChild(td);
@@ -1768,7 +1832,13 @@ function filaLicencia(l, tabla, conSel){
     td.appendChild(chk);
     tr.appendChild(td);
   }
-  const tdDel = document.createElement("td");
+  const tdAcc = document.createElement("td");
+  tdAcc.style.whiteSpace = "nowrap";
+  const ed = document.createElement("button");
+  ed.textContent = "✏️";
+  ed.title = "Editar / finalizar";
+  ed.style.cssText = "border:none;background:none;cursor:pointer;";
+  ed.onclick = ()=>abrirLicencia(l.id);
   const del = document.createElement("button");
   del.textContent = "🗑️";
   del.style.cssText = "border:none;background:none;cursor:pointer;";
@@ -1779,8 +1849,8 @@ function filaLicencia(l, tabla, conSel){
       guardar(); renderTodo();
     }
   };
-  tdDel.appendChild(del);
-  tr.appendChild(tdDel);
+  tdAcc.append(ed, del);
+  tr.appendChild(tdAcc);
   tabla.appendChild(tr);
 }
 function renderLicSemana(){
@@ -1803,7 +1873,7 @@ function renderLicSemana(){
   cont.appendChild(titulo);
   const fin = sumarDias(licSemanaRef, 6);
   const enSem = estado.licencias
-    .filter(l => l.desde <= fin && (l.hasta||l.desde) >= licSemanaRef)
+    .filter(l => l.desde <= fin && finLic(l) >= licSemanaRef)
     .sort((a,b)=>a.desde.localeCompare(b.desde));
   if (!enSem.length){
     const p = document.createElement("p");
@@ -1820,7 +1890,7 @@ function licDeMes(anioMes){ // "YYYY-MM": registros que tocan ese mes
   const ini = anioMes+"-01";
   const fin = anioMes+"-31";
   return estado.licencias
-    .filter(l => (l.desde||"") <= fin && (l.hasta||l.desde||"") >= ini)
+    .filter(l => (l.desde||"") <= fin && finLic(l) >= ini)
     .sort((a,b)=>a.desde.localeCompare(b.desde));
 }
 function actualizarBarraLic(){
@@ -1886,7 +1956,8 @@ function registrosSeleccionados(){
 function textoLicLinea(l){
   const p = personaDe(l.persona);
   const quien = p ? nombreDe(p)+" ("+p.rol+")" : "(persona eliminada)";
-  const rango = l.desde===(l.hasta||l.desde) ? fmtCorto(l.desde) : fmtCorto(l.desde)+" al "+fmtCorto(l.hasta||l.desde);
+  const rango = l.continua ? "desde "+fmtCorto(l.desde)+" (continúa)"
+    : (l.desde===(l.hasta||l.desde) ? fmtCorto(l.desde) : fmtCorto(l.desde)+" al "+fmtCorto(l.hasta||l.desde));
   const tipo = l.ausente ? "AUSENTE sin aviso" : ("Licencia"+(etiquetaNumLic(l)!=="—" ? " N° "+etiquetaNumLic(l) : ""));
   const desc = descLic(l);
   const extras = [];
@@ -2507,7 +2578,9 @@ $("#btnWord").onclick = descargarWord;
 $("#btnCopiar").onclick = copiarSeleccion;
 $("#calAnt").onclick = ()=>{ calRef.setMonth(calRef.getMonth()-1); renderCalendario(); };
 $("#calSig").onclick = ()=>{ calRef.setMonth(calRef.getMonth()+1); renderCalendario(); };
-$("#btnAgregarLic").onclick = agregarLicencia;
+$("#btnAbrirLic").onclick = ()=>abrirLicencia(null);
+$("#btnGuardarLic").onclick = guardarLicenciaModal;
+$("#licMContinua").onchange = aplicarContinua;
 $("#btnLicWord").onclick = licenciasWord;
 $("#btnLicCopiar").onclick = licenciasCopiar;
 $("#btnAgregarParo").onclick = agregarParo;
