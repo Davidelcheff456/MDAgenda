@@ -373,11 +373,15 @@
       <select id="licPersona"></select>
       <input type="date" id="licDesde" title="Desde">
       <input type="date" id="licHasta" title="Hasta (si es de un solo día, dejalo vacío)">
-      <input type="text" id="licTipo" placeholder="Tipo (ej.: médica)" style="max-width:170px;">
-      <label class="chk"><input type="checkbox" id="licCert"> Entregó certificado</label>
-      <label class="chk"><input type="checkbox" id="licPedido"> Entregó pedido</label>
+      <input type="text" id="licNumero" placeholder="N° (ej.: 36)" title="Número de licencia (opcional)" style="max-width:100px;">
+      <input type="text" id="licLetra" placeholder="Letra" title="Letra (opcional, ej.: C)" maxlength="4" style="max-width:75px;">
+      <input type="text" id="licDescripcion" placeholder="Descripción / comentarios" title="Descripción o comentarios (opcional)" style="max-width:230px;">
+      <label class="chk"><input type="checkbox" id="licCert"> Certificado</label>
+      <label class="chk"><input type="checkbox" id="licPedido"> Pedido</label>
       <button class="btn-mas" id="btnAgregarLic" title="Agregar licencia">+</button>
     </div>
+    <div id="contLicSemana"></div>
+    <h2 class="sub" style="margin-top:20px;">Todos los registros</h2>
     <div id="contLicencias"></div>
   </section>
 
@@ -401,7 +405,11 @@
 
   <!-- PROGRESO -->
   <section class="panel" id="panel-progreso">
-    <button class="btn-agregar-doc" id="btnAgregarMeta">➕ Nueva meta</button>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:14px;">
+      <button class="btn-agregar-doc" id="btnAgregarMeta" style="margin-bottom:0;">➕ Nueva meta</button>
+      <button class="btn-word" id="btnProgresoWord" style="padding:9px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; color:#fff;">⬇ Descargar Word</button>
+      <button class="btn-copiar" id="btnProgresoCopiar" style="padding:9px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600;">📋 Copiar</button>
+    </div>
     <div id="contProgreso"></div>
   </section>
 </main>
@@ -577,6 +585,20 @@
   </div>
 </div>
 
+<!-- Modal comentario de submeta cumplida -->
+<div class="overlay" id="ovSubComentario">
+  <div class="modal">
+    <h3>✅ Submeta cumplida</h3>
+    <p id="subCompTexto" style="font-size:.93rem;"></p>
+    <label>Comentario (opcional)</label>
+    <textarea id="subCompComentario" placeholder="Observaciones sobre lo realizado..."></textarea>
+    <div class="pie">
+      <button class="b-cancelar" data-cerrar="ovSubComentario">Cerrar sin comentario</button>
+      <button class="b-guardar" id="btnConfirmarSubComp">Guardar comentario</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script type="module">
@@ -629,6 +651,7 @@ let personaEnCurso = null; // owner de la ficha abierta
 let calRef = new Date(); calRef.setDate(1);
 let diaDetalle = null;     // índice 0-6 del día abierto en Disponible
 let semanaRef = null;      // lunes (ISO) de la semana mostrada en Disponible
+let licSemanaRef = null;   // lunes (ISO) de la semana mostrada en Licencias
 let rol = "admin";         // "admin" | "colaborador" | "invitado" (modo local: admin)
 let pestanasPermitidas = TODAS_PESTANAS;
 let dbRef = null, fsRef = null; // referencias de Firestore para la gestión de accesos
@@ -636,6 +659,7 @@ let bitFiltroFecha = "";   // filtro por día en Bitácora
 let bitEnCurso = null;     // entrada de bitácora en edición
 let metaEnCurso = null;    // meta en edición / destino de submeta
 let submetaEnCurso = null; // submeta en edición
+let subComentarioEnCurso = null; // {metaId, subId} para comentar submeta cumplida
 
 // ---------- Utilidades ----------
 const $ = (s)=>document.querySelector(s);
@@ -678,6 +702,21 @@ function claseZona(p){ return p.zona==="norte" ? "zona-norte" : (p.zona==="sur" 
 function sumarDias(iso, n){
   const d = parseISO(iso); d.setDate(d.getDate()+n);
   return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function isoDe(d){
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function diasEntre(desde, hasta){ // lista inclusiva de días ISO
+  const res = [];
+  let d = parseISO(desde);
+  const fin = parseISO(hasta||desde);
+  let guarda = 0;
+  while (d <= fin && guarda < 1000){ res.push(isoDe(d)); d.setDate(d.getDate()+1); guarda++; }
+  return res;
+}
+function mesLargo(iso){
+  const t = parseISO(iso).toLocaleDateString("es-AR",{month:"long", year:"numeric"});
+  return t.charAt(0).toUpperCase()+t.slice(1);
 }
 
 // ---------- Acceso a listas por dueño ----------
@@ -1576,67 +1615,148 @@ function llenarSelectPersonas(sel){
   }
   el.value = valorPrevio;
 }
+function esLic36(l){ return String(l.numero||"").trim()==="36"; }
+function dias36DePersona(persona, exceptId){
+  const dias = [];
+  for (const l of estado.licencias){
+    if (l.persona!==persona || (exceptId && l.id===exceptId) || !esLic36(l)) continue;
+    for (const d of diasEntre(l.desde, l.hasta||l.desde)) dias.push(d);
+  }
+  return dias;
+}
+function validar36(persona, nuevosDias){
+  const existentes = dias36DePersona(persona);
+  const mesCount = {}, anioCount = {};
+  for (const d of existentes){ mesCount[d.slice(0,7)] = (mesCount[d.slice(0,7)]||0)+1; anioCount[d.slice(0,4)] = (anioCount[d.slice(0,4)]||0)+1; }
+  const nMes = {}, nAnio = {};
+  for (const d of nuevosDias){ nMes[d.slice(0,7)] = (nMes[d.slice(0,7)]||0)+1; nAnio[d.slice(0,4)] = (nAnio[d.slice(0,4)]||0)+1; }
+  for (const m in nMes){
+    if ((mesCount[m]||0) + nMes[m] > 2){
+      return {ok:false, mensaje:"No se puede cargar esta licencia 36.\n\nYa tiene "+(mesCount[m]||0)+" en "+mesLargo(m+"-01")+" y el máximo es 2 por mes."};
+    }
+  }
+  for (const y in nAnio){
+    if ((anioCount[y]||0) + nAnio[y] > 6){
+      return {ok:false, mensaje:"No se puede cargar esta licencia 36.\n\nYa tiene "+(anioCount[y]||0)+" en el año "+y+" y el máximo es 6 por año."};
+    }
+  }
+  return {ok:true};
+}
 function agregarLicencia(){
   const persona = $("#licPersona").value;
   const desde = $("#licDesde").value;
   if (!persona || !desde){ toast("Elegí la persona y la fecha de inicio"); return; }
   const hasta = $("#licHasta").value || desde;
   if (hasta < desde){ toast("La fecha 'hasta' no puede ser anterior al inicio"); return; }
+  const numero = $("#licNumero").value.trim();
+  const letra = $("#licLetra").value.trim();
+  const descripcion = $("#licDescripcion").value.trim();
+  if (numero==="36"){
+    const v = validar36(persona, diasEntre(desde, hasta));
+    if (!v.ok){ alert(v.mensaje); toast("Licencia 36: límite alcanzado"); return; }
+  }
   estado.licencias.push({id: uid(), persona, desde, hasta,
-    tipo: $("#licTipo").value.trim(),
+    numero, letra, descripcion,
     cert: $("#licCert").checked,
     pedido: $("#licPedido").checked});
-  $("#licDesde").value=""; $("#licHasta").value=""; $("#licTipo").value="";
+  $("#licDesde").value=""; $("#licHasta").value="";
+  $("#licNumero").value=""; $("#licLetra").value=""; $("#licDescripcion").value="";
   $("#licCert").checked=false; $("#licPedido").checked=false;
   guardar(); renderTodo();
   toast("Licencia cargada ✔");
 }
+function etiquetaNumLic(l){
+  const num = String(l.numero||"").trim();
+  const letra = String(l.letra||"").trim();
+  if (!num && !letra) return "—";
+  return (num+" "+letra).trim();
+}
+function descLic(l){ return (l.descripcion || l.tipo || "").trim(); }
+function tablaLicVacia(){
+  const tabla = document.createElement("table");
+  tabla.className = "intervalos";
+  tabla.innerHTML = "<tr><th>Persona</th><th>Desde</th><th>Hasta</th><th>N°</th><th>Descripción</th><th>Cert.</th><th>Pedido</th><th></th></tr>";
+  return tabla;
+}
+function filaLicencia(l, tabla){
+  const p = personaDe(l.persona);
+  const tr = document.createElement("tr");
+  const tdP = document.createElement("td");
+  tdP.innerHTML = p ? "<b class='"+claseZona(p)+"'>"+escapar(nombreDe(p))+"</b> <span class='rol-tag'>"+escapar(p.rol)+"</span>" : "(persona eliminada)";
+  tr.appendChild(tdP);
+  for (const txt of [fmtCorto(l.desde), fmtCorto(l.hasta), etiquetaNumLic(l), descLic(l)||"—"]){
+    const td = document.createElement("td");
+    td.textContent = txt;
+    tr.appendChild(td);
+  }
+  for (const campo of ["cert","pedido"]){
+    const td = document.createElement("td");
+    const chk = document.createElement("input");
+    chk.type = "checkbox";
+    chk.checked = !!l[campo];
+    chk.onchange = ()=>{ l[campo] = chk.checked; guardar(); };
+    td.appendChild(chk);
+    tr.appendChild(td);
+  }
+  const tdDel = document.createElement("td");
+  const del = document.createElement("button");
+  del.textContent = "🗑️";
+  del.style.cssText = "border:none;background:none;cursor:pointer;";
+  del.onclick = ()=>{
+    if (confirm("¿Eliminar esta licencia?")){
+      estado.licencias = estado.licencias.filter(x=>x.id!==l.id);
+      guardar(); renderTodo();
+    }
+  };
+  tdDel.appendChild(del);
+  tr.appendChild(tdDel);
+  tabla.appendChild(tr);
+}
+function renderLicSemana(){
+  if (!licSemanaRef) licSemanaRef = lunesDe(hoyISO());
+  const cont = $("#contLicSemana");
+  cont.innerHTML = "";
+  const nav = document.createElement("div");
+  nav.className = "fila-orden";
+  const bAnt = document.createElement("button"); bAnt.textContent = "◀ Anterior";
+  const bHoy = document.createElement("button"); bHoy.textContent = "Semana actual";
+  const bSig = document.createElement("button"); bSig.textContent = "Siguiente ▶";
+  bAnt.onclick = ()=>{ licSemanaRef = sumarDias(licSemanaRef,-7); renderLicSemana(); };
+  bHoy.onclick = ()=>{ licSemanaRef = lunesDe(hoyISO()); renderLicSemana(); };
+  bSig.onclick = ()=>{ licSemanaRef = sumarDias(licSemanaRef,7); renderLicSemana(); };
+  nav.append(bAnt, bHoy, bSig);
+  cont.appendChild(nav);
+  const titulo = document.createElement("h2");
+  titulo.className = "sub";
+  titulo.textContent = etiquetaSemana(licSemanaRef);
+  cont.appendChild(titulo);
+  const fin = sumarDias(licSemanaRef, 6);
+  const enSem = estado.licencias
+    .filter(l => l.desde <= fin && (l.hasta||l.desde) >= licSemanaRef)
+    .sort((a,b)=>a.desde.localeCompare(b.desde));
+  if (!enSem.length){
+    const p = document.createElement("p");
+    p.className = "sin-datos";
+    p.textContent = "No hay licencias en esta semana.";
+    cont.appendChild(p);
+    return;
+  }
+  const tabla = tablaLicVacia();
+  for (const l of enSem) filaLicencia(l, tabla);
+  cont.appendChild(tabla);
+}
 function renderLicencias(){
   llenarSelectPersonas("#licPersona");
+  renderLicSemana();
   const cont = $("#contLicencias");
   cont.innerHTML = "";
   if (!estado.licencias.length){
     cont.innerHTML = '<p class="sin-datos">No hay licencias cargadas. La persona con licencia aparece tachada en Disponible.</p>';
     return;
   }
-  const tabla = document.createElement("table");
-  tabla.className = "intervalos";
-  tabla.innerHTML = "<tr><th>Persona</th><th>Desde</th><th>Hasta</th><th>Tipo</th><th>Certificado</th><th>Pedido</th><th></th></tr>";
+  const tabla = tablaLicVacia();
   const ordenLic = [...estado.licencias].sort((a,b)=>b.desde.localeCompare(a.desde));
-  for (const l of ordenLic){
-    const p = personaDe(l.persona);
-    const tr = document.createElement("tr");
-    const tdP = document.createElement("td");
-    tdP.innerHTML = p ? "<b class='"+claseZona(p)+"'>"+escapar(nombreDe(p))+"</b> <span class='rol-tag'>"+escapar(p.rol)+"</span>" : "(persona eliminada)";
-    tr.appendChild(tdP);
-    for (const txt of [fmtCorto(l.desde), fmtCorto(l.hasta), l.tipo||"—"]){
-      const td = document.createElement("td");
-      td.textContent = txt;
-      tr.appendChild(td);
-    }
-    for (const campo of ["cert","pedido"]){
-      const td = document.createElement("td");
-      const chk = document.createElement("input");
-      chk.type = "checkbox";
-      chk.checked = !!l[campo];
-      chk.onchange = ()=>{ l[campo] = chk.checked; guardar(); };
-      td.appendChild(chk);
-      tr.appendChild(td);
-    }
-    const tdDel = document.createElement("td");
-    const del = document.createElement("button");
-    del.textContent = "🗑️";
-    del.style.cssText = "border:none;background:none;cursor:pointer;";
-    del.onclick = ()=>{
-      if (confirm("¿Eliminar esta licencia?")){
-        estado.licencias = estado.licencias.filter(x=>x.id!==l.id);
-        guardar(); renderTodo();
-      }
-    };
-    tdDel.appendChild(del);
-    tr.appendChild(tdDel);
-    tabla.appendChild(tr);
-  }
+  for (const l of ordenLic) filaLicencia(l, tabla);
   cont.appendChild(tabla);
 }
 
@@ -1944,6 +2064,96 @@ function guardarSubmeta(){
   cerrar("ovSubmeta");
   guardar(); renderProgreso();
 }
+function abrirSubComentario(metaId, subId){
+  subComentarioEnCurso = {metaId, subId};
+  const m = estado.metas.find(x=>x.id===metaId);
+  const s = m ? m.submetas.find(x=>x.id===subId) : null;
+  if (!s) return;
+  $("#subCompTexto").textContent = "“"+s.texto+"”";
+  $("#subCompComentario").value = s.comentario || "";
+  $("#ovSubComentario").classList.add("visible");
+  $("#subCompComentario").focus();
+}
+function guardarSubComentario(){
+  if (!subComentarioEnCurso) return;
+  const m = estado.metas.find(x=>x.id===subComentarioEnCurso.metaId);
+  const s = m ? m.submetas.find(x=>x.id===subComentarioEnCurso.subId) : null;
+  if (s) s.comentario = $("#subCompComentario").value.trim();
+  cerrar("ovSubComentario");
+  guardar(); renderProgreso();
+}
+function itemsProgreso(){
+  const items = [];
+  for (const m of estado.metas){
+    for (const s of m.submetas){
+      items.push({meta:m.titulo, texto:s.texto, fecha:s.fecha||"",
+        numero:(s.numero!==null && s.numero!==undefined) ? s.numero : null,
+        hecha:!!s.hecha, comentario:s.comentario||""});
+    }
+  }
+  return items;
+}
+function progresoWord(){
+  const items = itemsProgreso();
+  if (!items.length){ toast("No hay metas ni submetas para exportar"); return; }
+  const conFecha = items.filter(i=>i.fecha).sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  const sinFecha = items.filter(i=>!i.fecha);
+  const porAnio = new Map();
+  for (const i of conFecha){ const y=i.fecha.slice(0,4); if(!porAnio.has(y)) porAnio.set(y,[]); porAnio.get(y).push(i); }
+  const filaItem = (i)=>{
+    let s = "<li><b>"+(i.fecha?escapar(fmtCorto(i.fecha))+" — ":"")+escapar(i.texto)+"</b>";
+    s += " <span style='color:#666;'>("+escapar(i.meta)+")</span>";
+    s += i.hecha ? " <span style='color:#2e8b57;'>✔ cumplida</span>" : " <span style='color:#c0392b;'>pendiente</span>";
+    if (i.numero!==null) s += " · 🎯 "+escapar(String(i.numero));
+    if (i.comentario) s += " — <i>"+escapar(i.comentario)+"</i>";
+    s += "</li>";
+    return s;
+  };
+  let cuerpo = "";
+  for (const [y, arr] of [...porAnio.entries()].sort((a,b)=>a[0].localeCompare(b[0]))){
+    cuerpo += "<h2 style='color:#1e4260;'>Año "+escapar(y)+"</h2><ul>";
+    for (const i of arr) cuerpo += filaItem(i);
+    cuerpo += "</ul>";
+  }
+  if (sinFecha.length){
+    cuerpo += "<h2 style='color:#1e4260;'>Sin fecha asignada</h2><ul>";
+    for (const i of sinFecha) cuerpo += filaItem(i);
+    cuerpo += "</ul>";
+  }
+  const html = "<html xmlns:w='urn:schemas-microsoft-com:office:word'><head><meta charset='utf-8'>"+
+    "<title>Progreso MDAgenda</title></head><body style=\"font-family:Calibri,Arial,sans-serif;\">"+
+    "<h1 style='color:#2c5f8a;'>Progreso — MDAgenda</h1>"+cuerpo+"</body></html>";
+  const blob = new Blob(["﻿", html], {type:"application/msword"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "progreso_"+hoyISO()+".doc";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+}
+async function progresoCopiar(){
+  const items = itemsProgreso();
+  if (!items.length){ toast("No hay metas ni submetas para copiar"); return; }
+  const conFecha = items.filter(i=>i.fecha).sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  const sinFecha = items.filter(i=>!i.fecha);
+  const porAnio = new Map();
+  for (const i of conFecha){ const y=i.fecha.slice(0,4); if(!porAnio.has(y)) porAnio.set(y,[]); porAnio.get(y).push(i); }
+  const lineaItem = (i)=>"  • "+(i.fecha?fmtCorto(i.fecha)+" — ":"")+i.texto+" ("+i.meta+") "+(i.hecha?"✔ cumplida":"pendiente")+
+    (i.numero!==null?" · meta "+i.numero:"")+(i.comentario?" — "+i.comentario:"");
+  let texto = "PROGRESO — MDAgenda\n\n";
+  for (const [y, arr] of [...porAnio.entries()].sort((a,b)=>a[0].localeCompare(b[0]))){
+    texto += "Año "+y+"\n";
+    for (const i of arr) texto += lineaItem(i)+"\n";
+    texto += "\n";
+  }
+  if (sinFecha.length){
+    texto += "Sin fecha asignada\n";
+    for (const i of sinFecha) texto += lineaItem(i)+"\n";
+  }
+  try{ await navigator.clipboard.writeText(texto); toast("Copiado al portapapeles ✔"); }
+  catch(e){ console.error(e); toast("No se pudo copiar automáticamente"); }
+}
 function renderProgreso(){
   const cont = $("#contProgreso");
   cont.innerHTML = "";
@@ -2016,7 +2226,11 @@ function renderProgreso(){
       const chk = document.createElement("input");
       chk.type = "checkbox";
       chk.checked = !!s.hecha;
-      chk.onchange = ()=>{ s.hecha = chk.checked; guardar(); renderProgreso(); };
+      chk.onchange = ()=>{
+        s.hecha = chk.checked;
+        if (chk.checked){ s.fechaHecha = hoyISO(); guardar(); renderProgreso(); abrirSubComentario(m.id, s.id); }
+        else { s.comentario = ""; s.fechaHecha = ""; guardar(); renderProgreso(); }
+      };
       hito.appendChild(chk);
       const tx = document.createElement("span");
       tx.className = "texto-hito";
@@ -2033,6 +2247,12 @@ function renderProgreso(){
         nn.className = "chip-fecha";
         nn.textContent = "🎯 "+s.numero;
         hito.appendChild(nn);
+      }
+      if (s.comentario){
+        const cc = document.createElement("span");
+        cc.className = "coment";
+        cc.textContent = " — "+s.comentario;
+        hito.appendChild(cc);
       }
       const accS = document.createElement("span");
       accS.className = "bit-acciones";
@@ -2136,6 +2356,9 @@ $("#btnGuardarAcceso").onclick = guardarAcceso;
 $("#btnAgregarMeta").onclick = ()=>abrirMeta(null);
 $("#btnGuardarMeta").onclick = guardarMeta;
 $("#btnGuardarSubmeta").onclick = guardarSubmeta;
+$("#btnConfirmarSubComp").onclick = guardarSubComentario;
+$("#btnProgresoWord").onclick = progresoWord;
+$("#btnProgresoCopiar").onclick = progresoCopiar;
 $("#bitFiltro").onchange = ()=>{ bitFiltroFecha = $("#bitFiltro").value; renderBitacora(); };
 $("#btnBitTodo").onclick = ()=>{ bitFiltroFecha = ""; $("#bitFiltro").value = ""; renderBitacora(); };
 document.querySelectorAll("[data-cerrar]").forEach(b=>{ b.onclick = ()=>cerrar(b.dataset.cerrar); });
