@@ -14,7 +14,8 @@
 
   header.top{display:flex; align-items:center; justify-content:space-between; padding:12px 22px;
     background:var(--azul-osc); box-shadow:0 2px 6px rgba(0,0,0,.18);}
-  .logo{font-size:1.5rem; font-weight:700; color:#fff; letter-spacing:.5px;}
+  .logo{font-size:1.5rem; font-weight:700; color:#fff; letter-spacing:.5px; cursor:pointer;}
+  .logo:hover{opacity:.85;}
   .logo span{color:var(--amarillo);}
   .auth-zone{display:flex; align-items:center; gap:10px; font-size:.85rem; color:#dbe4ee;}
   .auth-zone button{padding:6px 14px; border:1px solid rgba(255,255,255,.35); background:rgba(255,255,255,.12); color:#fff; border-radius:6px; cursor:pointer; font-size:.85rem;}
@@ -23,12 +24,22 @@
 
   .aviso-local{background:#fff3cd; border:1px solid #e6d9a0; color:#7a6420; padding:8px 22px; font-size:.85rem; margin:10px 22px 0 22px; border-radius:6px; display:none;}
 
-  /* Solapas estilo fichero, cada una de un tono pastel */
-  nav.tabs{display:flex; gap:4px; padding:18px 22px 0 22px; flex-wrap:wrap;}
+  /* Barra lateral agrupada */
+  .layout{display:flex; align-items:stretch;}
+  .btn-hamburguesa{display:none; border:none; background:rgba(255,255,255,.12); color:#fff;
+    font-size:1.25rem; padding:5px 11px; border-radius:6px; cursor:pointer; margin-right:10px; flex-shrink:0;}
+  .btn-hamburguesa:hover{background:rgba(255,255,255,.25);}
+  .sidebar-backdrop{display:none; position:fixed; inset:0; background:rgba(0,0,0,.42); z-index:55;}
+  .sidebar-backdrop.visible{display:block;}
+  nav.tabs.sidebar{display:flex; flex-direction:column; gap:0; width:206px; flex-shrink:0;
+    padding:18px 12px 24px 22px; box-sizing:border-box; background:#f4f2ec; border-right:1px solid var(--borde);}
+  .nav-grupo{margin-bottom:16px;}
+  .nav-grupo-titulo{font-size:.68rem; text-transform:uppercase; letter-spacing:.7px; color:var(--gris);
+    font-weight:700; padding:2px 10px 6px 10px;}
   nav.tabs button{
-    padding:10px 20px 12px 20px; border:1px solid var(--borde); border-bottom:none;
-    border-radius:10px 10px 0 0; background:#e9e5da; color:#666; cursor:pointer;
-    font-size:.93rem; font-weight:600; position:relative; top:1px;
+    display:flex; align-items:center; gap:8px; width:100%; text-align:left;
+    padding:10px 12px; border:none; border-left:4px solid transparent; border-radius:0 8px 8px 0;
+    background:transparent; color:#5b5b5b; cursor:pointer; font-size:.9rem; font-weight:600; margin-bottom:2px;
   }
   nav.tabs button[data-tab="tareas"]{--ct:#f9b384;}
   nav.tabs button[data-tab="bitacora"]{--ct:#7fd6c0;}
@@ -38,12 +49,20 @@
   nav.tabs button[data-tab="licencias"]{--ct:#f5d266;}
   nav.tabs button[data-tab="paro"]{--ct:#f28b82;}
   nav.tabs button[data-tab="progreso"]{--ct:#7fcf8e;}
-  nav.tabs button{background:color-mix(in srgb, var(--ct) 38%, #efece5);}
-  nav.tabs button.activa{background:var(--ct); color:#3a3a3a; border-color:var(--borde);
-    box-shadow:0 -2px 4px rgba(0,0,0,.05); z-index:2;}
+  nav.tabs button[data-tab="estadisticas"]{--ct:#b8a1e3;}
+  nav.tabs button:hover{background:#ece8dd;}
+  .nav-separador{border-top:1px solid var(--borde); margin:4px 10px 12px 10px;}
+  body.tema-oscuro .nav-separador{border-color:#4a4f57;}
+  nav.tabs button.activa{border-left-color:var(--ct, var(--azul));
+    background:color-mix(in srgb, var(--ct, var(--azul)) 24%, #fff); color:#2b2b2b;}
+  body.tema-sepia nav.tabs.sidebar{background:#f3ead3;}
+  body.tema-oscuro nav.tabs.sidebar{background:#262b32;}
+  body.tema-oscuro nav.tabs button{color:#c9ced4;}
+  body.tema-oscuro nav.tabs button:hover{background:#323942;}
+  body.tema-oscuro .nav-grupo-titulo{color:#8b93a0;}
 
-  main{background:var(--papel); border:1px solid var(--borde); margin:0 22px 30px 22px;
-    border-radius:0 10px 10px 10px; padding:22px; min-height:60vh;}
+  main{background:var(--papel); border:1px solid var(--borde); margin:18px 22px 30px 14px; flex:1; min-width:0;
+    border-radius:10px; padding:22px; min-height:60vh;}
   section.panel{display:none;}
   section.panel.activa{display:block;}
   h2.sub{font-size:1.05rem; color:var(--azul-osc); margin-bottom:12px;}
@@ -286,18 +305,76 @@
   .chks-pestanas label{display:flex; align-items:center; gap:5px; font-size:.85rem;}
   .chks-pestanas input{width:15px; height:15px;}
 
+  /* ---- 4 TIEMPOS DIRECTIVOS ---- */
+  .chip-tiempo{font-size:.72rem; padding:2px 9px; border-radius:12px; color:#fff; white-space:nowrap; font-weight:700;}
+
+  .fab-interrupcion{position:fixed; bottom:22px; right:22px; width:56px; height:56px; border-radius:50%;
+    background:var(--rojo); color:#fff; border:none; font-size:1.5rem; cursor:pointer;
+    box-shadow:0 4px 14px rgba(0,0,0,.25); z-index:40;}
+  .fab-interrupcion:hover{filter:brightness(1.1);}
+
+  .alerta-seguimiento{background:#fff3cd; border:1px solid #e6d9a0; border-radius:8px; padding:10px 14px; margin-bottom:16px;}
+  body.tema-oscuro .alerta-seguimiento{background:#4a4020; border-color:#6b5d2e; color:#e8d999;}
+  .lista-seguimiento{list-style:none; margin-top:6px;}
+  .lista-seguimiento li{padding:4px 0; font-size:.88rem;}
+  .lista-seguimiento li.venc{color:var(--rojo); font-weight:600;}
+  body.tema-oscuro .lista-seguimiento li.venc{color:#e8837a;}
+
+  .dia ul li.cronofago{border-left:3px solid var(--rojo); padding-left:8px; background:#fdf1ef; border-radius:0 6px 6px 0;}
+  body.tema-oscuro .dia ul li.cronofago{background:#3d2a28;}
+  .quien.cronofago-quien{color:var(--rojo); font-size:.85rem; font-weight:600;}
+  body.tema-oscuro .quien.cronofago-quien{color:#e8837a;}
+
+  /* ---- ESTADÍSTICAS ---- */
+  .stats-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px; margin-top:6px;}
+  .stats-bloque{border:1px solid var(--borde); border-radius:10px; background:#fbfaf6; padding:16px;}
+  body.tema-oscuro .stats-bloque{background:#2f353e; border-color:#4a4f57;}
+  body.tema-sepia .stats-bloque{background:#f6efdd;}
+  .stats-subtitulo{font-size:.95rem; color:var(--azul-osc); margin-bottom:12px;}
+  body.tema-oscuro .stats-subtitulo{color:#a8c6e8;}
+  .stats-fila{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
+  .stats-etq{font-size:.85rem; width:120px; flex-shrink:0;}
+  .stats-barra{flex:1; min-width:60px;}
+  .stats-num{font-size:.8rem; color:var(--gris); width:70px; text-align:right; flex-shrink:0;}
+  .torta{width:180px; height:180px; border-radius:50%; margin:0 auto 16px auto;}
+  .torta-leyenda{display:flex; flex-direction:column; gap:6px;}
+  .torta-item{display:flex; align-items:center; gap:8px; font-size:.85rem;}
+  .torta-item i{display:inline-block; width:12px; height:12px; border-radius:3px; flex-shrink:0;}
+
+  /* ---- FONDOS PERSONALIZADOS ---- */
+  .fondos-grid{display:flex; flex-wrap:wrap; gap:10px; margin-top:8px;}
+  .fondo-card{width:88px; border:2px solid var(--borde); border-radius:10px; padding:6px; cursor:pointer; text-align:center; background:#fff; flex-shrink:0;}
+  .fondo-card.activo{border-color:var(--azul); box-shadow:0 0 0 2px rgba(44,95,138,.25);}
+  .fondo-muestra{height:36px; border-radius:6px; margin-bottom:4px;}
+  .fondo-nombre{font-size:.7rem; color:#555; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .fondo-acciones{display:flex; justify-content:center; gap:4px; margin-top:4px;}
+  .fondo-acciones button{border:none; background:none; cursor:pointer; font-size:.8rem; padding:1px 4px;}
+  .modal input[type=color]{width:100%; height:38px; padding:2px; border:1px solid var(--borde); border-radius:6px; cursor:pointer;}
+
+  @media (max-width:860px){
+    .btn-hamburguesa{display:inline-flex; align-items:center; justify-content:center;}
+    nav.tabs.sidebar{position:fixed; top:0; left:0; height:100vh; z-index:60;
+      transform:translateX(-100%); transition:transform .25s ease; box-shadow:2px 0 14px rgba(0,0,0,.2);
+      padding-top:64px; overflow-y:auto; width:230px;}
+    nav.tabs.sidebar.abierta{transform:translateX(0);}
+    main{margin-left:12px;}
+  }
   @media (max-width:560px){
-    header.top{padding:10px 12px 0 12px;}
-    nav.tabs{padding:14px 12px 0 12px;}
-    nav.tabs button{padding:8px 10px; font-size:.8rem;}
-    main{margin:0 12px 20px 12px; padding:14px;}
+    header.top{padding:10px 12px;}
+    main{margin:14px 12px 20px 12px; padding:14px;}
+    .fab-interrupcion{bottom:16px; right:16px; width:50px; height:50px; font-size:1.3rem;}
+    .stats-etq{width:96px; font-size:.78rem;}
   }
 </style>
+<style id="estiloPersonalizado"></style>
 </head>
 <body>
 
 <header class="top">
-  <div class="logo">MD<span>Agenda</span></div>
+  <div style="display:flex; align-items:center;">
+    <button class="btn-hamburguesa" id="btnMenu" title="Menú">☰</button>
+    <div class="logo" id="logoBtn" title="Elegir fondo">MD<span>Agenda</span></div>
+  </div>
   <div style="display:flex; align-items:center;">
     <div class="auth-zone" id="authZone"></div>
     <button class="btn-opciones" id="btnOpciones" title="Opciones">⚙</button>
@@ -308,20 +385,34 @@
   ⚠ Modo local: los datos se guardan solo en este dispositivo. Para sincronizar entre dispositivos, configurá Firebase (ver instrucciones en el README).
 </div>
 
-<nav class="tabs">
-  <button data-tab="tareas" class="activa">📋 Tareas</button>
-  <button data-tab="bitacora">📖 Bitácora</button>
-  <button data-tab="equipo">👥 Equipo</button>
-  <button data-tab="docentes">🎓 Docentes</button>
-  <button data-tab="disponible">🕐 Disponible</button>
-  <button data-tab="licencias">📄 Licencias</button>
-  <button data-tab="paro">✊ Paro</button>
-  <button data-tab="progreso">📈 Progreso</button>
+<div class="layout">
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+<nav class="tabs sidebar" id="sidebarNav">
+  <div class="nav-grupo">
+    <h4 class="nav-grupo-titulo">Mi trabajo</h4>
+    <button data-tab="tareas" class="activa">📋 Tareas</button>
+    <button data-tab="bitacora">📖 Bitácora</button>
+    <button data-tab="progreso">📈 Progreso</button>
+  </div>
+  <div class="nav-grupo">
+    <h4 class="nav-grupo-titulo">Equipo</h4>
+    <button data-tab="equipo">👥 Equipo</button>
+    <button data-tab="docentes">🎓 Docentes</button>
+    <button data-tab="disponible">🕐 Disponible</button>
+  </div>
+  <div class="nav-grupo">
+    <h4 class="nav-grupo-titulo">Novedades</h4>
+    <button data-tab="licencias">📄 Licencias</button>
+    <button data-tab="paro">✊ Paro</button>
+  </div>
+  <div class="nav-separador"></div>
+  <button data-tab="estadisticas">📊 Estadísticas</button>
 </nav>
 
 <main>
   <!-- TAREAS -->
   <section class="panel activa" id="panel-tareas">
+    <div id="contSeguimientos"></div>
     <div class="fila-orden">
       <span>Ordenar por:</span>
       <button data-orden="carga">Orden de carga</button>
@@ -332,6 +423,12 @@
       <input type="text" id="nuevaDesc" placeholder="Nueva tarea..." maxlength="300">
       <input type="date" id="nuevaFecha" title="Fecha límite">
       <div class="estrellas" id="nuevaEstrellas" title="Prioridad (0 a 4 estrellas)"></div>
+      <select id="nuevaTipoTiempo" title="Tipo de tiempo directivo">
+        <option value="productivo">🛠 Productivo</option>
+        <option value="informacion">📰 Información</option>
+        <option value="reflexion">🧠 Reflexión</option>
+        <option value="imponderable">⚡ Imponderable</option>
+      </select>
       <button class="btn-mas" id="btnAgregar" title="Agregar tarea">+</button>
     </div>
     <div class="caja-tareas"><ul class="lista-tareas" id="listaTareas"></ul></div>
@@ -421,7 +518,15 @@
     </div>
     <div id="contProgreso"></div>
   </section>
+
+  <!-- ESTADÍSTICAS -->
+  <section class="panel" id="panel-estadisticas">
+    <div id="contEstadisticas"></div>
+  </section>
 </main>
+</div>
+
+<button class="fab-interrupcion" id="btnFab" title="Registrar interrupción">⚡</button>
 
 <!-- Modal completar tarea -->
 <div class="overlay" id="ovCompletar">
@@ -447,9 +552,72 @@
     <input type="date" id="editFecha">
     <label>Prioridad</label>
     <div class="estrellas" id="editEstrellas"></div>
+    <div id="campoTipoTiempo">
+      <label>Tipo de tiempo directivo</label>
+      <select id="editTipoTiempo">
+        <option value="productivo">🛠 Productivo</option>
+        <option value="informacion">📰 Información</option>
+        <option value="reflexion">🧠 Reflexión</option>
+        <option value="imponderable">⚡ Imponderable</option>
+      </select>
+    </div>
+    <div id="campoSeguimiento">
+      <label>Fecha de seguimiento (opcional)</label>
+      <input type="date" id="editSeguimiento">
+      <p style="font-size:.78rem; color:var(--gris); margin-top:4px;">Si la cargás, esta tarea va a aparecer en "Seguimientos pendientes" de Tareas a partir de esa fecha.</p>
+    </div>
     <div class="pie">
       <button class="b-cancelar" data-cerrar="ovTarea">Cancelar</button>
       <button class="b-guardar" id="btnGuardarTarea">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal fondos personalizados -->
+<div class="overlay" id="ovFondos">
+  <div class="modal">
+    <h3>🎨 Fondos</h3>
+    <p style="font-size:.8rem; color:var(--gris);">Elegí un fondo para este dispositivo. Los 3 primeros son fijos; podés crear hasta 5 propios con tus colores.</p>
+    <label>Fondos fijos</label>
+    <div class="fondos-grid" id="fondosFijos"></div>
+    <label style="margin-top:16px;">Tus fondos (hasta 5)</label>
+    <div class="fondos-grid" id="fondosPropios"></div>
+    <button type="button" class="btn-mini-tarea" id="btnNuevoFondo" style="margin-top:10px;">➕ Crear fondo nuevo</button>
+
+    <div id="formNuevoFondo" style="display:none; margin-top:14px; border-top:1px dashed var(--borde); padding-top:12px;">
+      <label>Nombre</label>
+      <input type="text" id="fNombre" maxlength="30" placeholder="Ej.: Mi fondo verde">
+      <label>Color de fondo general</label>
+      <input type="color" id="fFondo" value="#f6f4ee">
+      <label>Color de fondo de paneles y tarjetas</label>
+      <input type="color" id="fPapel" value="#ffffff">
+      <label>Color de acento (botones, cabecera)</label>
+      <input type="color" id="fAcento" value="#2c5f8a">
+      <label>Color de texto</label>
+      <input type="color" id="fTexto" value="#2b2b2b">
+      <div class="pie">
+        <button type="button" class="b-cancelar" id="btnCancelarFondo">Cancelar</button>
+        <button type="button" class="b-guardar" id="btnGuardarFondo">Guardar fondo</button>
+      </div>
+    </div>
+
+    <div class="pie">
+      <button class="b-cancelar" data-cerrar="ovFondos">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal registrar interrupción -->
+<div class="overlay" id="ovInterrupcion">
+  <div class="modal">
+    <h3>⚡ Registrar interrupción</h3>
+    <label>Quién interrumpió</label>
+    <input type="text" id="intQuien" maxlength="120" placeholder="Nombre o cargo">
+    <label>Motivo</label>
+    <textarea id="intMotivo" placeholder="Qué pasó..."></textarea>
+    <div class="pie">
+      <button class="b-cancelar" data-cerrar="ovInterrupcion">Cancelar</button>
+      <button class="b-guardar" id="btnGuardarInterrupcion">Guardar</button>
     </div>
   </div>
 </div>
@@ -652,10 +820,17 @@ const firebaseConfig = {
 
 const FIREBASE_ACTIVO = !String(firebaseConfig.apiKey).startsWith("PEGAR");
 const ADMIN_EMAIL = "caseres.marcosdavid@gmail.com";
-const TODAS_PESTANAS = ["tareas","bitacora","equipo","docentes","disponible","licencias","paro","progreso"];
+const TODAS_PESTANAS = ["tareas","bitacora","equipo","docentes","disponible","licencias","paro","progreso","estadisticas"];
 const PESTANAS_INVITADO = ["tareas","bitacora","equipo","docentes","disponible"];
 const NOMBRE_PESTANA = {tareas:"Tareas", bitacora:"Bitácora", equipo:"Equipo", docentes:"Docentes",
-  disponible:"Disponible", licencias:"Licencias", paro:"Paro", progreso:"Progreso"};
+  disponible:"Disponible", licencias:"Licencias", paro:"Paro", progreso:"Progreso", estadisticas:"Estadísticas"};
+const TIPOS_TIEMPO = {
+  productivo:  {label:"Productivo",   color:"#2e8b57", icon:"🛠"},
+  informacion: {label:"Información",  color:"#2c5f8a", icon:"📰"},
+  reflexion:   {label:"Reflexión",    color:"#c49bea", icon:"🧠"},
+  imponderable:{label:"Imponderable", color:"#c0392b", icon:"⚡"}
+};
+const ORDEN_TIEMPO = ["productivo","informacion","reflexion","imponderable"];
 const DIAS_SEMANA = ["lun","mar","mie","jue","vie","sab","dom"];
 const NOMBRE_DIA = {lun:"Lunes",mar:"Martes",mie:"Miércoles",jue:"Jueves",vie:"Viernes",sab:"Sábado",dom:"Domingo"};
 const MIN_ESCUELA = 8*60, MAX_ESCUELA = 18*60; // rango de la grilla: 8:00 a 18:00
@@ -705,6 +880,7 @@ let bitEnCurso = null;     // entrada de bitácora en edición
 let metaEnCurso = null;    // meta en edición / destino de submeta
 let submetaEnCurso = null; // submeta en edición
 let subComentarioEnCurso = null; // {metaId, subId} para comentar submeta cumplida
+let estadSemanaRef = null; // lunes (ISO) de la semana mostrada en Estadísticas
 
 // ---------- Utilidades ----------
 const $ = (s)=>document.querySelector(s);
@@ -829,10 +1005,139 @@ function aplicarEstado(nuevo){
   renderTodo();
 }
 function aplicarTema(){
-  document.body.classList.remove("tema-sepia","tema-oscuro");
-  const t = estado.opciones && estado.opciones.tema;
+  document.body.classList.remove("tema-sepia","tema-oscuro","tema-personalizado");
+  const estilo = $("#estiloPersonalizado");
+  if (estilo) estilo.textContent = "";
+  const t = temaLocalActivo();
+  if (t.startsWith("custom:")){
+    const tp = cargarTemasPersonalizados().find(x=>x.id===t.slice(7));
+    if (tp){
+      document.body.classList.add("tema-personalizado");
+      if (estilo) estilo.textContent = generarCSSPersonalizado(tp);
+      return;
+    }
+  }
   if (t==="sepia") document.body.classList.add("tema-sepia");
   else if (t==="oscuro") document.body.classList.add("tema-oscuro");
+}
+
+// ---------- Fondos personalizados (por dispositivo, no sincroniza) ----------
+function shade(hex, p){ // p positivo aclara, negativo oscurece
+  const n = parseInt(String(hex).replace("#",""),16);
+  const f = c => Math.max(0, Math.min(255, Math.round(c + (p>0 ? (255-c)*p/100 : c*p/100))));
+  return "#"+((1<<24)+(f(n>>16&255)<<16)+(f(n>>8&255)<<8)+f(n&255)).toString(16).slice(1);
+}
+function cargarTemasPersonalizados(){
+  try{ return JSON.parse(localStorage.getItem("mdagenda_temasPersonalizados")||"[]"); }
+  catch(e){ return []; }
+}
+function guardarTemasPersonalizados(arr){
+  localStorage.setItem("mdagenda_temasPersonalizados", JSON.stringify(arr));
+}
+function temaLocalActivo(){
+  return localStorage.getItem("mdagenda_temaLocal") || (estado.opciones && estado.opciones.tema) || "claro";
+}
+function elegirTemaLocal(valor){
+  localStorage.setItem("mdagenda_temaLocal", valor);
+  aplicarTema();
+  renderFondos();
+}
+function generarCSSPersonalizado(t){
+  const borde = shade(t.fondo,-14);
+  const acentoOsc = shade(t.acento,-28);
+  const acentoClaro = shade(t.acento,60);
+  const fondoAlt = shade(t.papel,-6);
+  return "body.tema-personalizado{background:"+t.fondo+"; color:"+t.texto+";}"+
+    "body.tema-personalizado header.top{background:"+acentoOsc+";}"+
+    "body.tema-personalizado main{background:"+t.papel+"; border-color:"+borde+";}"+
+    "body.tema-personalizado nav.tabs.sidebar{background:"+fondoAlt+"; border-color:"+borde+";}"+
+    "body.tema-personalizado nav.tabs button{color:"+t.texto+";}"+
+    "body.tema-personalizado nav.tabs button.activa{background:"+acentoClaro+"; color:"+t.texto+";}"+
+    "body.tema-personalizado .form-alta, body.tema-personalizado .bloque-persona, body.tema-personalizado .dia-card,"+
+    "body.tema-personalizado .calendario, body.tema-personalizado .meta-card, body.tema-personalizado .stats-bloque,"+
+    "body.tema-personalizado .caja-tareas{background:"+fondoAlt+"; border-color:"+borde+";}"+
+    "body.tema-personalizado .bp-cab{background:"+t.papel+"; border-color:"+borde+";}"+
+    "body.tema-personalizado .modal{background:"+t.papel+"; color:"+t.texto+";}"+
+    "body.tema-personalizado .modal h3, body.tema-personalizado h2.sub, body.tema-personalizado .semana>h3,"+
+    "body.tema-personalizado .stats-subtitulo, body.tema-personalizado .meta-cab h3{color:"+acentoOsc+";}"+
+    "body.tema-personalizado .btn-word, body.tema-personalizado .b-guardar, body.tema-personalizado .btn-agregar-doc{background:"+t.acento+";}"+
+    "body.tema-personalizado .chip-fecha, body.tema-personalizado .semana>h3, body.tema-personalizado table.intervalos th{background:"+acentoClaro+";}"+
+    "body.tema-personalizado .form-alta input, body.tema-personalizado .form-alta select,"+
+    "body.tema-personalizado .modal input, body.tema-personalizado .modal textarea, body.tema-personalizado .modal select{"+
+    "background:"+t.fondo+"; color:"+t.texto+"; border-color:"+borde+";}";
+}
+function nombreTemaFijo(k){ return {claro:"Claro", sepia:"Sepia", oscuro:"Oscuro"}[k] || k; }
+function renderFondos(){
+  const activo = temaLocalActivo();
+  const MUESTRAS_FIJAS = {
+    claro:{fondo:"#f6f4ee", papel:"#ffffff", acento:"#2c5f8a"},
+    sepia:{fondo:"#efe3cd", papel:"#faf3e3", acento:"#2c5f8a"},
+    oscuro:{fondo:"#20242b", papel:"#2a3038", acento:"#5c8fc2"}
+  };
+  const fijos = $("#fondosFijos");
+  fijos.innerHTML = "";
+  for (const k of ["claro","sepia","oscuro"]){
+    const m = MUESTRAS_FIJAS[k];
+    const card = document.createElement("div");
+    card.className = "fondo-card"+(activo===k ? " activo" : "");
+    card.innerHTML = '<div class="fondo-muestra" style="background:linear-gradient(135deg,'+m.fondo+' 50%,'+m.papel+' 50%); border:1px solid '+m.acento+';"></div>'+
+      '<div class="fondo-nombre">'+nombreTemaFijo(k)+'</div>';
+    card.onclick = ()=>elegirTemaLocal(k);
+    fijos.appendChild(card);
+  }
+  const propios = $("#fondosPropios");
+  propios.innerHTML = "";
+  const temas = cargarTemasPersonalizados();
+  if (!temas.length){
+    propios.innerHTML = '<p class="sin-datos" style="padding:2px; font-size:.82rem;">Todavía no creaste ningún fondo propio.</p>';
+  }
+  for (const t of temas){
+    const valor = "custom:"+t.id;
+    const card = document.createElement("div");
+    card.className = "fondo-card"+(activo===valor ? " activo" : "");
+    card.innerHTML = '<div class="fondo-muestra" style="background:linear-gradient(135deg,'+t.fondo+' 50%,'+t.papel+' 50%); border:1px solid '+t.acento+';"></div>'+
+      '<div class="fondo-nombre">'+escapar(t.nombre)+'</div>'+
+      '<div class="fondo-acciones"><button type="button" data-accion="editar" title="Editar">✏️</button><button type="button" data-accion="borrar" title="Eliminar">🗑️</button></div>';
+    card.querySelector('[data-accion="editar"]').onclick = (ev)=>{ ev.stopPropagation(); abrirFormFondo(t); };
+    card.querySelector('[data-accion="borrar"]').onclick = (ev)=>{
+      ev.stopPropagation();
+      if (!confirm('¿Eliminar el fondo "'+t.nombre+'"?')) return;
+      guardarTemasPersonalizados(cargarTemasPersonalizados().filter(x=>x.id!==t.id));
+      if (temaLocalActivo()===valor) elegirTemaLocal("claro");
+      else renderFondos();
+    };
+    card.onclick = ()=>elegirTemaLocal(valor);
+    propios.appendChild(card);
+  }
+  $("#btnNuevoFondo").style.display = temas.length>=5 ? "none" : "";
+}
+let fondoEnEdicion = null;
+function abrirFormFondo(t){
+  fondoEnEdicion = t ? t.id : null;
+  $("#fNombre").value = t ? t.nombre : "";
+  $("#fFondo").value = t ? t.fondo : "#f6f4ee";
+  $("#fPapel").value = t ? t.papel : "#ffffff";
+  $("#fAcento").value = t ? t.acento : "#2c5f8a";
+  $("#fTexto").value = t ? t.texto : "#2b2b2b";
+  $("#formNuevoFondo").style.display = "";
+}
+function guardarFondo(){
+  const nombre = $("#fNombre").value.trim();
+  if (!nombre){ toast("Ponele un nombre al fondo"); return; }
+  const temas = cargarTemasPersonalizados();
+  let idFinal = fondoEnEdicion;
+  if (fondoEnEdicion){
+    const t = temas.find(x=>x.id===fondoEnEdicion);
+    if (t){ t.nombre=nombre; t.fondo=$("#fFondo").value; t.papel=$("#fPapel").value; t.acento=$("#fAcento").value; t.texto=$("#fTexto").value; }
+  } else {
+    if (temas.length>=5){ toast("Ya tenés 5 fondos propios, borrá uno para crear otro"); return; }
+    idFinal = uid();
+    temas.push({id: idFinal, nombre, fondo:$("#fFondo").value, papel:$("#fPapel").value, acento:$("#fAcento").value, texto:$("#fTexto").value});
+  }
+  guardarTemasPersonalizados(temas);
+  $("#formNuevoFondo").style.display = "none";
+  fondoEnEdicion = null;
+  elegirTemaLocal("custom:"+idFinal);
 }
 
 // ---------- Firebase ----------
@@ -953,6 +1258,14 @@ function filaTarea(t, owner){
   tx.textContent = t.texto;
   li.appendChild(tx);
 
+  if (owner==="propia" && t.tipoTiempo && TIPOS_TIEMPO[t.tipoTiempo]){
+    const chip = document.createElement("span");
+    chip.className = "chip-tiempo";
+    chip.style.background = TIPOS_TIEMPO[t.tipoTiempo].color;
+    chip.textContent = TIPOS_TIEMPO[t.tipoTiempo].icon+" "+TIPOS_TIEMPO[t.tipoTiempo].label;
+    li.appendChild(chip);
+  }
+
   if (t.fecha){
     const ch = document.createElement("span");
     ch.className = "chip-fecha";
@@ -993,6 +1306,7 @@ function tareasOrdenadas(){
   return lista;
 }
 function renderTareas(){
+  renderSeguimientos();
   document.querySelectorAll(".fila-orden button").forEach(b=>{
     b.classList.toggle("sel", b.dataset.orden===orden);
     b.textContent = b.textContent.replace(/ [▲▼]$/,"");
@@ -1015,13 +1329,40 @@ function agregarTarea(){
     id: uid(), texto,
     fecha: $("#nuevaFecha").value || null,
     estrellas: estrellasNueva,
+    tipoTiempo: $("#nuevaTipoTiempo").value || "productivo",
     creada: Date.now()
   });
   $("#nuevaDesc").value = "";
   $("#nuevaFecha").value = "";
+  $("#nuevaTipoTiempo").value = "productivo";
   estrellasNueva = 0;
   refrescarEstrellasNueva();
   guardar(); renderTareas();
+}
+
+// ---------- Seguimientos pendientes (tareas delegadas) ----------
+function tareasConSeguimientoVencido(){
+  const hoy = hoyISO();
+  const res = [];
+  for (const p of [...estado.equipo, ...estado.docentes]){
+    for (const t of p.tareas){
+      if (t.fechaSeguimiento && t.fechaSeguimiento <= hoy) res.push({t, p});
+    }
+  }
+  res.sort((a,b)=>a.t.fechaSeguimiento.localeCompare(b.t.fechaSeguimiento));
+  return res;
+}
+function renderSeguimientos(){
+  const cont = $("#contSeguimientos");
+  const items = tareasConSeguimientoVencido();
+  if (!items.length){ cont.innerHTML = ""; return; }
+  let html = '<div class="alerta-seguimiento"><b>🔔 Seguimientos pendientes ('+items.length+')</b><ul class="lista-seguimiento">';
+  for (const {t,p} of items){
+    html += '<li class="venc"><span class="'+claseZona(p)+'">'+escapar(nombreDe(p)||p.rol)+'</span>: '+
+      escapar(t.texto)+' <span class="chip-fecha">📅 '+fmtCorto(t.fechaSeguimiento)+'</span></li>';
+  }
+  html += '</ul></div>';
+  cont.innerHTML = html;
 }
 
 // ---------- Calendario ----------
@@ -1094,16 +1435,23 @@ function abrirDiaCalendario(iso){
 function abrirTarea(owner, id){ // id null = nueva
   pendiente = {owner, id};
   const p = personaDe(owner);
+  const esPropia = owner==="propia";
   $("#tituloTarea").textContent = (id ? "✏ Editar tarea" : "➕ Nueva tarea") + (p ? " — "+(nombreDe(p)||p.rol) : "");
+  $("#campoTipoTiempo").style.display = esPropia ? "" : "none";
+  $("#campoSeguimiento").style.display = esPropia ? "none" : "";
   if (id){
     const t = listaDe(owner).find(x=>x.id===id);
     $("#editDesc").value = t.texto;
     $("#editFecha").value = t.fecha || "";
     estrellasModal = t.estrellas;
+    if (esPropia) $("#editTipoTiempo").value = t.tipoTiempo || "productivo";
+    else $("#editSeguimiento").value = t.fechaSeguimiento || "";
   } else {
     $("#editDesc").value = "";
     $("#editFecha").value = "";
     estrellasModal = 0;
+    if (esPropia) $("#editTipoTiempo").value = "productivo";
+    else $("#editSeguimiento").value = "";
   }
   refrescarEstrellasModal();
   $("#ovTarea").classList.add("visible");
@@ -1112,6 +1460,7 @@ function abrirTarea(owner, id){ // id null = nueva
 function guardarTarea(){
   const texto = $("#editDesc").value.trim();
   if (!texto){ toast("La descripción no puede quedar vacía"); return; }
+  const esPropia = pendiente.owner==="propia";
   const lista = listaDe(pendiente.owner);
   if (pendiente.id){
     const t = lista.find(x=>x.id===pendiente.id);
@@ -1119,8 +1468,13 @@ function guardarTarea(){
     t.texto = texto;
     t.fecha = $("#editFecha").value || null;
     t.estrellas = estrellasModal;
+    if (esPropia) t.tipoTiempo = $("#editTipoTiempo").value || "productivo";
+    else t.fechaSeguimiento = $("#editSeguimiento").value || null;
   } else {
-    lista.push({id: uid(), texto, fecha: $("#editFecha").value || null, estrellas: estrellasModal, creada: Date.now()});
+    const nueva = {id: uid(), texto, fecha: $("#editFecha").value || null, estrellas: estrellasModal, creada: Date.now()};
+    if (esPropia) nueva.tipoTiempo = $("#editTipoTiempo").value || "productivo";
+    else nueva.fechaSeguimiento = $("#editSeguimiento").value || null;
+    lista.push(nueva);
   }
   cerrar("ovTarea");
   guardar(); renderTodo();
@@ -1141,14 +1495,16 @@ function confirmarCompletar(){
   const t = lista.find(x=>x.id===pendiente.id);
   if (!t) return;
   const p = personaDe(pendiente.owner);
-  estado.bitacora.push({
+  const entrada = {
     id: t.id, texto: t.texto,
     comentario: $("#compComentario").value.trim(),
     fechaFin: hoyISO(),
     estrellas: t.estrellas,
     persona: p ? (nombreDe(p)||p.rol) : "",
     rol: p ? p.rol : ""
-  });
+  };
+  if (!p && t.tipoTiempo) entrada.tipoTiempo = t.tipoTiempo;
+  estado.bitacora.push(entrada);
   const i = lista.findIndex(x=>x.id===t.id);
   if (i>=0) lista.splice(i,1);
   cerrar("ovCompletar");
@@ -1156,8 +1512,33 @@ function confirmarCompletar(){
   toast("Tarea guardada en la bitácora ✔");
 }
 
+// ---------- Interrupciones (cronófagos) ----------
+function guardarInterrupcion(){
+  const quien = $("#intQuien").value.trim();
+  const motivo = $("#intMotivo").value.trim();
+  if (!quien && !motivo){ toast("Contá quién interrumpió o el motivo"); return; }
+  const ahora = new Date();
+  const hora = String(ahora.getHours()).padStart(2,"0")+":"+String(ahora.getMinutes()).padStart(2,"0");
+  estado.bitacora.push({
+    id: uid(),
+    texto: "Interrupción"+(motivo ? ": "+motivo : ""),
+    comentario: "",
+    fechaFin: hoyISO(),
+    hora,
+    estrellas: 0,
+    persona: quien || "Sin identificar",
+    rol: "",
+    esCronofago: true
+  });
+  $("#intQuien").value = ""; $("#intMotivo").value = "";
+  cerrar("ovInterrupcion");
+  guardar(); renderTodo();
+  toast("Interrupción registrada ⚡");
+}
+
 // ---------- Render: Bitácora ----------
 function textoRealizador(e){
+  if (e.esCronofago) return " · Interrupción — "+e.persona+(e.hora ? " ("+e.hora+")" : "");
   return e.persona ? " · Realizada por "+e.persona+(e.rol ? " ("+e.rol+")" : "") : "";
 }
 function renderBitacora(){
@@ -1204,14 +1585,20 @@ function renderBitacora(){
       const ul = document.createElement("ul");
       for (const e of dias.get(dia)){
         const li = document.createElement("li");
-        li.textContent = "• "+e.texto;
+        if (e.esCronofago) li.classList.add("cronofago");
+        li.textContent = (e.esCronofago ? "⚡ " : "• ")+e.texto;
         if (e.comentario){
           const c = document.createElement("span");
           c.className = "coment";
           c.textContent = " — "+e.comentario;
           li.appendChild(c);
         }
-        if (e.persona){
+        if (e.esCronofago){
+          const q = document.createElement("span");
+          q.className = "quien cronofago-quien";
+          q.textContent = " — interrumpió: "+e.persona+(e.hora ? " ("+e.hora+")" : "");
+          li.appendChild(q);
+        } else if (e.persona){
           const q = document.createElement("span");
           q.className = "quien";
           q.textContent = " ✔ "+e.persona+(e.rol ? " ("+e.rol+")" : "");
@@ -1254,7 +1641,8 @@ function descargarWord(){
     for (const e of g.entradas){
       cuerpo += "<li><b>"+escapar(e.texto)+"</b>";
       if (e.comentario) cuerpo += " — <i>"+escapar(e.comentario)+"</i>";
-      if (e.persona) cuerpo += " <span style='color:#2e8b57;'>· Realizada por "+escapar(e.persona)+(e.rol?" ("+escapar(e.rol)+")":"")+"</span>";
+      if (e.esCronofago) cuerpo += " <span style='color:#c0392b;'>· Interrupción — "+escapar(e.persona)+(e.hora?" ("+escapar(e.hora)+")":"")+"</span>";
+      else if (e.persona) cuerpo += " <span style='color:#2e8b57;'>· Realizada por "+escapar(e.persona)+(e.rol?" ("+escapar(e.rol)+")":"")+"</span>";
       cuerpo += "</li>";
     }
     cuerpo += "</ul>";
@@ -2196,6 +2584,10 @@ function aplicarPermisos(){
   document.querySelectorAll("nav.tabs button").forEach(b=>{
     b.style.display = pestanasPermitidas.includes(b.dataset.tab) ? "" : "none";
   });
+  document.querySelectorAll(".nav-grupo").forEach(g=>{
+    const hayVisible = [...g.querySelectorAll("button")].some(b=>b.style.display!=="none");
+    g.style.display = hayVisible ? "" : "none";
+  });
   $("#btnOpciones").style.display = (rol==="admin") ? "" : "none";
   const activa = document.querySelector("nav.tabs button.activa");
   if (activa && !pestanasPermitidas.includes(activa.dataset.tab)){
@@ -2545,9 +2937,113 @@ function renderProgreso(){
   }
 }
 
+// ---------- Estadísticas (4 tiempos directivos) ----------
+function statsSemana(lunesISO){
+  const fin = sumarDias(lunesISO, 6);
+  const conteo = {productivo:0, informacion:0, reflexion:0, imponderable:0};
+  for (const e of estado.bitacora){
+    if (e.fechaFin < lunesISO || e.fechaFin > fin) continue;
+    if (e.esCronofago){ conteo.imponderable++; continue; }
+    if (!e.persona && e.tipoTiempo && conteo.hasOwnProperty(e.tipoTiempo)) conteo[e.tipoTiempo]++;
+  }
+  return conteo;
+}
+function renderEstadisticas(){
+  if (!estadSemanaRef) estadSemanaRef = lunesDe(hoyISO());
+  const cont = $("#contEstadisticas");
+  cont.innerHTML = "";
+
+  const nav = document.createElement("div");
+  nav.className = "fila-orden";
+  const bAnt = document.createElement("button"); bAnt.textContent = "◀ Anterior";
+  const bHoy = document.createElement("button"); bHoy.textContent = "Semana actual";
+  const bSig = document.createElement("button"); bSig.textContent = "Siguiente ▶";
+  bAnt.onclick = ()=>{ estadSemanaRef = sumarDias(estadSemanaRef,-7); renderEstadisticas(); };
+  bHoy.onclick = ()=>{ estadSemanaRef = lunesDe(hoyISO()); renderEstadisticas(); };
+  bSig.onclick = ()=>{ estadSemanaRef = sumarDias(estadSemanaRef,7); renderEstadisticas(); };
+  nav.append(bAnt, bHoy, bSig);
+  cont.appendChild(nav);
+
+  const titulo = document.createElement("h2");
+  titulo.className = "sub";
+  titulo.textContent = etiquetaSemana(estadSemanaRef);
+  cont.appendChild(titulo);
+
+  const conteo = statsSemana(estadSemanaRef);
+  const total = ORDEN_TIEMPO.reduce((s,k)=>s+conteo[k],0);
+
+  const grid = document.createElement("div");
+  grid.className = "stats-grid";
+
+  const bloqueBarras = document.createElement("div");
+  bloqueBarras.className = "stats-bloque";
+  bloqueBarras.innerHTML = '<h3 class="stats-subtitulo">Distribución de la semana</h3>';
+  if (!total){
+    bloqueBarras.innerHTML += '<p class="sin-datos">Todavía no hay tareas propias terminadas ni interrupciones cargadas esta semana.</p>';
+  } else {
+    for (const k of ORDEN_TIEMPO){
+      const n = conteo[k];
+      const pct = Math.round(n/total*100);
+      const fila = document.createElement("div");
+      fila.className = "stats-fila";
+      fila.innerHTML =
+        '<span class="stats-etq">'+TIPOS_TIEMPO[k].icon+' '+TIPOS_TIEMPO[k].label+'</span>'+
+        '<div class="barra-prog stats-barra"><div style="width:'+pct+'%; background:'+TIPOS_TIEMPO[k].color+';"></div></div>'+
+        '<span class="stats-num">'+n+' ('+pct+'%)</span>';
+      bloqueBarras.appendChild(fila);
+    }
+  }
+  grid.appendChild(bloqueBarras);
+
+  const bloqueTorta = document.createElement("div");
+  bloqueTorta.className = "stats-bloque";
+  bloqueTorta.innerHTML = '<h3 class="stats-subtitulo">Gráfico de torta</h3>';
+  if (!total){
+    bloqueTorta.innerHTML += '<p class="sin-datos">Sin datos esta semana.</p>';
+  } else {
+    let acumulado = 0;
+    const partes = [];
+    for (const k of ORDEN_TIEMPO){
+      const n = conteo[k];
+      if (!n) continue;
+      const pctIni = acumulado/total*360;
+      acumulado += n;
+      const pctFin = acumulado/total*360;
+      partes.push(TIPOS_TIEMPO[k].color+" "+pctIni.toFixed(2)+"deg "+pctFin.toFixed(2)+"deg");
+    }
+    const torta = document.createElement("div");
+    torta.className = "torta";
+    torta.style.background = "conic-gradient("+partes.join(", ")+")";
+    bloqueTorta.appendChild(torta);
+    const leyenda = document.createElement("div");
+    leyenda.className = "torta-leyenda";
+    for (const k of ORDEN_TIEMPO){
+      const n = conteo[k];
+      if (!n) continue;
+      const pct = Math.round(n/total*100);
+      const item = document.createElement("span");
+      item.className = "torta-item";
+      item.innerHTML = '<i style="background:'+TIPOS_TIEMPO[k].color+';"></i>'+TIPOS_TIEMPO[k].label+' — '+pct+'%';
+      leyenda.appendChild(item);
+    }
+    bloqueTorta.appendChild(leyenda);
+  }
+  grid.appendChild(bloqueTorta);
+
+  cont.appendChild(grid);
+}
+
 // ---------- Generales ----------
 function cerrar(id){ document.getElementById(id).classList.remove("visible"); }
-function renderTodo(){ renderTareas(); renderBitacora(); renderEquipo(); renderDocentes(); renderDisponible(); renderLicencias(); renderParo(); renderProgreso(); }
+function renderTodo(){ renderTareas(); renderBitacora(); renderEquipo(); renderDocentes(); renderDisponible(); renderLicencias(); renderParo(); renderProgreso(); renderEstadisticas(); }
+
+// Sidebar (menú lateral agrupado, colapsable en celular)
+const sidebarNav = $("#sidebarNav");
+const sidebarBackdrop = $("#sidebarBackdrop");
+function abrirSidebar(){ sidebarNav.classList.add("abierta"); sidebarBackdrop.classList.add("visible"); }
+function cerrarSidebar(){ sidebarNav.classList.remove("abierta"); sidebarBackdrop.classList.remove("visible"); }
+$("#btnMenu").onclick = ()=> sidebarNav.classList.contains("abierta") ? cerrarSidebar() : abrirSidebar();
+sidebarBackdrop.onclick = cerrarSidebar;
 
 // Tabs
 document.querySelectorAll("nav.tabs button").forEach(b=>{
@@ -2556,6 +3052,7 @@ document.querySelectorAll("nav.tabs button").forEach(b=>{
     document.querySelectorAll("section.panel").forEach(x=>x.classList.remove("activa"));
     b.classList.add("activa");
     document.getElementById("panel-"+b.dataset.tab).classList.add("activa");
+    cerrarSidebar();
   };
 });
 // Orden
@@ -2622,6 +3119,12 @@ $("#btnProgresoWord").onclick = progresoWord;
 $("#btnProgresoCopiar").onclick = progresoCopiar;
 $("#bitFiltro").onchange = ()=>{ bitFiltroFecha = $("#bitFiltro").value; renderBitacora(); };
 $("#btnBitTodo").onclick = ()=>{ bitFiltroFecha = ""; $("#bitFiltro").value = ""; renderBitacora(); };
+$("#btnFab").onclick = ()=>{ $("#ovInterrupcion").classList.add("visible"); $("#intQuien").focus(); };
+$("#btnGuardarInterrupcion").onclick = guardarInterrupcion;
+$("#logoBtn").onclick = ()=>{ $("#formNuevoFondo").style.display = "none"; renderFondos(); $("#ovFondos").classList.add("visible"); };
+$("#btnNuevoFondo").onclick = ()=>abrirFormFondo(null);
+$("#btnCancelarFondo").onclick = ()=>{ $("#formNuevoFondo").style.display = "none"; };
+$("#btnGuardarFondo").onclick = guardarFondo;
 document.querySelectorAll("[data-cerrar]").forEach(b=>{ b.onclick = ()=>cerrar(b.dataset.cerrar); });
 document.querySelectorAll(".overlay").forEach(ov=>{
   ov.addEventListener("click", (e)=>{ if (e.target===ov) ov.classList.remove("visible"); });
