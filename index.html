@@ -202,6 +202,10 @@
   .overlay{position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:50; padding:16px;}
   .overlay.visible{display:flex;}
   .modal{background:#fff; border-radius:12px; padding:22px; width:100%; max-width:540px; max-height:90vh; overflow-y:auto;}
+  /* Fondos: sin telón oscuro, para poder ver los cambios de color en vivo en el resto de la página */
+  #ovFondos{background:transparent; justify-content:flex-end; align-items:flex-start; padding:80px 26px 26px;}
+  #ovFondos .modal{box-shadow:0 12px 40px rgba(0,0,0,.35); border:1px solid var(--borde);}
+  body.tema-oscuro #ovFondos .modal{box-shadow:0 12px 40px rgba(0,0,0,.6);}
   .modal h3{color:var(--azul-osc); margin-bottom:14px;}
   .modal label{display:block; font-size:.83rem; color:var(--gris); margin:10px 0 4px 0;}
   .modal input[type=text], .modal input[type=date], .modal input[type=tel], .modal input[type=email],
