@@ -32,7 +32,7 @@
   .sidebar-backdrop{display:none; position:fixed; inset:0; background:rgba(0,0,0,.42); z-index:55;}
   .sidebar-backdrop.visible{display:block;}
   nav.tabs.sidebar{display:flex; flex-direction:row; align-items:flex-start; gap:0; width:206px; flex-shrink:0;
-    padding:18px 0 24px 22px; box-sizing:border-box; background:#f4f2ec; border-right:1px solid var(--borde); overflow:visible;}
+    padding:18px 0 24px 22px; box-sizing:border-box; background:#eae6d9; border-right:1px solid var(--borde); overflow:visible;}
   /* Colores de categoría — configurables en un tema personalizado */
   .g-trabajo{--grupo-color:#e0935f;}
   .g-equipo{--grupo-color:#4f8fc9;}
@@ -62,8 +62,8 @@
   }
   .nav-grupo-items button:hover{background:#e6e2d6;}
   .nav-grupo-items button.activa{background:var(--grupo-color); color:#fff;}
-  body.tema-sepia nav.tabs.sidebar{background:#f3ead3;}
-  body.tema-oscuro nav.tabs.sidebar{background:#262b32;}
+  body.tema-sepia nav.tabs.sidebar{background:#e6d7ae;}
+  body.tema-oscuro nav.tabs.sidebar{background:#1a1e24;}
   body.tema-oscuro .nav-grupo-items button{color:#c9ced4;}
   body.tema-oscuro .nav-grupo-items button:hover{background:#3a414b;}
 
@@ -683,6 +683,8 @@
       <input type="color" id="fFondo" value="#f6f4ee">
       <label>Color de fondo de paneles y tarjetas</label>
       <input type="color" id="fPapel" value="#ffffff">
+      <label>Color de la barra lateral (menú de pestañas)</label>
+      <input type="color" id="fSidebar" value="#eae6d9">
       <label>Color de acento (botones, cabecera)</label>
       <input type="color" id="fAcento" value="#2c5f8a">
       <label>Color de texto</label>
@@ -1479,7 +1481,7 @@ function generarCSSPersonalizado(t){
     reglaFuente+
     "body.tema-personalizado header.top{background:"+acentoOsc+";}"+
     "body.tema-personalizado main{background:"+t.papel+"; border-color:"+borde+";}"+
-    "body.tema-personalizado nav.tabs.sidebar{background:"+fondoAlt+"; border-color:"+borde+";}"+
+    "body.tema-personalizado nav.tabs.sidebar{background:"+(t.sidebar||"#eae6d9")+"; border-color:"+borde+";}"+
     "body.tema-personalizado .g-trabajo{--grupo-color:"+gTrabajo+";}"+
     "body.tema-personalizado .g-equipo{--grupo-color:"+gEquipo+";}"+
     "body.tema-personalizado .g-estudiantes{--grupo-color:"+gEstudiantes+";}"+
@@ -1505,9 +1507,9 @@ function nombreTemaFijo(k){ return {claro:"Claro", sepia:"Sepia", oscuro:"Oscuro
 function renderFondos(){
   const activo = temaLocalActivo();
   const MUESTRAS_FIJAS = {
-    claro:{fondo:"#f6f4ee", papel:"#ffffff", acento:"#2c5f8a"},
-    sepia:{fondo:"#efe3cd", papel:"#faf3e3", acento:"#2c5f8a"},
-    oscuro:{fondo:"#20242b", papel:"#2a3038", acento:"#5c8fc2"}
+    claro:{sidebar:"#eae6d9", fondo:"#f6f4ee", papel:"#ffffff", acento:"#2c5f8a"},
+    sepia:{sidebar:"#e6d7ae", fondo:"#efe3cd", papel:"#faf3e3", acento:"#2c5f8a"},
+    oscuro:{sidebar:"#1a1e24", fondo:"#20242b", papel:"#2a3038", acento:"#5c8fc2"}
   };
   const fijos = $("#fondosFijos");
   fijos.innerHTML = "";
@@ -1515,7 +1517,7 @@ function renderFondos(){
     const m = MUESTRAS_FIJAS[k];
     const card = document.createElement("div");
     card.className = "fondo-card"+(activo===k ? " activo" : "");
-    card.innerHTML = '<div class="fondo-muestra" style="background:linear-gradient(135deg,'+m.fondo+' 50%,'+m.papel+' 50%); border:1px solid '+m.acento+';"></div>'+
+    card.innerHTML = '<div class="fondo-muestra" style="background:linear-gradient(135deg,'+m.sidebar+' 33%,'+m.fondo+' 33% 66%,'+m.papel+' 66%); border:1px solid '+m.acento+';"></div>'+
       '<div class="fondo-nombre">'+nombreTemaFijo(k)+'</div>';
     card.onclick = ()=>elegirTemaLocal(k);
     fijos.appendChild(card);
@@ -1530,7 +1532,7 @@ function renderFondos(){
     const valor = "custom:"+t.id;
     const card = document.createElement("div");
     card.className = "fondo-card"+(activo===valor ? " activo" : "");
-    card.innerHTML = '<div class="fondo-muestra" style="background:linear-gradient(135deg,'+t.fondo+' 50%,'+t.papel+' 50%); border:1px solid '+t.acento+';"></div>'+
+    card.innerHTML = '<div class="fondo-muestra" style="background:linear-gradient(135deg,'+(t.sidebar||"#eae6d9")+' 33%,'+t.fondo+' 33% 66%,'+t.papel+' 66%); border:1px solid '+t.acento+';"></div>'+
       '<div class="fondo-nombre">'+escapar(t.nombre)+'</div>'+
       '<div class="fondo-acciones"><button type="button" data-accion="editar" title="Editar">✏️</button><button type="button" data-accion="borrar" title="Eliminar">🗑️</button></div>';
     card.querySelector('[data-accion="editar"]').onclick = (ev)=>{ ev.stopPropagation(); abrirFormFondo(t); };
@@ -1552,6 +1554,7 @@ function abrirFormFondo(t){
   $("#fNombre").value = t ? t.nombre : "";
   $("#fFondo").value = t ? t.fondo : "#f6f4ee";
   $("#fPapel").value = t ? t.papel : "#ffffff";
+  $("#fSidebar").value = (t && t.sidebar) ? t.sidebar : "#eae6d9";
   $("#fAcento").value = t ? t.acento : "#2c5f8a";
   $("#fTexto").value = t ? t.texto : "#2b2b2b";
   $("#fGrupoTrabajo").value = (t && t.grupoTrabajo) ? t.grupoTrabajo : "#e0935f";
@@ -1568,7 +1571,7 @@ function abrirFormFondo(t){
 }
 function fondoDesdeFormulario(){
   return {
-    fondo: $("#fFondo").value, papel: $("#fPapel").value, acento: $("#fAcento").value, texto: $("#fTexto").value,
+    fondo: $("#fFondo").value, papel: $("#fPapel").value, sidebar: $("#fSidebar").value, acento: $("#fAcento").value, texto: $("#fTexto").value,
     grupoTrabajo: $("#fGrupoTrabajo").value, grupoEquipo: $("#fGrupoEquipo").value,
     grupoEstudiantes: $("#fGrupoEstudiantes").value, grupoNovedades: $("#fGrupoNovedades").value,
     grupoContactos: $("#fGrupoContactos").value,
