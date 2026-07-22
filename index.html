@@ -31,35 +31,41 @@
   .btn-hamburguesa:hover{background:rgba(255,255,255,.25);}
   .sidebar-backdrop{display:none; position:fixed; inset:0; background:rgba(0,0,0,.42); z-index:55;}
   .sidebar-backdrop.visible{display:block;}
-  nav.tabs.sidebar{display:flex; flex-direction:column; gap:0; width:206px; flex-shrink:0;
-    padding:18px 12px 24px 22px; box-sizing:border-box; background:#f4f2ec; border-right:1px solid var(--borde);}
-  .nav-grupo{margin-bottom:16px;}
-  .nav-grupo-titulo{font-size:.68rem; text-transform:uppercase; letter-spacing:.7px; color:var(--gris);
-    font-weight:700; padding:2px 10px 6px 10px;}
-  nav.tabs button{
-    display:flex; align-items:center; gap:8px; width:100%; text-align:left;
-    padding:10px 12px; border:none; border-left:4px solid transparent; border-radius:0 8px 8px 0;
-    background:transparent; color:#5b5b5b; cursor:pointer; font-size:.9rem; font-weight:600; margin-bottom:2px;
+  nav.tabs.sidebar{display:flex; flex-direction:row; align-items:flex-start; gap:0; width:206px; flex-shrink:0;
+    padding:18px 0 24px 22px; box-sizing:border-box; background:#f4f2ec; border-right:1px solid var(--borde); overflow:visible;}
+  /* Colores de categoría — configurables en un tema personalizado */
+  .g-trabajo{--grupo-color:#e0935f;}
+  .g-equipo{--grupo-color:#4f8fc9;}
+  .g-estudiantes{--grupo-color:#3fa1a1;}
+  .g-novedades{--grupo-color:#c96b6b;}
+  .g-contactos{--grupo-color:#8a6fb0;}
+  /* Columna fija de lengüetas (como los separadores de una carpeta): no se mueven
+     al abrir una categoría, solo se despliega el panel de opciones a su derecha. */
+  .nav-tabs-col{display:flex; flex-direction:column; gap:10px; flex-shrink:0;}
+  .nav-grupo-tab{
+    flex-shrink:0; width:38px; min-height:92px; border:none; border-radius:14px 0 0 14px;
+    background:var(--grupo-color); color:#fff; cursor:pointer; font-weight:800; font-size:.82rem;
+    letter-spacing:.5px; writing-mode:vertical-rl; text-orientation:mixed;
+    display:flex; align-items:center; justify-content:center; padding:10px 6px;
+    box-shadow:2px 2px 5px rgba(0,0,0,.15); opacity:.8; transform:translateX(-10px);
+    transition:transform .15s ease, opacity .15s ease;
   }
-  nav.tabs button[data-tab="tareas"]{--ct:#f9b384;}
-  nav.tabs button[data-tab="bitacora"]{--ct:#7fd6c0;}
-  nav.tabs button[data-tab="equipo"]{--ct:#85bdec;}
-  nav.tabs button[data-tab="docentes"]{--ct:#c49bea;}
-  nav.tabs button[data-tab="disponible"]{--ct:#f28cc0;}
-  nav.tabs button[data-tab="licencias"]{--ct:#f5d266;}
-  nav.tabs button[data-tab="paro"]{--ct:#f28b82;}
-  nav.tabs button[data-tab="progreso"]{--ct:#7fcf8e;}
-  nav.tabs button[data-tab="estadisticas"]{--ct:#b8a1e3;}
-  nav.tabs button:hover{background:#ece8dd;}
-  .nav-separador{border-top:1px solid var(--borde); margin:4px 10px 12px 10px;}
-  body.tema-oscuro .nav-separador{border-color:#4a4f57;}
-  nav.tabs button.activa{border-left-color:var(--ct, var(--azul));
-    background:color-mix(in srgb, var(--ct, var(--azul)) 24%, #fff); color:#2b2b2b;}
+  .nav-grupo-tab:hover{opacity:1; transform:translateX(-3px);}
+  .nav-grupo-tab.activo{transform:translateX(0); opacity:1; box-shadow:3px 3px 10px rgba(0,0,0,.28);}
+  .nav-items-panel{flex:1; min-width:0; padding:2px 6px 2px 8px;}
+  .nav-grupo-items{display:none; flex-direction:column; gap:2px;}
+  .nav-grupo-items.abierto{display:flex;}
+  .nav-grupo-items button{
+    display:flex; align-items:center; gap:6px; text-align:left; width:100%;
+    padding:8px 10px; border:none; border-radius:6px; background:transparent;
+    color:#4a4a4a; cursor:pointer; font-size:.83rem; font-weight:600;
+  }
+  .nav-grupo-items button:hover{background:#e6e2d6;}
+  .nav-grupo-items button.activa{background:var(--grupo-color); color:#fff;}
   body.tema-sepia nav.tabs.sidebar{background:#f3ead3;}
   body.tema-oscuro nav.tabs.sidebar{background:#262b32;}
-  body.tema-oscuro nav.tabs button{color:#c9ced4;}
-  body.tema-oscuro nav.tabs button:hover{background:#323942;}
-  body.tema-oscuro .nav-grupo-titulo{color:#8b93a0;}
+  body.tema-oscuro .nav-grupo-items button{color:#c9ced4;}
+  body.tema-oscuro .nav-grupo-items button:hover{background:#3a414b;}
 
   main{background:var(--papel); border:1px solid var(--borde); margin:18px 22px 30px 14px; flex:1; min-width:0;
     border-radius:10px; padding:22px; min-height:60vh;}
@@ -133,6 +139,21 @@
   .dia ul li{padding:5px 0; border-bottom:1px dotted #e5e0d4; font-size:.92rem;}
   .coment{color:var(--gris); font-style:italic;}
   .quien{color:var(--verde); font-size:.85rem; font-weight:600;}
+
+  /* ---- Memoria Anual: preguntas guía con respuestas guardadas ---- */
+  .bloque-pregunta-memoria{margin-bottom:24px;}
+  .pregunta-memoria{display:block; font-weight:700; color:var(--azul-osc); font-size:.95rem; margin-bottom:10px;}
+  .lista-notas-memoria{display:flex; flex-direction:column; gap:8px; margin-bottom:10px;}
+  .nota-memoria{border:1px solid var(--borde); border-radius:8px; background:#fbfaf6; padding:10px 12px;}
+  .nota-memoria-texto{white-space:pre-wrap; font-size:.92rem; line-height:1.45;}
+  .nota-memoria-pie{display:flex; align-items:center; gap:10px; margin-top:8px;}
+  .nota-memoria-fecha{font-size:.74rem; color:var(--gris); margin-right:auto;}
+  .btn-nota-editar, .btn-nota-borrar{border:none; background:transparent; cursor:pointer; font-size:.95rem; padding:2px 4px;}
+  .bloque-pregunta-memoria textarea{width:100%; min-height:130px; padding:10px 12px; border:1px solid var(--borde);
+    border-radius:8px; font-size:.93rem; font-family:inherit; resize:vertical; box-sizing:border-box;}
+  .aviso-edicion-memoria{font-size:.8rem; color:var(--gris);}
+  .aviso-edicion-memoria a{color:var(--azul); cursor:pointer;}
+  body.tema-oscuro .nota-memoria{background:#2c333c;}
 
   /* ---- EQUIPO / DOCENTES ---- */
   .grilla-personas{display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:16px;}
@@ -351,6 +372,20 @@
   .fondo-acciones button{border:none; background:none; cursor:pointer; font-size:.8rem; padding:1px 4px;}
   .modal input[type=color]{width:100%; height:38px; padding:2px; border:1px solid var(--borde); border-radius:6px; cursor:pointer;}
 
+  /* ---- ALUMNOS / ESCUELAS DE ORIGEN ---- */
+  .acta-item{border:1px solid var(--borde); border-radius:8px; padding:8px 10px; margin-bottom:8px; font-size:.88rem; position:relative;}
+  .acta-item .acta-fecha{font-weight:700; color:var(--azul-osc);}
+  body.tema-oscuro .acta-item .acta-fecha{color:#a8c6e8;}
+  .acta-item .acta-borrar{position:absolute; top:6px; right:8px; border:none; background:none; cursor:pointer; font-size:.9rem;}
+  .chip-estado{font-size:.72rem; padding:2px 9px; border-radius:12px; color:#fff; white-space:nowrap; font-weight:700;}
+  .mini-dato{font-size:.8rem; color:var(--gris); padding:1px 0;}
+
+  /* ---- BUSCADOR GLOBAL ---- */
+  .resultado-busqueda{border:1px solid var(--borde); border-radius:8px; padding:8px 10px; margin-bottom:8px; cursor:pointer;}
+  .resultado-busqueda:hover{background:#eef2f6;}
+  body.tema-oscuro .resultado-busqueda:hover{background:#3a414b;}
+  .resultado-busqueda .rb-tipo{font-size:.68rem; text-transform:uppercase; letter-spacing:.4px; color:var(--gris); font-weight:700;}
+
   @media (max-width:860px){
     .btn-hamburguesa{display:inline-flex; align-items:center; justify-content:center;}
     nav.tabs.sidebar{position:fixed; top:0; left:0; height:100vh; z-index:60;
@@ -367,6 +402,8 @@
   }
 </style>
 <style id="estiloPersonalizado"></style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
 
@@ -388,25 +425,37 @@
 <div class="layout">
 <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 <nav class="tabs sidebar" id="sidebarNav">
-  <div class="nav-grupo">
-    <h4 class="nav-grupo-titulo">Mi trabajo</h4>
-    <button data-tab="tareas" class="activa">📋 Tareas</button>
-    <button data-tab="bitacora">📖 Bitácora</button>
-    <button data-tab="progreso">📈 Progreso</button>
+  <div class="nav-tabs-col">
+    <button type="button" class="nav-grupo-tab g-trabajo activo" data-grupo="trabajo">Mi trabajo</button>
+    <button type="button" class="nav-grupo-tab g-equipo" data-grupo="equipo">Equipo</button>
+    <button type="button" class="nav-grupo-tab g-estudiantes" data-grupo="estudiantes">Estudiantes</button>
+    <button type="button" class="nav-grupo-tab g-novedades" data-grupo="novedades">Novedades</button>
+    <button type="button" class="nav-grupo-tab g-contactos" data-grupo="contactos">Contactos</button>
   </div>
-  <div class="nav-grupo">
-    <h4 class="nav-grupo-titulo">Equipo</h4>
-    <button data-tab="equipo">👥 Equipo</button>
-    <button data-tab="docentes">🎓 Docentes</button>
-    <button data-tab="disponible">🕐 Disponible</button>
+  <div class="nav-items-panel">
+    <div class="nav-grupo-items g-trabajo abierto" data-grupo="trabajo">
+      <button data-tab="tareas" class="activa">📋 Tareas</button>
+      <button data-tab="bitacora">📖 Bitácora</button>
+      <button data-tab="progreso">📈 Progreso</button>
+      <button data-tab="estadisticas">📊 Estadísticas</button>
+      <button data-tab="memoria">📘 Memoria Anual</button>
+    </div>
+    <div class="nav-grupo-items g-equipo" data-grupo="equipo">
+      <button data-tab="equipo">👥 Equipo</button>
+      <button data-tab="docentes">🎓 Docentes</button>
+      <button data-tab="disponible">🕐 Disponible</button>
+    </div>
+    <div class="nav-grupo-items g-estudiantes" data-grupo="estudiantes">
+      <button data-tab="alumnos">🎒 Alumnos</button>
+    </div>
+    <div class="nav-grupo-items g-novedades" data-grupo="novedades">
+      <button data-tab="licencias">📄 Licencias</button>
+      <button data-tab="paro">✊ Paro</button>
+    </div>
+    <div class="nav-grupo-items g-contactos" data-grupo="contactos">
+      <button data-tab="contactos">📇 Contactos</button>
+    </div>
   </div>
-  <div class="nav-grupo">
-    <h4 class="nav-grupo-titulo">Novedades</h4>
-    <button data-tab="licencias">📄 Licencias</button>
-    <button data-tab="paro">✊ Paro</button>
-  </div>
-  <div class="nav-separador"></div>
-  <button data-tab="estadisticas">📊 Estadísticas</button>
 </nav>
 
 <main>
@@ -460,6 +509,7 @@
 
   <!-- EQUIPO -->
   <section class="panel" id="panel-equipo">
+    <button class="btn-agregar-doc" id="btnAgregarEquipo">➕ Agregar integrante</button>
     <div class="grilla-personas" id="grillaEquipo"></div>
   </section>
 
@@ -522,6 +572,42 @@
   <!-- ESTADÍSTICAS -->
   <section class="panel" id="panel-estadisticas">
     <div id="contEstadisticas"></div>
+  </section>
+
+  <!-- ALUMNOS -->
+  <section class="panel" id="panel-alumnos">
+    <div class="fila-orden">
+      <button data-vista-al="alumnos" class="sel">🎒 Alumnos</button>
+      <button data-vista-al="escuelas">🏫 Escuelas de origen</button>
+      <button data-vista-al="mapa">🗺️ Mapa</button>
+    </div>
+    <div id="vistaAlAlumnos">
+      <button class="btn-agregar-doc" id="btnAgregarAlumno">➕ Agregar alumno</button>
+      <div class="grilla-personas" id="grillaAlumnos"></div>
+    </div>
+    <div id="vistaAlEscuelas" style="display:none;">
+      <button class="btn-agregar-doc" id="btnAgregarEscuela">➕ Agregar escuela de origen</button>
+      <div class="grilla-personas" id="grillaEscuelas"></div>
+    </div>
+    <div id="vistaAlMapa" style="display:none;">
+      <div class="fila-orden">
+        <label class="chk" style="display:flex; align-items:center; gap:5px;"><input type="checkbox" id="capaMapaAlumnos" checked> Estudiantes</label>
+        <label class="chk" style="display:flex; align-items:center; gap:5px;"><input type="checkbox" id="capaMapaEscuelas" checked> Escuelas</label>
+      </div>
+      <div id="mapaAlumnos" style="height:460px; border:1px solid var(--borde); border-radius:10px;"></div>
+    </div>
+  </section>
+
+  <!-- MEMORIA ANUAL -->
+  <section class="panel" id="panel-memoria">
+    <div id="contMemoria"></div>
+  </section>
+
+  <!-- CONTACTOS -->
+  <section class="panel" id="panel-contactos">
+    <button class="btn-agregar-doc" id="btnAgregarContacto">➕ Agregar contacto</button>
+    <input type="text" id="buscarContactosInput" placeholder="Buscar por nombre, escuela, teléfono..." autocomplete="off" style="margin-bottom:14px;">
+    <div id="resultadosContactos"></div>
   </section>
 </main>
 </div>
@@ -595,6 +681,14 @@
       <input type="color" id="fAcento" value="#2c5f8a">
       <label>Color de texto</label>
       <input type="color" id="fTexto" value="#2b2b2b">
+      <label style="margin-top:14px; border-top:1px dashed var(--borde); padding-top:10px;">Colores de las pestañas del costado, por grupo</label>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div><label style="margin-top:4px; font-size:.78rem;">Mi trabajo</label><input type="color" id="fGrupoTrabajo" value="#e0935f"></div>
+        <div><label style="margin-top:4px; font-size:.78rem;">Equipo</label><input type="color" id="fGrupoEquipo" value="#4f8fc9"></div>
+        <div><label style="margin-top:4px; font-size:.78rem;">Estudiantes</label><input type="color" id="fGrupoEstudiantes" value="#3fa1a1"></div>
+        <div><label style="margin-top:4px; font-size:.78rem;">Novedades</label><input type="color" id="fGrupoNovedades" value="#c96b6b"></div>
+        <div><label style="margin-top:4px; font-size:.78rem;">Contactos</label><input type="color" id="fGrupoContactos" value="#8a6fb0"></div>
+      </div>
       <div class="pie">
         <button type="button" class="b-cancelar" id="btnCancelarFondo">Cancelar</button>
         <button type="button" class="b-guardar" id="btnGuardarFondo">Guardar fondo</button>
@@ -630,6 +724,10 @@
     <input type="text" id="pNombre">
     <label>Apellido</label>
     <input type="text" id="pApellido">
+    <div id="bloqueRolEquipo" style="display:none;">
+      <label>Rol / cargo</label>
+      <input type="text" id="pRol" placeholder="Ej.: Director/a, POT, Coordinador/a...">
+    </div>
     <label>Teléfono</label>
     <input type="tel" id="pTelefono">
     <label>Correo</label>
@@ -659,7 +757,7 @@
     <label>Notas</label>
     <textarea id="pNotas" placeholder="Observaciones, acuerdos, etc."></textarea>
     <div class="pie">
-      <button class="b-rojo" id="btnBorrarPersona" style="display:none;">Eliminar docente</button>
+      <button class="b-rojo" id="btnBorrarPersona" style="display:none;">Eliminar</button>
       <button class="b-cancelar" data-cerrar="ovPersona">Cancelar</button>
       <button class="b-guardar" id="btnGuardarPersona">Guardar</button>
     </div>
@@ -801,6 +899,193 @@
   </div>
 </div>
 
+<!-- Modal ficha de escuela de origen -->
+<div class="overlay" id="ovEscuela">
+  <div class="modal">
+    <h3 id="escTitulo">Escuela de origen</h3>
+    <label>N° de escuela</label>
+    <input type="text" id="escNumero" placeholder="Ej.: 370">
+    <label>Nombre</label>
+    <input type="text" id="escNombre">
+    <label>Zona</label>
+    <select id="escZona">
+      <option value="">Sin zona</option>
+      <option value="norte">Norte</option>
+      <option value="sur">Sur</option>
+    </select>
+    <label>Director/a</label>
+    <div style="display:flex; gap:8px;">
+      <input type="text" id="escDirNombre" placeholder="Nombre" style="flex:2;">
+      <input type="tel" id="escDirTel" placeholder="Teléfono" style="flex:1;">
+    </div>
+    <label>Vicedirector/a</label>
+    <div style="display:flex; gap:8px;">
+      <input type="text" id="escVicNombre" placeholder="Nombre" style="flex:2;">
+      <input type="tel" id="escVicTel" placeholder="Teléfono" style="flex:1;">
+    </div>
+    <label>POT</label>
+    <div style="display:flex; gap:8px;">
+      <input type="text" id="escPotNombre" placeholder="Nombre" style="flex:2;">
+      <input type="tel" id="escPotTel" placeholder="Teléfono" style="flex:1;">
+    </div>
+    <label>Correo de la escuela</label>
+    <input type="email" id="escCorreo">
+    <label>Dirección</label>
+    <input type="text" id="escDireccion" placeholder="Calle y número, localidad">
+    <p style="margin-top:4px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+      <a id="escVerMaps" href="#" target="_blank" rel="noopener" style="font-size:.85rem;">📍 Ver en Maps</a>
+      <button type="button" class="btn-mini-tarea" id="btnUbicarEscuela" style="width:auto; margin-top:0; padding:5px 12px;">🔍 Ubicar en el mapa</button>
+    </p>
+    <div id="escMiniMapa" style="display:none; height:180px; border:1px solid var(--borde); border-radius:8px; margin-top:6px;"></div>
+    <div class="pie">
+      <button class="b-rojo" id="btnBorrarEscuela" style="display:none;">Eliminar escuela</button>
+      <button class="b-cancelar" data-cerrar="ovEscuela">Cancelar</button>
+      <button class="b-guardar" id="btnGuardarEscuela">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal ficha de alumno -->
+<div class="overlay" id="ovAlumno">
+  <div class="modal">
+    <h3 id="alTitulo">Alumno</h3>
+    <label>Nombre</label>
+    <input type="text" id="alNombre">
+    <label>Apellido</label>
+    <input type="text" id="alApellido">
+    <label>Escuela de origen</label>
+    <select id="alEscuela"></select>
+    <label>Curso/año en la escuela de origen</label>
+    <input type="text" id="alCurso" placeholder="Ej.: 3° año">
+    <label>Zona</label>
+    <select id="alZona">
+      <option value="">Sin zona</option>
+      <option value="norte">Norte</option>
+      <option value="sur">Sur</option>
+    </select>
+    <label>Fecha de ingreso a la modalidad</label>
+    <input type="date" id="alFechaIngreso">
+    <label>Estado</label>
+    <select id="alEstado">
+      <option value="activo">Activo</option>
+      <option value="revinculado">Revinculado</option>
+      <option value="continua">Continúa (necesita más tiempo)</option>
+      <option value="baja">Baja</option>
+    </select>
+    <label>Padre/madre/tutor 1 (obligatorio)</label>
+    <div style="display:flex; gap:8px;">
+      <input type="text" id="alP1Nombre" placeholder="Nombre" style="flex:2;">
+      <input type="tel" id="alP1Tel" placeholder="Teléfono" style="flex:1;">
+    </div>
+    <label>Padre/madre/tutor 2 (opcional)</label>
+    <div style="display:flex; gap:8px;">
+      <input type="text" id="alP2Nombre" placeholder="Nombre" style="flex:2;">
+      <input type="tel" id="alP2Tel" placeholder="Teléfono" style="flex:1;">
+    </div>
+    <label>Correo del estudiante</label>
+    <input type="email" id="alCorreo">
+    <label>Dirección</label>
+    <input type="text" id="alDireccion" placeholder="Calle y número, localidad">
+    <p style="margin-top:4px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+      <a id="alVerMaps" href="#" target="_blank" rel="noopener" style="font-size:.85rem;">📍 Ver en Maps</a>
+      <button type="button" class="btn-mini-tarea" id="btnUbicarAlumno" style="width:auto; margin-top:0; padding:5px 12px;">🔍 Ubicar en el mapa</button>
+    </p>
+    <div id="alMiniMapa" style="display:none; height:180px; border:1px solid var(--borde); border-radius:8px; margin-top:6px;"></div>
+    <label>Docentes asignados</label>
+    <div id="alDocentesChks" class="chks-pestanas" style="grid-template-columns:1fr 1fr;"></div>
+    <label>Notas</label>
+    <textarea id="alNotas" placeholder="Observaciones, seguimiento..."></textarea>
+
+    <div class="seccion-admin" id="zonaActas">
+      <label>📝 Actas de vinculación</label>
+      <div id="contActas"></div>
+      <div id="sinAlumnoActas" style="display:none;"><p class="sin-datos" style="padding:4px 0;">Guardá el alumno primero para poder cargar actas.</p></div>
+      <button type="button" class="btn-mini-tarea" id="btnMostrarFormActa" style="margin-top:6px;">➕ Nueva acta</button>
+      <div id="formNuevaActa" style="display:none; margin-top:10px; border-top:1px dashed var(--borde); padding-top:10px;">
+        <label>Fecha</label>
+        <input type="date" id="actaFecha">
+        <label>Materias/espacios que cubre la Escuela 370</label>
+        <input type="text" id="actaMaterias370" placeholder="Ej.: Matemática, Lengua">
+        <label>Materias/espacios que cubre la escuela de origen</label>
+        <input type="text" id="actaMateriasOrigen" placeholder="Ej.: Educación Física, Talleres">
+        <label>Tiempo de intervención estipulado</label>
+        <input type="text" id="actaTiempo" placeholder="Ej.: 3 meses, hasta fin de año...">
+        <label>Anotación</label>
+        <textarea id="actaAnotacion"></textarea>
+        <div class="pie">
+          <button type="button" class="b-cancelar" id="btnCancelarActa">Cancelar</button>
+          <button type="button" class="b-guardar" id="btnGuardarActa">Agregar acta</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pie">
+      <button class="b-rojo" id="btnBorrarAlumno" style="display:none;">Eliminar alumno</button>
+      <button class="b-cancelar" data-cerrar="ovAlumno">Cancelar</button>
+      <button class="b-guardar" id="btnGuardarAlumno">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal contacto (agenda) -->
+<div class="overlay" id="ovContacto">
+  <div class="modal">
+    <h3 id="contactoTitulo">➕ Nuevo contacto</h3>
+    <label>Tipo de contacto</label>
+    <select id="cTipo">
+      <option value="escuela">Personal de una escuela</option>
+      <option value="familia">Familia de un/a estudiante</option>
+      <option value="otro">Otro</option>
+    </select>
+
+    <div id="bloqueCEscuela" style="display:none;">
+      <label>Rol</label>
+      <select id="cRol">
+        <option value="Director/a">Director/a</option>
+        <option value="Vicedirector/a">Vicedirector/a</option>
+        <option value="Secretaria">Secretaria</option>
+        <option value="POT">POT</option>
+        <option value="otro">Otro</option>
+      </select>
+      <input type="text" id="cRolOtro" placeholder="Especificar rol" style="display:none; margin-top:8px;">
+      <label>Escuela (opcional)</label>
+      <select id="cEscuela"></select>
+    </div>
+
+    <div id="bloqueCFamilia" style="display:none;">
+      <label>Parentesco</label>
+      <input type="text" id="cParentesco" placeholder="Ej.: Madre, tío, tutor/a...">
+      <label>Alumno/a (opcional)</label>
+      <select id="cAlumno"></select>
+    </div>
+
+    <div id="bloqueCOtro" style="display:none;">
+      <label>Descripción / rol</label>
+      <input type="text" id="cDescripcion" placeholder="Ej.: Supervisión, profesional externo...">
+    </div>
+
+    <label>Nombre</label>
+    <input type="text" id="cNombre">
+    <label>Apellido</label>
+    <input type="text" id="cApellido">
+    <label>Teléfono</label>
+    <input type="tel" id="cTelefono">
+    <label>Correo</label>
+    <input type="email" id="cCorreo">
+    <label>Zona</label>
+    <select id="cZona">
+      <option value="">Sin zona</option>
+      <option value="norte">Norte</option>
+      <option value="sur">Sur</option>
+    </select>
+    <div class="pie">
+      <button class="b-rojo" id="btnBorrarContacto" style="display:none;">Eliminar contacto</button>
+      <button class="b-cancelar" data-cerrar="ovContacto">Cancelar</button>
+      <button class="b-guardar" id="btnGuardarContacto">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script type="module">
@@ -820,10 +1105,17 @@ const firebaseConfig = {
 
 const FIREBASE_ACTIVO = !String(firebaseConfig.apiKey).startsWith("PEGAR");
 const ADMIN_EMAIL = "caseres.marcosdavid@gmail.com";
-const TODAS_PESTANAS = ["tareas","bitacora","equipo","docentes","disponible","licencias","paro","progreso","estadisticas"];
-const PESTANAS_INVITADO = ["tareas","bitacora","equipo","docentes","disponible"];
+const TODAS_PESTANAS = ["tareas","bitacora","equipo","docentes","disponible","licencias","paro","progreso","estadisticas","alumnos","memoria","contactos"];
+const PESTANAS_INVITADO = ["tareas","bitacora","equipo","docentes","disponible","contactos"];
 const NOMBRE_PESTANA = {tareas:"Tareas", bitacora:"Bitácora", equipo:"Equipo", docentes:"Docentes",
-  disponible:"Disponible", licencias:"Licencias", paro:"Paro", progreso:"Progreso", estadisticas:"Estadísticas"};
+  disponible:"Disponible", licencias:"Licencias", paro:"Paro", progreso:"Progreso", estadisticas:"Estadísticas",
+  alumnos:"Alumnos", memoria:"Memoria Anual", contactos:"Contactos"};
+const ESTADOS_ALUMNO = {
+  activo:      {label:"Activo",                          color:"#2e8b57"},
+  revinculado: {label:"Revinculado",                      color:"#2c5f8a"},
+  continua:    {label:"Continúa (necesita más tiempo)",   color:"#e6a817"},
+  baja:        {label:"Baja",                             color:"#6b7280"}
+};
 const TIPOS_TIEMPO = {
   productivo:  {label:"Productivo",   color:"#2e8b57", icon:"🛠"},
   informacion: {label:"Información",  color:"#2c5f8a", icon:"📰"},
@@ -852,9 +1144,96 @@ function migrarEquipo(arr){
   return eq;
 }
 const OPCIONES_BASE = {tema:"claro", resetFunciones:true};
+const PREGUNTAS_MEMORIA = [
+  {clave:"admConciliaciones", dimension:"Dimensión administrativa", pregunta:"Conciliaciones bancarias y rendiciones: ¿cómo están, qué quedó pendiente?"},
+  {clave:"admObs", dimension:"Dimensión administrativa", pregunta:"Observaciones generales de la gestión administrativa"},
+  {clave:"otros", dimension:"Otros aportes", pregunta:"¿Qué otro aporte, logro o dificultad querés dejar registrado?"}
+];
+function notaMemoriaBase(texto){
+  return {id: uid(), texto, fecha: hoyISO()};
+}
+function memoriaBase(){
+  const notas = {};
+  for (const p of PREGUNTAS_MEMORIA) notas[p.clave] = [];
+  return {pof:false, sinide:false, notas};
+}
+function normalizarMemoria(m){
+  const base = memoriaBase();
+  if (!m || typeof m !== "object") return base;
+  base.pof = !!m.pof;
+  base.sinide = !!m.sinide;
+  const notasViejas = (m.notas && typeof m.notas==="object") ? m.notas : null;
+  // migración: los campos viejos eran un único string por dimensión (versiones anteriores de la app)
+  const legado = {admConciliaciones: m.conciliaciones, admObs: m.obsAdmin, otros: m.otrosAportes};
+  for (const p of PREGUNTAS_MEMORIA){
+    const lista = notasViejas && Array.isArray(notasViejas[p.clave]) ? notasViejas[p.clave] : null;
+    if (lista){
+      base.notas[p.clave] = lista.map(n=>({id:n.id||uid(), texto:typeof n.texto==="string"?n.texto:"", fecha:n.fecha||hoyISO()}));
+    } else if (typeof legado[p.clave] === "string" && legado[p.clave].trim()){
+      base.notas[p.clave] = [notaMemoriaBase(legado[p.clave].trim())];
+    }
+  }
+  return base;
+}
 function estadoInicial(){
   return { tareas: [], bitacora: [], equipo: equipoInicial(), docentes: [],
-           licencias: [], paros: [], papelera: [], metas: [], opciones: {...OPCIONES_BASE} };
+           licencias: [], paros: [], papelera: [], metas: [], opciones: {...OPCIONES_BASE},
+           escuelasOrigen: [], alumnos: [], memoria: memoriaBase(), contactosExtra: [] };
+}
+function contactoBase(){ return {nombre:"", telefono:""}; }
+function escuelaOrigenBase(){
+  return {id: uid(), numero:"", nombre:"", zona:"", correo:"", direccion:"", lat:null, lng:null,
+    director: contactoBase(), vicedirector: contactoBase(), pot: contactoBase()};
+}
+function normalizarEscuela(e){
+  if (typeof e.numero !== "string") e.numero = String(e.numero||"");
+  if (typeof e.zona !== "string") e.zona = "";
+  if (typeof e.correo !== "string") e.correo = "";
+  if (typeof e.direccion !== "string") e.direccion = "";
+  if (e.lat===undefined) e.lat = null;
+  if (e.lng===undefined) e.lng = null;
+  for (const k of ["director","vicedirector","pot"]){
+    if (!e[k] || typeof e[k] !== "object") e[k] = contactoBase();
+    if (typeof e[k].nombre !== "string") e[k].nombre = "";
+    if (typeof e[k].telefono !== "string") e[k].telefono = "";
+  }
+  return e;
+}
+function alumnoBase(){
+  return {id: uid(), nombre:"", apellido:"", escuelaOrigenId:"", cursoOrigen:"", zona:"",
+    padre1: contactoBase(), padre2: contactoBase(), correo:"", direccion:"", lat:null, lng:null,
+    fechaIngreso: hoyISO(), docentes: [], estado:"activo", notas:"", actas: []};
+}
+function normalizarAlumno(a){
+  if (!Array.isArray(a.docentes)) a.docentes = [];
+  if (!Array.isArray(a.actas)) a.actas = [];
+  if (typeof a.zona !== "string") a.zona = "";
+  if (typeof a.cursoOrigen !== "string") a.cursoOrigen = "";
+  if (typeof a.correo !== "string") a.correo = "";
+  if (typeof a.direccion !== "string") a.direccion = "";
+  if (typeof a.notas !== "string") a.notas = "";
+  if (!ESTADOS_ALUMNO[a.estado]) a.estado = "activo";
+  if (a.lat===undefined) a.lat = null;
+  if (a.lng===undefined) a.lng = null;
+  for (const k of ["padre1","padre2"]){
+    if (!a[k] || typeof a[k] !== "object") a[k] = contactoBase();
+    if (typeof a[k].nombre !== "string") a[k].nombre = "";
+    if (typeof a[k].telefono !== "string") a[k].telefono = "";
+  }
+  return a;
+}
+function contactoExtraBase(){
+  return {id: uid(), tipo:"otro", nombre:"", apellido:"",
+    rol:"", rolOtro:"", escuelaId:"",
+    parentesco:"", alumnoId:"",
+    descripcion:"", telefono:"", correo:"", zona:""};
+}
+function normalizarContactoExtra(c){
+  if (!["escuela","familia","otro"].includes(c.tipo)) c.tipo = "otro";
+  for (const k of ["nombre","apellido","rol","rolOtro","escuelaId","parentesco","alumnoId","descripcion","telefono","correo","zona"]){
+    if (typeof c[k] !== "string") c[k] = "";
+  }
+  return c;
 }
 let estado = estadoInicial();
 let orden = "carga";
@@ -881,6 +1260,11 @@ let metaEnCurso = null;    // meta en edición / destino de submeta
 let submetaEnCurso = null; // submeta en edición
 let subComentarioEnCurso = null; // {metaId, subId} para comentar submeta cumplida
 let estadSemanaRef = null; // lunes (ISO) de la semana mostrada en Estadísticas
+let vistaAlumnos = "alumnos"; // "alumnos" | "escuelas" | "mapa"
+let escuelaEnCurso = null; // id de escuela de origen en edición (null = nueva)
+let alumnoEnCurso = null;  // id de alumno en edición (null = nuevo)
+let contactoEnCurso = null; // id de contacto (agenda) en edición (null = nuevo)
+let notaMemoriaEnEdicion = null; // {clave, id} de la nota de Memoria Anual en edición (null = ninguna)
 
 // ---------- Utilidades ----------
 const $ = (s)=>document.querySelector(s);
@@ -1001,6 +1385,10 @@ function aplicarEstado(nuevo){
   estado.metas = Array.isArray(nuevo.metas) ? nuevo.metas : [];
   estado.opciones = Object.assign({...OPCIONES_BASE},
     (nuevo.opciones && typeof nuevo.opciones==="object") ? nuevo.opciones : {});
+  estado.escuelasOrigen = Array.isArray(nuevo.escuelasOrigen) ? nuevo.escuelasOrigen.map(normalizarEscuela) : [];
+  estado.alumnos = Array.isArray(nuevo.alumnos) ? nuevo.alumnos.map(normalizarAlumno) : [];
+  estado.memoria = normalizarMemoria(nuevo.memoria);
+  estado.contactosExtra = Array.isArray(nuevo.contactosExtra) ? nuevo.contactosExtra.map(normalizarContactoExtra) : [];
   aplicarTema();
   renderTodo();
 }
@@ -1047,12 +1435,20 @@ function generarCSSPersonalizado(t){
   const acentoOsc = shade(t.acento,-28);
   const acentoClaro = shade(t.acento,60);
   const fondoAlt = shade(t.papel,-6);
+  const gTrabajo = t.grupoTrabajo || "#e0935f";
+  const gEquipo = t.grupoEquipo || "#4f8fc9";
+  const gEstudiantes = t.grupoEstudiantes || "#3fa1a1";
+  const gNovedades = t.grupoNovedades || "#c96b6b";
+  const gContactos = t.grupoContactos || "#8a6fb0";
   return "body.tema-personalizado{background:"+t.fondo+"; color:"+t.texto+";}"+
     "body.tema-personalizado header.top{background:"+acentoOsc+";}"+
     "body.tema-personalizado main{background:"+t.papel+"; border-color:"+borde+";}"+
     "body.tema-personalizado nav.tabs.sidebar{background:"+fondoAlt+"; border-color:"+borde+";}"+
-    "body.tema-personalizado nav.tabs button{color:"+t.texto+";}"+
-    "body.tema-personalizado nav.tabs button.activa{background:"+acentoClaro+"; color:"+t.texto+";}"+
+    "body.tema-personalizado .g-trabajo{--grupo-color:"+gTrabajo+";}"+
+    "body.tema-personalizado .g-equipo{--grupo-color:"+gEquipo+";}"+
+    "body.tema-personalizado .g-estudiantes{--grupo-color:"+gEstudiantes+";}"+
+    "body.tema-personalizado .g-novedades{--grupo-color:"+gNovedades+";}"+
+    "body.tema-personalizado .g-contactos{--grupo-color:"+gContactos+";}"+
     "body.tema-personalizado .form-alta, body.tema-personalizado .bloque-persona, body.tema-personalizado .dia-card,"+
     "body.tema-personalizado .calendario, body.tema-personalizado .meta-card, body.tema-personalizado .stats-bloque,"+
     "body.tema-personalizado .caja-tareas{background:"+fondoAlt+"; border-color:"+borde+";}"+
@@ -1119,20 +1515,30 @@ function abrirFormFondo(t){
   $("#fPapel").value = t ? t.papel : "#ffffff";
   $("#fAcento").value = t ? t.acento : "#2c5f8a";
   $("#fTexto").value = t ? t.texto : "#2b2b2b";
+  $("#fGrupoTrabajo").value = (t && t.grupoTrabajo) ? t.grupoTrabajo : "#e0935f";
+  $("#fGrupoEquipo").value = (t && t.grupoEquipo) ? t.grupoEquipo : "#4f8fc9";
+  $("#fGrupoEstudiantes").value = (t && t.grupoEstudiantes) ? t.grupoEstudiantes : "#3fa1a1";
+  $("#fGrupoNovedades").value = (t && t.grupoNovedades) ? t.grupoNovedades : "#c96b6b";
+  $("#fGrupoContactos").value = (t && t.grupoContactos) ? t.grupoContactos : "#8a6fb0";
   $("#formNuevoFondo").style.display = "";
 }
 function guardarFondo(){
   const nombre = $("#fNombre").value.trim();
   if (!nombre){ toast("Ponele un nombre al fondo"); return; }
+  const grupos = {
+    grupoTrabajo: $("#fGrupoTrabajo").value, grupoEquipo: $("#fGrupoEquipo").value,
+    grupoEstudiantes: $("#fGrupoEstudiantes").value, grupoNovedades: $("#fGrupoNovedades").value,
+    grupoContactos: $("#fGrupoContactos").value
+  };
   const temas = cargarTemasPersonalizados();
   let idFinal = fondoEnEdicion;
   if (fondoEnEdicion){
     const t = temas.find(x=>x.id===fondoEnEdicion);
-    if (t){ t.nombre=nombre; t.fondo=$("#fFondo").value; t.papel=$("#fPapel").value; t.acento=$("#fAcento").value; t.texto=$("#fTexto").value; }
+    if (t){ t.nombre=nombre; t.fondo=$("#fFondo").value; t.papel=$("#fPapel").value; t.acento=$("#fAcento").value; t.texto=$("#fTexto").value; Object.assign(t, grupos); }
   } else {
     if (temas.length>=5){ toast("Ya tenés 5 fondos propios, borrá uno para crear otro"); return; }
     idFinal = uid();
-    temas.push({id: idFinal, nombre, fondo:$("#fFondo").value, papel:$("#fPapel").value, acento:$("#fAcento").value, texto:$("#fTexto").value});
+    temas.push({id: idFinal, nombre, fondo:$("#fFondo").value, papel:$("#fPapel").value, acento:$("#fAcento").value, texto:$("#fTexto").value, ...grupos});
   }
   guardarTemasPersonalizados(temas);
   $("#formNuevoFondo").style.display = "none";
@@ -1766,6 +2172,12 @@ function agregarDocente(){
   guardar(); renderDocentes();
   abrirFicha("doc:"+p.id);
 }
+function agregarEquipo(){
+  const p = personaBase(uid(), "");
+  estado.equipo.push(p);
+  guardar(); renderEquipo();
+  abrirFicha("eq:"+p.id);
+}
 
 // ---------- Ficha ----------
 function abrirFicha(owner){
@@ -1773,9 +2185,11 @@ function abrirFicha(owner){
   const p = personaDe(owner);
   if (!p) return;
   const esDocente = owner.startsWith("doc:");
-  $("#fichaTitulo").textContent = "Ficha — "+p.rol;
+  $("#fichaTitulo").textContent = "Ficha — "+(p.rol||"Integrante");
   $("#pNombre").value = p.nombre||"";
   $("#pApellido").value = p.apellido||"";
+  $("#bloqueRolEquipo").style.display = esDocente ? "none" : "block";
+  $("#pRol").value = p.rol||"";
   $("#pTelefono").value = p.telefono||"";
   $("#pCorreo").value = p.correo||"";
   $("#pNotas").value = p.notas||"";
@@ -1786,7 +2200,7 @@ function abrirFicha(owner){
   $("#pMateriasSec").value = p.materiasSec||"";
   $("#nuevaFuncion").value = "";
   renderFunciones(p);
-  $("#btnBorrarPersona").style.display = esDocente ? "inline-block" : "none";
+  $("#btnBorrarPersona").style.display = "inline-block";
   $("#lblHorarios").textContent = esDocente
     ? "Días y horarios (hora de inicio + horas cátedra de "+DUR_MODULO+" min)"
     : "Días y horarios que cumple (entrada y salida)";
@@ -1880,6 +2294,8 @@ function guardarPersona(){
   if (esDocente){
     p.materia = $("#pMateria").value.trim();
     p.materiasSec = $("#pMateriasSec").value.trim();
+  } else {
+    p.rol = $("#pRol").value.trim() || "Integrante";
   }
   const nuevos = {};
   for (const d of DIAS_SEMANA){
@@ -1912,9 +2328,12 @@ function guardarPersona(){
 }
 function borrarPersona(){
   const p = personaDe(personaEnCurso);
-  if (!p || !personaEnCurso.startsWith("doc:")) return;
-  if (!confirm("¿Eliminar a "+(nombreDe(p)||"este docente")+"? Se borran también sus tareas pendientes (lo ya guardado en la bitácora se conserva).")) return;
-  estado.docentes = estado.docentes.filter(x=>x.id!==p.id);
+  if (!p || !personaEnCurso) return;
+  const esDocente = personaEnCurso.startsWith("doc:");
+  const etiqueta = esDocente ? "este docente" : "este integrante del equipo";
+  if (!confirm("¿Eliminar a "+(nombreDe(p)||etiqueta)+"? Se borran también sus tareas pendientes (lo ya guardado en la bitácora se conserva).")) return;
+  if (esDocente) estado.docentes = estado.docentes.filter(x=>x.id!==p.id);
+  else estado.equipo = estado.equipo.filter(x=>x.id!==p.id);
   cerrar("ovPersona");
   guardar(); renderTodo();
 }
@@ -2581,17 +3000,19 @@ function vaciarPapelera(){
 
 // ---------- Permisos y accesos ----------
 function aplicarPermisos(){
-  document.querySelectorAll("nav.tabs button").forEach(b=>{
+  document.querySelectorAll(".nav-grupo-items button[data-tab]").forEach(b=>{
     b.style.display = pestanasPermitidas.includes(b.dataset.tab) ? "" : "none";
   });
-  document.querySelectorAll(".nav-grupo").forEach(g=>{
-    const hayVisible = [...g.querySelectorAll("button")].some(b=>b.style.display!=="none");
-    g.style.display = hayVisible ? "" : "none";
+  document.querySelectorAll(".nav-grupo-items[data-grupo]").forEach(panel=>{
+    const hayVisible = [...panel.querySelectorAll("button[data-tab]")].some(b=>b.style.display!=="none");
+    const tab = document.querySelector('.nav-grupo-tab[data-grupo="'+panel.dataset.grupo+'"]');
+    panel.style.display = hayVisible ? "" : "none";
+    if (tab) tab.style.display = hayVisible ? "" : "none";
   });
   $("#btnOpciones").style.display = (rol==="admin") ? "" : "none";
-  const activa = document.querySelector("nav.tabs button.activa");
+  const activa = document.querySelector(".nav-grupo-items button.activa");
   if (activa && !pestanasPermitidas.includes(activa.dataset.tab)){
-    const primera = document.querySelector('nav.tabs button[data-tab="'+pestanasPermitidas[0]+'"]');
+    const primera = document.querySelector('.nav-grupo-items button[data-tab="'+pestanasPermitidas[0]+'"]');
     if (primera) primera.click();
   }
 }
@@ -2661,6 +3082,521 @@ async function cargarAccesos(){
     console.error(e);
     cont.innerHTML = '<p class="sin-datos">No se pudieron leer los accesos ('+(e.code||"error")+'). Revisá las reglas de Firestore.</p>';
   }
+}
+
+// ---------- Alumnos / Escuelas de origen ----------
+function linkMaps(direccion){
+  return "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(direccion||"");
+}
+function actualizarLinkMaps(selector, direccion){
+  const a = $(selector);
+  if (!a) return;
+  a.href = linkMaps(direccion);
+  a.style.opacity = direccion ? "1" : ".4";
+  a.style.pointerEvents = direccion ? "" : "none";
+}
+function cambiarVistaAlumnos(v){
+  vistaAlumnos = v;
+  document.querySelectorAll("[data-vista-al]").forEach(b=>b.classList.toggle("sel", b.dataset.vistaAl===v));
+  $("#vistaAlAlumnos").style.display = v==="alumnos" ? "" : "none";
+  $("#vistaAlEscuelas").style.display = v==="escuelas" ? "" : "none";
+  $("#vistaAlMapa").style.display = v==="mapa" ? "" : "none";
+  if (v==="alumnos") renderAlumnos();
+  else if (v==="escuelas") renderEscuelas();
+  else if (v==="mapa") renderMapaAlumnos();
+}
+let miniMapas = {};
+let alLatTmp = null, alLngTmp = null;
+let escLatTmp = null, escLngTmp = null;
+let mapaGrande = null, capaMarcadoresAlumnos = null, capaMarcadoresEscuelas = null;
+const COORD_INICIAL = {lat:-45.86, lng:-67.5}; // aprox. Comodoro Rivadavia, punto de partida del mapa
+
+async function geocodificarDireccion(direccion){
+  if (!direccion) return null;
+  try{
+    const url = "https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ar&q="+encodeURIComponent(direccion);
+    const resp = await fetch(url, {headers:{"Accept-Language":"es"}});
+    const datos = await resp.json();
+    if (datos && datos[0]) return {lat: parseFloat(datos[0].lat), lng: parseFloat(datos[0].lon)};
+  }catch(e){ console.warn("No se pudo geocodificar la dirección", e); }
+  return null;
+}
+function asegurarMiniMapa(tipo, contId, lat, lng, alMover){
+  const cont = $("#"+contId);
+  cont.style.display = "";
+  let entry = miniMapas[tipo];
+  if (!entry){
+    const mapa = L.map(contId).setView([lat, lng], 15);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom:19, attribution:"© OpenStreetMap"}).addTo(mapa);
+    const marker = L.marker([lat, lng], {draggable:true}).addTo(mapa);
+    marker.on("dragend", ()=>{ const p = marker.getLatLng(); alMover(p.lat, p.lng); });
+    entry = {mapa, marker};
+    miniMapas[tipo] = entry;
+  } else {
+    entry.marker.off("dragend");
+    entry.marker.on("dragend", ()=>{ const p = entry.marker.getLatLng(); alMover(p.lat, p.lng); });
+    entry.mapa.setView([lat, lng], 15);
+    entry.marker.setLatLng([lat, lng]);
+  }
+  setTimeout(()=>entry.mapa.invalidateSize(), 150);
+  alMover(lat, lng);
+}
+async function ubicarEnMapa(tipo){
+  const direccion = tipo==="alumno" ? $("#alDireccion").value.trim() : $("#escDireccion").value.trim();
+  if (!direccion){ toast("Escribí una dirección primero"); return; }
+  toast("Buscando la dirección...");
+  const punto = await geocodificarDireccion(direccion);
+  const contId = tipo==="alumno" ? "alMiniMapa" : "escMiniMapa";
+  if (!punto){
+    toast("No se pudo ubicar esa dirección sola. Arrastrá el pin para marcarla a mano.");
+    asegurarMiniMapa(tipo, contId, COORD_INICIAL.lat, COORD_INICIAL.lng, (lat,lng)=>{
+      if (tipo==="alumno"){ alLatTmp=lat; alLngTmp=lng; } else { escLatTmp=lat; escLngTmp=lng; }
+    });
+    return;
+  }
+  asegurarMiniMapa(tipo, contId, punto.lat, punto.lng, (lat,lng)=>{
+    if (tipo==="alumno"){ alLatTmp=lat; alLngTmp=lng; } else { escLatTmp=lat; escLngTmp=lng; }
+  });
+}
+function renderMapaAlumnos(){
+  const cont = document.getElementById("mapaAlumnos");
+  if (!cont || typeof L === "undefined") return;
+  if (!mapaGrande){
+    mapaGrande = L.map("mapaAlumnos").setView([COORD_INICIAL.lat, COORD_INICIAL.lng], 12);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom:19, attribution:"© OpenStreetMap"}).addTo(mapaGrande);
+    capaMarcadoresAlumnos = L.layerGroup().addTo(mapaGrande);
+    capaMarcadoresEscuelas = L.layerGroup().addTo(mapaGrande);
+  }
+  capaMarcadoresAlumnos.clearLayers();
+  capaMarcadoresEscuelas.clearLayers();
+  const puntos = [];
+  if ($("#capaMapaAlumnos").checked){
+    for (const a of estado.alumnos){
+      if (a.lat==null || a.lng==null) continue;
+      const est = ESTADOS_ALUMNO[a.estado] || ESTADOS_ALUMNO.activo;
+      const marker = L.circleMarker([a.lat,a.lng], {radius:9, color:"#fff", weight:2, fillColor:est.color, fillOpacity:.9})
+        .bindPopup("<b>"+escapar(nombreDe(a))+"</b><br>"+escapar(est.label));
+      capaMarcadoresAlumnos.addLayer(marker);
+      puntos.push([a.lat,a.lng]);
+    }
+  }
+  if ($("#capaMapaEscuelas").checked){
+    for (const e of estado.escuelasOrigen){
+      if (e.lat==null || e.lng==null) continue;
+      const marker = L.marker([e.lat,e.lng])
+        .bindPopup("<b>🏫 "+escapar(e.nombre||"(sin nombre)")+"</b>"+(e.numero?" (N° "+escapar(e.numero)+")":""));
+      capaMarcadoresEscuelas.addLayer(marker);
+      puntos.push([e.lat,e.lng]);
+    }
+  }
+  setTimeout(()=>{
+    mapaGrande.invalidateSize();
+    if (puntos.length) mapaGrande.fitBounds(puntos, {padding:[30,30], maxZoom:15});
+  }, 150);
+}
+
+function renderEscuelas(){
+  const cont = $("#grillaEscuelas");
+  if (!cont) return;
+  cont.innerHTML = "";
+  if (!estado.escuelasOrigen.length){
+    cont.innerHTML = '<p class="sin-datos">No hay escuelas de origen cargadas todavía.</p>';
+    return;
+  }
+  for (const e of estado.escuelasOrigen){
+    const div = document.createElement("div");
+    div.className = "bloque-persona";
+    const cab = document.createElement("div");
+    cab.className = "bp-cab";
+    cab.innerHTML = '<div><div class="rol">Escuela N° '+escapar(e.numero||"-")+'</div>'+
+      '<div class="nombre '+claseZona(e)+(e.nombre?"":" vacio")+'">'+(e.nombre?escapar(e.nombre):"Sin nombre — tocá para completar")+'</div>'+
+      '<div class="mini-dato">'+(e.direccion?escapar(e.direccion):"Sin dirección")+'</div></div>'+
+      '<span class="ver">Ver ficha ›</span>';
+    cab.onclick = ()=>abrirEscuela(e.id);
+    div.appendChild(cab);
+    cont.appendChild(div);
+  }
+}
+function abrirEscuela(id){
+  escuelaEnCurso = id;
+  const e = id ? estado.escuelasOrigen.find(x=>x.id===id) : escuelaOrigenBase();
+  $("#escTitulo").textContent = id ? "🏫 Editar escuela de origen" : "➕ Nueva escuela de origen";
+  $("#escNumero").value = e.numero || "";
+  $("#escNombre").value = e.nombre || "";
+  $("#escZona").value = e.zona || "";
+  $("#escDirNombre").value = e.director.nombre || "";
+  $("#escDirTel").value = e.director.telefono || "";
+  $("#escVicNombre").value = e.vicedirector.nombre || "";
+  $("#escVicTel").value = e.vicedirector.telefono || "";
+  $("#escPotNombre").value = e.pot.nombre || "";
+  $("#escPotTel").value = e.pot.telefono || "";
+  $("#escCorreo").value = e.correo || "";
+  $("#escDireccion").value = e.direccion || "";
+  actualizarLinkMaps("#escVerMaps", e.direccion);
+  escLatTmp = e.lat!=null ? e.lat : null;
+  escLngTmp = e.lng!=null ? e.lng : null;
+  if (escLatTmp!=null && escLngTmp!=null){
+    asegurarMiniMapa("escuela","escMiniMapa", escLatTmp, escLngTmp, (lat,lng)=>{ escLatTmp=lat; escLngTmp=lng; });
+  } else {
+    $("#escMiniMapa").style.display = "none";
+  }
+  $("#btnBorrarEscuela").style.display = id ? "" : "none";
+  $("#ovEscuela").classList.add("visible");
+}
+function guardarEscuela(){
+  const nombre = $("#escNombre").value.trim();
+  if (!nombre){ toast("Escribí el nombre de la escuela"); return; }
+  const datos = {
+    numero: $("#escNumero").value.trim(), nombre,
+    zona: $("#escZona").value,
+    correo: $("#escCorreo").value.trim(),
+    direccion: $("#escDireccion").value.trim(),
+    director: {nombre: $("#escDirNombre").value.trim(), telefono: $("#escDirTel").value.trim()},
+    vicedirector: {nombre: $("#escVicNombre").value.trim(), telefono: $("#escVicTel").value.trim()},
+    pot: {nombre: $("#escPotNombre").value.trim(), telefono: $("#escPotTel").value.trim()},
+    lat: escLatTmp, lng: escLngTmp
+  };
+  if (escuelaEnCurso){
+    const e = estado.escuelasOrigen.find(x=>x.id===escuelaEnCurso);
+    if (e) Object.assign(e, datos);
+  } else {
+    estado.escuelasOrigen.push({id: uid(), ...datos});
+  }
+  cerrar("ovEscuela");
+  guardar(); renderEscuelas();
+}
+function borrarEscuela(){
+  if (!escuelaEnCurso) return;
+  if (!confirm("¿Eliminar esta escuela de origen? Los alumnos que la tenían vinculada quedarán sin escuela asignada.")) return;
+  estado.escuelasOrigen = estado.escuelasOrigen.filter(x=>x.id!==escuelaEnCurso);
+  for (const a of estado.alumnos) if (a.escuelaOrigenId===escuelaEnCurso) a.escuelaOrigenId = "";
+  cerrar("ovEscuela");
+  guardar(); renderEscuelas(); renderAlumnos();
+}
+
+function poblarSelectEscuelas(valorActual){
+  const sel = $("#alEscuela");
+  sel.innerHTML = '<option value="">Sin escuela de origen</option>';
+  for (const e of estado.escuelasOrigen){
+    const op = document.createElement("option");
+    op.value = e.id;
+    op.textContent = (e.numero ? "N° "+e.numero+" — " : "")+(e.nombre||"(sin nombre)");
+    sel.appendChild(op);
+  }
+  sel.value = valorActual || "";
+}
+function poblarChksDocentes(idsSeleccionados){
+  const cont = $("#alDocentesChks");
+  cont.innerHTML = "";
+  if (!estado.docentes.length){
+    cont.innerHTML = '<p class="sin-datos" style="padding:2px; font-size:.82rem;">No hay docentes cargados en la pestaña Docentes.</p>';
+    return;
+  }
+  for (const d of estado.docentes){
+    const lab = document.createElement("label");
+    const chk = document.createElement("input");
+    chk.type = "checkbox";
+    chk.value = d.id;
+    chk.checked = (idsSeleccionados||[]).includes(d.id);
+    lab.appendChild(chk);
+    lab.appendChild(document.createTextNode(" "+(nombreDe(d)||"(sin nombre)")));
+    cont.appendChild(lab);
+  }
+}
+function renderAlumnos(){
+  const cont = $("#grillaAlumnos");
+  if (!cont) return;
+  cont.innerHTML = "";
+  if (!estado.alumnos.length){
+    cont.innerHTML = '<p class="sin-datos">No hay alumnos cargados todavía.</p>';
+    return;
+  }
+  for (const a of estado.alumnos){
+    const div = document.createElement("div");
+    div.className = "bloque-persona";
+    const esc = estado.escuelasOrigen.find(x=>x.id===a.escuelaOrigenId);
+    const est = ESTADOS_ALUMNO[a.estado] || ESTADOS_ALUMNO.activo;
+    const nom = nombreDe(a);
+    const cab = document.createElement("div");
+    cab.className = "bp-cab";
+    cab.innerHTML = '<div><div class="rol">Alumno/a <span class="chip-estado" style="background:'+est.color+';">'+est.label+'</span></div>'+
+      '<div class="nombre '+claseZona(a)+(nom?"":" vacio")+'">'+(nom?escapar(nom):"Sin nombre — tocá para completar")+'</div>'+
+      '<div class="mini-dato">'+(esc?"Origen: "+escapar(esc.nombre):"Sin escuela de origen")+(a.cursoOrigen?" — "+escapar(a.cursoOrigen):"")+'</div></div>'+
+      '<span class="ver">Ver ficha ›</span>';
+    cab.onclick = ()=>abrirAlumno(a.id);
+    div.appendChild(cab);
+    cont.appendChild(div);
+  }
+}
+function abrirAlumno(id){
+  alumnoEnCurso = id;
+  const a = id ? estado.alumnos.find(x=>x.id===id) : alumnoBase();
+  $("#alTitulo").textContent = id ? "✏ Editar alumno" : "➕ Nuevo alumno";
+  $("#alNombre").value = a.nombre || "";
+  $("#alApellido").value = a.apellido || "";
+  poblarSelectEscuelas(a.escuelaOrigenId);
+  $("#alCurso").value = a.cursoOrigen || "";
+  $("#alZona").value = a.zona || "";
+  $("#alFechaIngreso").value = a.fechaIngreso || hoyISO();
+  $("#alEstado").value = a.estado || "activo";
+  $("#alP1Nombre").value = a.padre1.nombre || "";
+  $("#alP1Tel").value = a.padre1.telefono || "";
+  $("#alP2Nombre").value = a.padre2.nombre || "";
+  $("#alP2Tel").value = a.padre2.telefono || "";
+  $("#alCorreo").value = a.correo || "";
+  $("#alDireccion").value = a.direccion || "";
+  actualizarLinkMaps("#alVerMaps", a.direccion);
+  alLatTmp = a.lat!=null ? a.lat : null;
+  alLngTmp = a.lng!=null ? a.lng : null;
+  if (alLatTmp!=null && alLngTmp!=null){
+    asegurarMiniMapa("alumno","alMiniMapa", alLatTmp, alLngTmp, (lat,lng)=>{ alLatTmp=lat; alLngTmp=lng; });
+  } else {
+    $("#alMiniMapa").style.display = "none";
+  }
+  poblarChksDocentes(a.docentes);
+  $("#alNotas").value = a.notas || "";
+  $("#btnBorrarAlumno").style.display = id ? "" : "none";
+  $("#formNuevaActa").style.display = "none";
+  if (id){
+    $("#contActas").style.display = "";
+    $("#sinAlumnoActas").style.display = "none";
+    $("#btnMostrarFormActa").style.display = "";
+    renderActas();
+  } else {
+    $("#contActas").innerHTML = "";
+    $("#sinAlumnoActas").style.display = "";
+    $("#btnMostrarFormActa").style.display = "none";
+  }
+  $("#ovAlumno").classList.add("visible");
+}
+function guardarAlumno(){
+  const nombre = $("#alNombre").value.trim();
+  if (!nombre){ toast("Escribí el nombre del alumno"); return; }
+  const p1nombre = $("#alP1Nombre").value.trim();
+  if (!p1nombre){ toast("El primer contacto de padre/madre/tutor es obligatorio"); return; }
+  const datos = {
+    nombre, apellido: $("#alApellido").value.trim(),
+    escuelaOrigenId: $("#alEscuela").value,
+    cursoOrigen: $("#alCurso").value.trim(),
+    zona: $("#alZona").value,
+    fechaIngreso: $("#alFechaIngreso").value || hoyISO(),
+    estado: $("#alEstado").value,
+    padre1: {nombre: p1nombre, telefono: $("#alP1Tel").value.trim()},
+    padre2: {nombre: $("#alP2Nombre").value.trim(), telefono: $("#alP2Tel").value.trim()},
+    correo: $("#alCorreo").value.trim(),
+    direccion: $("#alDireccion").value.trim(),
+    docentes: [...document.querySelectorAll("#alDocentesChks input:checked")].map(c=>c.value),
+    notas: $("#alNotas").value.trim(),
+    lat: alLatTmp, lng: alLngTmp
+  };
+  if (alumnoEnCurso){
+    const a = estado.alumnos.find(x=>x.id===alumnoEnCurso);
+    if (a) Object.assign(a, datos);
+  } else {
+    estado.alumnos.push({...alumnoBase(), ...datos, actas: []});
+  }
+  cerrar("ovAlumno");
+  guardar(); renderAlumnos();
+}
+function borrarAlumno(){
+  if (!alumnoEnCurso) return;
+  if (!confirm("¿Eliminar este alumno y sus actas registradas?")) return;
+  estado.alumnos = estado.alumnos.filter(x=>x.id!==alumnoEnCurso);
+  cerrar("ovAlumno");
+  guardar(); renderAlumnos();
+}
+function renderActas(){
+  const a = estado.alumnos.find(x=>x.id===alumnoEnCurso);
+  const cont = $("#contActas");
+  cont.innerHTML = "";
+  if (!a || !a.actas.length){
+    cont.innerHTML = '<p class="sin-datos" style="padding:4px 0;">Todavía no hay actas cargadas.</p>';
+    return;
+  }
+  const ordenadas = [...a.actas].sort((x,y)=>(y.fecha||"").localeCompare(x.fecha||""));
+  for (const ac of ordenadas){
+    const div = document.createElement("div");
+    div.className = "acta-item";
+    div.innerHTML =
+      '<button type="button" class="acta-borrar" title="Eliminar acta">🗑️</button>'+
+      '<div class="acta-fecha">'+(ac.fecha ? fmtCorto(ac.fecha) : "Sin fecha")+'</div>'+
+      (ac.materias370 ? "<div>Cubre la 370: "+escapar(ac.materias370)+"</div>" : "")+
+      (ac.materiasOrigen ? "<div>Cubre la escuela de origen: "+escapar(ac.materiasOrigen)+"</div>" : "")+
+      (ac.tiempoIntervencion ? "<div>Tiempo estipulado: "+escapar(ac.tiempoIntervencion)+"</div>" : "")+
+      (ac.anotacion ? '<div class="coment">'+escapar(ac.anotacion)+"</div>" : "");
+    div.querySelector(".acta-borrar").onclick = ()=>{
+      if (!confirm("¿Eliminar esta acta?")) return;
+      a.actas = a.actas.filter(x=>x.id!==ac.id);
+      guardar(); renderActas();
+    };
+    cont.appendChild(div);
+  }
+}
+function guardarActaNueva(){
+  const a = estado.alumnos.find(x=>x.id===alumnoEnCurso);
+  if (!a) return;
+  const fecha = $("#actaFecha").value || hoyISO();
+  a.actas.push({
+    id: uid(), fecha,
+    materias370: $("#actaMaterias370").value.trim(),
+    materiasOrigen: $("#actaMateriasOrigen").value.trim(),
+    tiempoIntervencion: $("#actaTiempo").value.trim(),
+    anotacion: $("#actaAnotacion").value.trim()
+  });
+  $("#actaFecha").value=""; $("#actaMaterias370").value=""; $("#actaMateriasOrigen").value="";
+  $("#actaTiempo").value=""; $("#actaAnotacion").value="";
+  $("#formNuevaActa").style.display = "none";
+  guardar(); renderActas();
+  toast("Acta agregada ✔");
+}
+
+// ---------- Contactos (agenda con teléfonos/mails, filtro en vivo) ----------
+function contactosTodos(){
+  const res = [];
+  for (const p of estado.equipo){
+    const nom = nombreDe(p);
+    res.push({tipo:"Equipo", label:p.rol, nombre: nom||"(sin nombre)", tel:p.telefono, correo:p.correo, zona:p.zona,
+      buscable:(nom+" "+(p.rol||"")+" "+(p.telefono||"")+" "+(p.correo||"")).toLowerCase(),
+      accion:()=>abrirFicha("eq:"+p.id)});
+  }
+  for (const p of estado.docentes){
+    const nom = nombreDe(p);
+    res.push({tipo:"Docente", label:p.materia||"", nombre: nom||"(sin nombre)", tel:p.telefono, correo:p.correo, zona:p.zona,
+      buscable:(nom+" "+(p.materia||"")+" "+(p.telefono||"")+" "+(p.correo||"")).toLowerCase(),
+      accion:()=>abrirFicha("doc:"+p.id)});
+  }
+  for (const a of estado.alumnos){
+    const nom = nombreDe(a);
+    const est = ESTADOS_ALUMNO[a.estado] || ESTADOS_ALUMNO.activo;
+    res.push({tipo:"Alumno/a", label:est.label, nombre: nom||"(sin nombre)", tel:a.padre1.telefono, correo:a.correo, zona:a.zona,
+      buscable:(nom+" "+(a.padre1.telefono||"")+" "+(a.correo||"")).toLowerCase(),
+      accion:()=>abrirAlumno(a.id)});
+  }
+  for (const e of estado.escuelasOrigen){
+    res.push({tipo:"Escuela de origen", label:e.numero?"N° "+e.numero:"", nombre: e.nombre||"(sin nombre)", tel:e.director.telefono, correo:e.correo, zona:e.zona,
+      buscable:((e.nombre||"")+" "+(e.numero||"")+" "+(e.director.telefono||"")+" "+(e.correo||"")).toLowerCase(),
+      accion:()=>abrirEscuela(e.id)});
+  }
+  for (const c of estado.contactosExtra){
+    const nom = nombreDe(c) || "(sin nombre)";
+    let tipo, label, extra = "";
+    if (c.tipo === "escuela"){
+      tipo = "Personal de escuela";
+      const rolTexto = c.rol==="otro" ? (c.rolOtro||"Otro") : (c.rol||"");
+      const esc = estado.escuelasOrigen.find(e=>e.id===c.escuelaId);
+      label = rolTexto + (esc ? " · "+(esc.nombre||("N° "+esc.numero)) : "");
+      extra = esc ? (esc.nombre||"")+" "+(esc.numero||"") : "";
+    } else if (c.tipo === "familia"){
+      tipo = "Familia de estudiante";
+      const al = estado.alumnos.find(a=>a.id===c.alumnoId);
+      label = (c.parentesco||"Familiar") + (al ? " de "+nombreDe(al) : "");
+      extra = al ? nombreDe(al) : "";
+    } else {
+      tipo = "Otro contacto";
+      label = c.descripcion||"";
+    }
+    res.push({tipo, label, nombre: nom, tel:c.telefono, correo:c.correo, zona:c.zona,
+      buscable:(nom+" "+label+" "+extra+" "+(c.telefono||"")+" "+(c.correo||"")).toLowerCase(),
+      accion:()=>abrirContacto(c.id)});
+  }
+  return res;
+}
+function renderContactos(){
+  const q = ($("#buscarContactosInput").value||"").trim().toLowerCase();
+  const cont = $("#resultadosContactos");
+  const todos = contactosTodos();
+  const res = q ? todos.filter(r=>r.buscable.includes(q)) : todos;
+  cont.innerHTML = "";
+  if (!res.length){ cont.innerHTML = '<p class="sin-datos">'+(q?"Sin resultados.":"Todavía no hay contactos cargados.")+'</p>'; return; }
+  for (const r of res){
+    const div = document.createElement("div");
+    div.className = "resultado-busqueda";
+    div.innerHTML = '<div class="rb-tipo">'+escapar(r.tipo)+(r.label?" · "+escapar(r.label):"")+'</div>'+
+      '<div class="'+claseZona({zona:r.zona})+'" style="font-weight:700;">'+escapar(r.nombre)+'</div>'+
+      (r.tel?'<div class="mini-dato">📞 '+escapar(r.tel)+'</div>':"")+
+      (r.correo?'<div class="mini-dato">✉️ '+escapar(r.correo)+'</div>':"");
+    div.onclick = r.accion;
+    cont.appendChild(div);
+  }
+}
+function poblarSelectEscuelasContacto(valorActual){
+  const sel = $("#cEscuela");
+  sel.innerHTML = '<option value="">-- Sin vincular --</option>';
+  for (const e of estado.escuelasOrigen){
+    const op = document.createElement("option");
+    op.value = e.id;
+    op.textContent = (e.numero ? "N° "+e.numero+" — " : "")+(e.nombre||"(sin nombre)");
+    sel.appendChild(op);
+  }
+  sel.value = valorActual || "";
+}
+function poblarSelectAlumnosContacto(valorActual){
+  const sel = $("#cAlumno");
+  sel.innerHTML = '<option value="">-- Sin vincular --</option>';
+  for (const a of estado.alumnos){
+    const op = document.createElement("option");
+    op.value = a.id;
+    op.textContent = nombreDe(a) || "(sin nombre)";
+    sel.appendChild(op);
+  }
+  sel.value = valorActual || "";
+}
+function actualizarBloquesContacto(){
+  const tipo = $("#cTipo").value;
+  $("#bloqueCEscuela").style.display = tipo==="escuela" ? "" : "none";
+  $("#bloqueCFamilia").style.display = tipo==="familia" ? "" : "none";
+  $("#bloqueCOtro").style.display = tipo==="otro" ? "" : "none";
+}
+function abrirContacto(id){
+  contactoEnCurso = id;
+  const c = id ? estado.contactosExtra.find(x=>x.id===id) : contactoExtraBase();
+  if (!c) return;
+  $("#contactoTitulo").textContent = id ? "✏ Editar contacto" : "➕ Nuevo contacto";
+  $("#cTipo").value = c.tipo;
+  actualizarBloquesContacto();
+  $("#cRol").value = c.rol || "Director/a";
+  $("#cRolOtro").style.display = c.rol==="otro" ? "" : "none";
+  $("#cRolOtro").value = c.rolOtro || "";
+  poblarSelectEscuelasContacto(c.escuelaId);
+  $("#cParentesco").value = c.parentesco || "";
+  poblarSelectAlumnosContacto(c.alumnoId);
+  $("#cDescripcion").value = c.descripcion || "";
+  $("#cNombre").value = c.nombre || "";
+  $("#cApellido").value = c.apellido || "";
+  $("#cTelefono").value = c.telefono || "";
+  $("#cCorreo").value = c.correo || "";
+  $("#cZona").value = c.zona || "";
+  $("#btnBorrarContacto").style.display = id ? "" : "none";
+  $("#ovContacto").classList.add("visible");
+}
+function guardarContacto(){
+  const nombre = $("#cNombre").value.trim();
+  if (!nombre){ toast("Ponele al menos un nombre al contacto"); return; }
+  const c = contactoEnCurso ? estado.contactosExtra.find(x=>x.id===contactoEnCurso) : contactoExtraBase();
+  if (!c) return;
+  c.tipo = $("#cTipo").value;
+  c.nombre = nombre;
+  c.apellido = $("#cApellido").value.trim();
+  c.telefono = $("#cTelefono").value.trim();
+  c.correo = $("#cCorreo").value.trim();
+  c.zona = $("#cZona").value;
+  c.rol = c.tipo==="escuela" ? $("#cRol").value : "";
+  c.rolOtro = (c.tipo==="escuela" && c.rol==="otro") ? $("#cRolOtro").value.trim() : "";
+  c.escuelaId = c.tipo==="escuela" ? $("#cEscuela").value : "";
+  c.parentesco = c.tipo==="familia" ? $("#cParentesco").value.trim() : "";
+  c.alumnoId = c.tipo==="familia" ? $("#cAlumno").value : "";
+  c.descripcion = c.tipo==="otro" ? $("#cDescripcion").value.trim() : "";
+  if (!contactoEnCurso) estado.contactosExtra.push(c);
+  cerrar("ovContacto");
+  guardar(); renderContactos();
+  toast("Contacto guardado ✔");
+}
+function borrarContacto(){
+  if (!contactoEnCurso) return;
+  if (!confirm("¿Eliminar este contacto?")) return;
+  estado.contactosExtra = estado.contactosExtra.filter(x=>x.id!==contactoEnCurso);
+  cerrar("ovContacto");
+  guardar(); renderContactos();
 }
 
 // ---------- Progreso ----------
@@ -2803,6 +3739,209 @@ async function progresoCopiar(){
   try{ await navigator.clipboard.writeText(texto); toast("Copiado al portapapeles ✔"); }
   catch(e){ console.error(e); toast("No se pudo copiar automáticamente"); }
 }
+
+// ---------- Memoria Anual ----------
+function nombreEscuelaCorto(id){
+  const e = estado.escuelasOrigen.find(x=>x.id===id);
+  return e ? (e.numero?"N° "+e.numero+" — ":"")+(e.nombre||"(sin nombre)") : "Sin escuela de origen";
+}
+function todasLasActas(){
+  const res = [];
+  for (const a of estado.alumnos){
+    for (const ac of a.actas) res.push({...ac, alumno: a});
+  }
+  res.sort((x,y)=>(y.fecha||"").localeCompare(x.fecha||""));
+  return res;
+}
+function seccionTrayectoriasHTML(){
+  const conteo = {activo:0, revinculado:0, continua:0, baja:0};
+  for (const a of estado.alumnos) if (conteo.hasOwnProperty(a.estado)) conteo[a.estado]++;
+  let h = "<h2 class='sub'>Trayectorias escolares y revinculación</h2>";
+  h += "<p style='font-size:.88rem; color:var(--gris); margin-bottom:10px;'>Matrícula actual: "+estado.alumnos.length+
+    " — Activos: "+conteo.activo+" · Revinculados: "+conteo.revinculado+" · Continúan (necesitan más tiempo): "+conteo.continua+" · Bajas: "+conteo.baja+"</p>";
+  if (!estado.alumnos.length){
+    h += "<p class='sin-datos'>No hay alumnos cargados todavía en la pestaña Alumnos.</p>";
+    return h;
+  }
+  h += "<ul class='lista-modal'>";
+  for (const a of estado.alumnos){
+    const est = ESTADOS_ALUMNO[a.estado] || ESTADOS_ALUMNO.activo;
+    h += "<li><b>"+escapar(nombreDe(a))+"</b> — "+escapar(nombreEscuelaCorto(a.escuelaOrigenId))+
+      (a.cursoOrigen?" ("+escapar(a.cursoOrigen)+")":"")+
+      " · <span class='chip-estado' style='background:"+est.color+";'>"+est.label+"</span>"+
+      (a.fechaIngreso?" · ingresó "+fmtCorto(a.fechaIngreso):"")+
+      (a.notas?"<br><span class='coment'>"+escapar(a.notas)+"</span>":"")+"</li>";
+  }
+  h += "</ul>";
+  return h;
+}
+function seccionActasHTML(){
+  const actas = todasLasActas();
+  let h = "<h2 class='sub' style='margin-top:22px;'>Actas de vinculación con escuelas de origen</h2>";
+  if (!actas.length){
+    h += "<p class='sin-datos'>No hay actas cargadas todavía (se cargan desde la ficha de cada alumno, en Alumnos).</p>";
+    return h;
+  }
+  h += "<ul class='lista-modal'>";
+  for (const ac of actas){
+    h += "<li><b>"+(ac.fecha?fmtCorto(ac.fecha):"Sin fecha")+"</b> — "+escapar(nombreDe(ac.alumno))+
+      " ("+escapar(nombreEscuelaCorto(ac.alumno.escuelaOrigenId))+")"+
+      (ac.materias370?"<br>Cubre la 370: "+escapar(ac.materias370):"")+
+      (ac.materiasOrigen?"<br>Cubre la escuela de origen: "+escapar(ac.materiasOrigen):"")+
+      (ac.tiempoIntervencion?"<br>Tiempo estipulado: "+escapar(ac.tiempoIntervencion):"")+
+      (ac.anotacion?"<br><span class='coment'>"+escapar(ac.anotacion)+"</span>":"")+"</li>";
+  }
+  h += "</ul>";
+  return h;
+}
+function seccionPEIHTML(){
+  let h = "<h2 class='sub' style='margin-top:22px;'>Objetivos institucionales (borrador desde Progreso)</h2>";
+  if (!estado.metas.length){
+    h += "<p class='sin-datos'>No hay metas cargadas todavía en la pestaña Progreso.</p>";
+    return h;
+  }
+  for (const m of estado.metas){
+    h += "<p style='margin-top:8px;'><b>"+escapar(m.titulo)+"</b></p><ul class='lista-modal'>";
+    for (const s of m.submetas){
+      h += "<li>"+(s.hecha?"✔ ":"")+escapar(s.texto)+(s.fecha?" ("+fmtCorto(s.fecha)+")":"")+
+        (s.comentario?"<br><span class='coment'>"+escapar(s.comentario)+"</span>":"")+"</li>";
+    }
+    h += "</ul>";
+  }
+  return h;
+}
+function bloquePreguntaMemoriaHTML(p){
+  const lista = estado.memoria.notas[p.clave] || [];
+  let h = "<div class='bloque-pregunta-memoria'>"+
+    "<label class='pregunta-memoria'>"+escapar(p.pregunta)+"</label>"+
+    "<div class='lista-notas-memoria'>";
+  if (!lista.length){
+    h += "<p class='sin-datos' style='padding:2px; margin:0 0 8px;'>Todavía no hay nada cargado acá.</p>";
+  } else {
+    for (const n of lista){
+      h += "<div class='nota-memoria'>"+
+        "<div class='nota-memoria-texto'>"+escapar(n.texto)+"</div>"+
+        "<div class='nota-memoria-pie'>"+
+          "<span class='nota-memoria-fecha'>"+fmtCorto(n.fecha)+"</span>"+
+          "<button type='button' class='btn-nota-editar' data-clave='"+p.clave+"' data-id='"+n.id+"' title='Editar'>✏️</button>"+
+          "<button type='button' class='btn-nota-borrar' data-clave='"+p.clave+"' data-id='"+n.id+"' title='Eliminar'>🗑️</button>"+
+        "</div></div>";
+    }
+  }
+  h += "</div>"+
+    "<textarea id='resp-"+p.clave+"' placeholder='Escribí tu respuesta acá...'></textarea>"+
+    "<div style='display:flex; gap:12px; align-items:center; margin-top:8px;'>"+
+      "<button type='button' class='b-guardar btn-guardar-nota' data-clave='"+p.clave+"' style='border:none; border-radius:6px; padding:8px 16px; cursor:pointer;'>＋ Guardar</button>"+
+      "<span class='aviso-edicion-memoria' id='avisoEdicion-"+p.clave+"' style='display:none;'>Editando una respuesta — <a data-clave='"+p.clave+"' class='link-cancelar-edicion-memoria'>cancelar</a></span>"+
+    "</div></div>";
+  return h;
+}
+function renderMemoria(){
+  const cont = $("#contMemoria");
+  cont.innerHTML =
+    "<p style='font-size:.85rem; color:var(--gris); margin-bottom:16px;'>Borrador armado con lo cargado durante el año en Alumnos y Progreso, más lo que respondas acá abajo. Usalo para ir copiando por partes al documento compartido cuando supervisión pida la Memoria Anual.</p>"+
+    "<div class='barra-export visible'>"+
+      "<button class='btn-word' id='btnMemoriaWord'>⬇ Descargar Word</button>"+
+      "<button class='btn-copiar' id='btnMemoriaCopiar'>📋 Copiar</button>"+
+    "</div>"+
+    seccionTrayectoriasHTML()+seccionActasHTML()+seccionPEIHTML()+
+    "<h2 class='sub' style='margin-top:22px;'>Dimensión administrativa</h2>"+
+    "<label style='display:flex; align-items:center; gap:8px; margin-bottom:10px;'><input type='checkbox' id='memPof' style='width:16px;height:16px;'> POF completo y actualizado</label>"+
+    "<label style='display:flex; align-items:center; gap:8px; margin-bottom:18px;'><input type='checkbox' id='memSinide' style='width:16px;height:16px;'> SINIDE completo y actualizado</label>"+
+    bloquePreguntaMemoriaHTML(PREGUNTAS_MEMORIA[0])+
+    bloquePreguntaMemoriaHTML(PREGUNTAS_MEMORIA[1])+
+    "<h2 class='sub' style='margin-top:22px;'>Otros aportes</h2>"+
+    bloquePreguntaMemoriaHTML(PREGUNTAS_MEMORIA[2]);
+
+  $("#memPof").checked = !!estado.memoria.pof;
+  $("#memSinide").checked = !!estado.memoria.sinide;
+  $("#memPof").onchange = ()=>{ estado.memoria.pof = $("#memPof").checked; guardar(); };
+  $("#memSinide").onchange = ()=>{ estado.memoria.sinide = $("#memSinide").checked; guardar(); };
+
+  $("#btnMemoriaWord").onclick = memoriaWord;
+  $("#btnMemoriaCopiar").onclick = memoriaCopiar;
+
+  document.querySelectorAll(".btn-guardar-nota").forEach(b=>{ b.onclick = ()=>guardarNotaMemoria(b.dataset.clave); });
+  document.querySelectorAll(".btn-nota-editar").forEach(b=>{ b.onclick = ()=>editarNotaMemoria(b.dataset.clave, b.dataset.id); });
+  document.querySelectorAll(".btn-nota-borrar").forEach(b=>{ b.onclick = ()=>borrarNotaMemoria(b.dataset.clave, b.dataset.id); });
+  document.querySelectorAll(".link-cancelar-edicion-memoria").forEach(a=>{ a.onclick = ()=>{ notaMemoriaEnEdicion = null; renderMemoria(); }; });
+
+  if (notaMemoriaEnEdicion){
+    const lista = estado.memoria.notas[notaMemoriaEnEdicion.clave] || [];
+    const n = lista.find(x=>x.id===notaMemoriaEnEdicion.id);
+    if (n){
+      const ta = $("#resp-"+notaMemoriaEnEdicion.clave);
+      const btn = document.querySelector(".btn-guardar-nota[data-clave='"+notaMemoriaEnEdicion.clave+"']");
+      const aviso = $("#avisoEdicion-"+notaMemoriaEnEdicion.clave);
+      if (ta) ta.value = n.texto;
+      if (btn) btn.textContent = "💾 Guardar cambios";
+      if (aviso) aviso.style.display = "";
+      if (ta) ta.focus();
+    } else {
+      notaMemoriaEnEdicion = null;
+    }
+  }
+}
+function guardarNotaMemoria(clave){
+  const ta = $("#resp-"+clave);
+  const texto = ta.value.trim();
+  if (!texto){ toast("Escribí algo antes de guardar"); return; }
+  const lista = estado.memoria.notas[clave];
+  if (notaMemoriaEnEdicion && notaMemoriaEnEdicion.clave===clave){
+    const n = lista.find(x=>x.id===notaMemoriaEnEdicion.id);
+    if (n){ n.texto = texto; n.fecha = hoyISO(); }
+    notaMemoriaEnEdicion = null;
+  } else {
+    lista.push(notaMemoriaBase(texto));
+  }
+  guardar(); renderMemoria();
+  toast("Guardado ✔");
+}
+function editarNotaMemoria(clave, id){
+  notaMemoriaEnEdicion = {clave, id};
+  renderMemoria();
+}
+function borrarNotaMemoria(clave, id){
+  if (!confirm("¿Eliminar esta respuesta?")) return;
+  estado.memoria.notas[clave] = estado.memoria.notas[clave].filter(x=>x.id!==id);
+  if (notaMemoriaEnEdicion && notaMemoriaEnEdicion.clave===clave && notaMemoriaEnEdicion.id===id) notaMemoriaEnEdicion = null;
+  guardar(); renderMemoria();
+}
+function notasMemoriaWordHTML(p){
+  const lista = estado.memoria.notas[p.clave] || [];
+  let h = "<p><b>"+escapar(p.pregunta)+"</b></p>";
+  if (!lista.length){ h += "<p>—</p>"; return h; }
+  h += "<ul>";
+  for (const n of lista) h += "<li>"+fmtCorto(n.fecha)+" — "+escapar(n.texto).replace(/\n/g,"<br>")+"</li>";
+  h += "</ul>";
+  return h;
+}
+function memoriaWord(){
+  const cuerpo = seccionTrayectoriasHTML()+seccionActasHTML()+seccionPEIHTML()+
+    "<h2 style='color:#1e4260;'>Dimensión administrativa</h2>"+
+    "<p><b>POF:</b> "+(estado.memoria.pof?"Completo":"Incompleto")+" · <b>SINIDE:</b> "+(estado.memoria.sinide?"Completo":"Incompleto")+"</p>"+
+    notasMemoriaWordHTML(PREGUNTAS_MEMORIA[0])+notasMemoriaWordHTML(PREGUNTAS_MEMORIA[1])+
+    "<h2 style='color:#1e4260;'>Otros aportes</h2>"+notasMemoriaWordHTML(PREGUNTAS_MEMORIA[2]);
+  const html = "<html xmlns:w='urn:schemas-microsoft-com:office:word'><head><meta charset='utf-8'>"+
+    "<title>Memoria Anual MDAgenda</title></head><body style=\"font-family:Calibri,Arial,sans-serif;\">"+
+    "<h1 style='color:#2c5f8a;'>Memoria Anual — borrador MDAgenda</h1>"+cuerpo+"</body></html>";
+  const blob = new Blob(["﻿", html], {type:"application/msword"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "memoria_anual_"+hoyISO()+".doc";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+}
+async function memoriaCopiar(){
+  const div = document.createElement("div");
+  div.innerHTML = seccionTrayectoriasHTML()+seccionActasHTML()+seccionPEIHTML();
+  const texto = "MEMORIA ANUAL — borrador MDAgenda\n\n"+(div.textContent||"").replace(/\n{3,}/g,"\n\n");
+  try{ await navigator.clipboard.writeText(texto); toast("Copiado al portapapeles ✔"); }
+  catch(e){ console.error(e); toast("No se pudo copiar automáticamente"); }
+}
+
 function renderProgreso(){
   const cont = $("#contProgreso");
   cont.innerHTML = "";
@@ -3035,7 +4174,7 @@ function renderEstadisticas(){
 
 // ---------- Generales ----------
 function cerrar(id){ document.getElementById(id).classList.remove("visible"); }
-function renderTodo(){ renderTareas(); renderBitacora(); renderEquipo(); renderDocentes(); renderDisponible(); renderLicencias(); renderParo(); renderProgreso(); renderEstadisticas(); }
+function renderTodo(){ renderTareas(); renderBitacora(); renderEquipo(); renderDocentes(); renderDisponible(); renderLicencias(); renderParo(); renderProgreso(); renderEstadisticas(); renderAlumnos(); renderEscuelas(); renderMemoria(); renderContactos(); }
 
 // Sidebar (menú lateral agrupado, colapsable en celular)
 const sidebarNav = $("#sidebarNav");
@@ -3045,14 +4184,40 @@ function cerrarSidebar(){ sidebarNav.classList.remove("abierta"); sidebarBackdro
 $("#btnMenu").onclick = ()=> sidebarNav.classList.contains("abierta") ? cerrarSidebar() : abrirSidebar();
 sidebarBackdrop.onclick = cerrarSidebar;
 
-// Tabs
-document.querySelectorAll("nav.tabs button").forEach(b=>{
+// Tabs (pestañas individuales dentro del panel de la categoría abierta)
+document.querySelectorAll(".nav-grupo-items button[data-tab]").forEach(b=>{
   b.onclick = ()=>{
-    document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.remove("activa"));
+    document.querySelectorAll(".nav-grupo-items button[data-tab]").forEach(x=>x.classList.remove("activa"));
     document.querySelectorAll("section.panel").forEach(x=>x.classList.remove("activa"));
     b.classList.add("activa");
     document.getElementById("panel-"+b.dataset.tab).classList.add("activa");
+    // Asegura que la solapa y el panel de su categoría queden marcados como abiertos
+    const panelGrupo = b.closest(".nav-grupo-items");
+    if (panelGrupo){
+      document.querySelectorAll(".nav-grupo-tab").forEach(t=>t.classList.remove("activo"));
+      document.querySelectorAll(".nav-grupo-items").forEach(p=>p.classList.remove("abierto"));
+      panelGrupo.classList.add("abierto");
+      const tab = document.querySelector('.nav-grupo-tab[data-grupo="'+panelGrupo.dataset.grupo+'"]');
+      if (tab) tab.classList.add("activo");
+    }
     cerrarSidebar();
+  };
+});
+// Solapas de categoría: columna fija, no se mueven entre sí. Al hacer click se
+// despliega (o se cierra) el panel de opciones de esa categoría, sin desplazar las demás.
+document.querySelectorAll(".nav-grupo-tab").forEach(tab=>{
+  tab.onclick = ()=>{
+    const panel = document.querySelector('.nav-grupo-items[data-grupo="'+tab.dataset.grupo+'"]');
+    const yaAbierto = tab.classList.contains("activo");
+    document.querySelectorAll(".nav-grupo-tab").forEach(t=>t.classList.remove("activo"));
+    document.querySelectorAll(".nav-grupo-items").forEach(p=>p.classList.remove("abierto"));
+    if (!yaAbierto && panel){
+      tab.classList.add("activo");
+      panel.classList.add("abierto");
+      const primeraVisible = [...panel.querySelectorAll("button[data-tab]")]
+        .find(b=>b.style.display!=="none");
+      if (primeraVisible) primeraVisible.click();
+    }
   };
 });
 // Orden
@@ -3071,6 +4236,7 @@ $("#btnGuardarTarea").onclick = guardarTarea;
 $("#btnGuardarPersona").onclick = guardarPersona;
 $("#btnBorrarPersona").onclick = borrarPersona;
 $("#btnAgregarDoc").onclick = agregarDocente;
+$("#btnAgregarEquipo").onclick = agregarEquipo;
 $("#btnWord").onclick = descargarWord;
 $("#btnCopiar").onclick = copiarSeleccion;
 $("#calAnt").onclick = ()=>{ calRef.setMonth(calRef.getMonth()-1); renderCalendario(); };
@@ -3125,6 +4291,28 @@ $("#logoBtn").onclick = ()=>{ $("#formNuevoFondo").style.display = "none"; rende
 $("#btnNuevoFondo").onclick = ()=>abrirFormFondo(null);
 $("#btnCancelarFondo").onclick = ()=>{ $("#formNuevoFondo").style.display = "none"; };
 $("#btnGuardarFondo").onclick = guardarFondo;
+$("#btnAgregarEscuela").onclick = ()=>abrirEscuela(null);
+$("#btnGuardarEscuela").onclick = guardarEscuela;
+$("#btnBorrarEscuela").onclick = borrarEscuela;
+$("#btnAgregarAlumno").onclick = ()=>abrirAlumno(null);
+$("#btnGuardarAlumno").onclick = guardarAlumno;
+$("#btnBorrarAlumno").onclick = borrarAlumno;
+$("#btnMostrarFormActa").onclick = ()=>{ $("#formNuevaActa").style.display = ""; };
+$("#btnCancelarActa").onclick = ()=>{ $("#formNuevaActa").style.display = "none"; };
+$("#btnGuardarActa").onclick = guardarActaNueva;
+document.querySelectorAll("[data-vista-al]").forEach(b=>{ b.onclick = ()=>cambiarVistaAlumnos(b.dataset.vistaAl); });
+$("#alDireccion").addEventListener("input", ()=>actualizarLinkMaps("#alVerMaps", $("#alDireccion").value.trim()));
+$("#escDireccion").addEventListener("input", ()=>actualizarLinkMaps("#escVerMaps", $("#escDireccion").value.trim()));
+$("#btnUbicarAlumno").onclick = ()=>ubicarEnMapa("alumno");
+$("#btnUbicarEscuela").onclick = ()=>ubicarEnMapa("escuela");
+$("#capaMapaAlumnos").onchange = renderMapaAlumnos;
+$("#capaMapaEscuelas").onchange = renderMapaAlumnos;
+$("#buscarContactosInput").addEventListener("input", renderContactos);
+$("#btnAgregarContacto").onclick = ()=>abrirContacto(null);
+$("#btnGuardarContacto").onclick = guardarContacto;
+$("#btnBorrarContacto").onclick = borrarContacto;
+$("#cTipo").onchange = actualizarBloquesContacto;
+$("#cRol").onchange = ()=>{ $("#cRolOtro").style.display = $("#cRol").value==="otro" ? "" : "none"; };
 document.querySelectorAll("[data-cerrar]").forEach(b=>{ b.onclick = ()=>cerrar(b.dataset.cerrar); });
 document.querySelectorAll(".overlay").forEach(ov=>{
   ov.addEventListener("click", (e)=>{ if (e.target===ov) ov.classList.remove("visible"); });
