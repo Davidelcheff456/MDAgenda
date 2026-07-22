@@ -230,6 +230,7 @@
   /* ---- ZONAS ---- */
   .zona-norte{color:#12275e !important;}
   .zona-sur{color:#2e8b57 !important;}
+  .zona-ambas{color:#8a4fa0 !important;}
 
   /* ---- LICENCIA / PARO en Disponible ---- */
   .en-lic{text-decoration:line-through; opacity:.6;}
@@ -281,6 +282,7 @@
   body.tema-oscuro .acciones button:hover{background:#3a414b;}
   body.tema-oscuro .zona-norte{color:#9db8f5 !important;}
   body.tema-oscuro .zona-sur{color:#7fd8a4 !important;}
+  body.tema-oscuro .zona-ambas{color:#d7a8ea !important;}
   body.tema-oscuro .aviso-local{background:#4a4020; border-color:#6b5d2e; color:#e8d999;}
 
   /* ---- BITÁCORA: acciones por entrada ---- */
@@ -562,7 +564,7 @@
   <!-- PROGRESO -->
   <section class="panel" id="panel-progreso">
     <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:14px;">
-      <button class="btn-agregar-doc" id="btnAgregarMeta" style="margin-bottom:0;">➕ Nueva meta</button>
+      <button class="btn-agregar-doc" id="btnAgregarMeta" style="margin-bottom:0;">➕ Nuevo objetivo institucional</button>
       <button class="btn-word" id="btnProgresoWord" style="padding:9px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; color:#fff;">⬇ Descargar Word</button>
       <button class="btn-copiar" id="btnProgresoCopiar" style="padding:9px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600;">📋 Copiar</button>
     </div>
@@ -689,6 +691,22 @@
         <div><label style="margin-top:4px; font-size:.78rem;">Novedades</label><input type="color" id="fGrupoNovedades" value="#c96b6b"></div>
         <div><label style="margin-top:4px; font-size:.78rem;">Contactos</label><input type="color" id="fGrupoContactos" value="#8a6fb0"></div>
       </div>
+      <label style="margin-top:14px; border-top:1px dashed var(--borde); padding-top:10px;">Colores por zona (nombres de personas, alumnos y escuelas)</label>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div><label style="margin-top:4px; font-size:.78rem;">Zona norte</label><input type="color" id="fZonaNorte" value="#12275e"></div>
+        <div><label style="margin-top:4px; font-size:.78rem;">Zona sur</label><input type="color" id="fZonaSur" value="#2e8b57"></div>
+        <div><label style="margin-top:4px; font-size:.78rem;">Ambas zonas</label><input type="color" id="fZonaAmbas" value="#8a4fa0"></div>
+      </div>
+      <label style="margin-top:14px; border-top:1px dashed var(--borde); padding-top:10px;">Tipografía general</label>
+      <select id="fFuente">
+        <option value="">Predeterminada</option>
+        <option value="Arial, Helvetica, sans-serif">Arial</option>
+        <option value="Georgia, 'Times New Roman', serif">Georgia</option>
+        <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+        <option value="Verdana, sans-serif">Verdana</option>
+        <option value="'Times New Roman', serif">Times New Roman</option>
+        <option value="'Courier New', monospace">Courier New</option>
+      </select>
       <div class="pie">
         <button type="button" class="b-cancelar" id="btnCancelarFondo">Cancelar</button>
         <button type="button" class="b-guardar" id="btnGuardarFondo">Guardar fondo</button>
@@ -739,6 +757,7 @@
       <option value="">Sin zona</option>
       <option value="norte">Norte</option>
       <option value="sur">Sur</option>
+      <option value="ambas">Ambas zonas</option>
     </select>
     <div id="zonaMaterias" style="display:none;">
       <label>Materia principal</label>
@@ -830,11 +849,11 @@
   </div>
 </div>
 
-<!-- Modal meta -->
+<!-- Modal objetivo institucional (meta) -->
 <div class="overlay" id="ovMeta">
   <div class="modal">
-    <h3 id="tituloMeta">Meta</h3>
-    <label>Título de la meta</label>
+    <h3 id="tituloMeta">Objetivo institucional</h3>
+    <label>Título del objetivo institucional</label>
     <input type="text" id="metaTitulo" maxlength="200" placeholder="Ej.: Etapa 1 — Diagnóstico de ambas sedes">
     <div class="pie">
       <button class="b-cancelar" data-cerrar="ovMeta">Cancelar</button>
@@ -912,6 +931,7 @@
       <option value="">Sin zona</option>
       <option value="norte">Norte</option>
       <option value="sur">Sur</option>
+      <option value="ambas">Ambas zonas</option>
     </select>
     <label>Director/a</label>
     <div style="display:flex; gap:8px;">
@@ -962,6 +982,7 @@
       <option value="">Sin zona</option>
       <option value="norte">Norte</option>
       <option value="sur">Sur</option>
+      <option value="ambas">Ambas zonas</option>
     </select>
     <label>Fecha de ingreso a la modalidad</label>
     <input type="date" id="alFechaIngreso">
@@ -1077,6 +1098,7 @@
       <option value="">Sin zona</option>
       <option value="norte">Norte</option>
       <option value="sur">Sur</option>
+      <option value="ambas">Ambas zonas</option>
     </select>
     <div class="pie">
       <button class="b-rojo" id="btnBorrarContacto" style="display:none;">Eliminar contacto</button>
@@ -1303,7 +1325,12 @@ function escapar(s){
   return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
 function nombreDe(p){ return (p.nombre+" "+p.apellido).trim(); }
-function claseZona(p){ return p.zona==="norte" ? "zona-norte" : (p.zona==="sur" ? "zona-sur" : ""); }
+function claseZona(p){
+  if (p.zona==="norte") return "zona-norte";
+  if (p.zona==="sur") return "zona-sur";
+  if (p.zona==="ambas") return "zona-ambas";
+  return "";
+}
 function sumarDias(iso, n){
   const d = parseISO(iso); d.setDate(d.getDate()+n);
   return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
@@ -1440,7 +1467,12 @@ function generarCSSPersonalizado(t){
   const gEstudiantes = t.grupoEstudiantes || "#3fa1a1";
   const gNovedades = t.grupoNovedades || "#c96b6b";
   const gContactos = t.grupoContactos || "#8a6fb0";
+  const zNorte = t.zonaNorte || "#12275e";
+  const zSur = t.zonaSur || "#2e8b57";
+  const zAmbas = t.zonaAmbas || "#8a4fa0";
+  const reglaFuente = t.fuente ? "body.tema-personalizado{font-family:"+t.fuente+";}" : "";
   return "body.tema-personalizado{background:"+t.fondo+"; color:"+t.texto+";}"+
+    reglaFuente+
     "body.tema-personalizado header.top{background:"+acentoOsc+";}"+
     "body.tema-personalizado main{background:"+t.papel+"; border-color:"+borde+";}"+
     "body.tema-personalizado nav.tabs.sidebar{background:"+fondoAlt+"; border-color:"+borde+";}"+
@@ -1449,6 +1481,9 @@ function generarCSSPersonalizado(t){
     "body.tema-personalizado .g-estudiantes{--grupo-color:"+gEstudiantes+";}"+
     "body.tema-personalizado .g-novedades{--grupo-color:"+gNovedades+";}"+
     "body.tema-personalizado .g-contactos{--grupo-color:"+gContactos+";}"+
+    "body.tema-personalizado .zona-norte{color:"+zNorte+" !important;}"+
+    "body.tema-personalizado .zona-sur{color:"+zSur+" !important;}"+
+    "body.tema-personalizado .zona-ambas{color:"+zAmbas+" !important;}"+
     "body.tema-personalizado .form-alta, body.tema-personalizado .bloque-persona, body.tema-personalizado .dia-card,"+
     "body.tema-personalizado .calendario, body.tema-personalizado .meta-card, body.tema-personalizado .stats-bloque,"+
     "body.tema-personalizado .caja-tareas{background:"+fondoAlt+"; border-color:"+borde+";}"+
@@ -1520,6 +1555,10 @@ function abrirFormFondo(t){
   $("#fGrupoEstudiantes").value = (t && t.grupoEstudiantes) ? t.grupoEstudiantes : "#3fa1a1";
   $("#fGrupoNovedades").value = (t && t.grupoNovedades) ? t.grupoNovedades : "#c96b6b";
   $("#fGrupoContactos").value = (t && t.grupoContactos) ? t.grupoContactos : "#8a6fb0";
+  $("#fZonaNorte").value = (t && t.zonaNorte) ? t.zonaNorte : "#12275e";
+  $("#fZonaSur").value = (t && t.zonaSur) ? t.zonaSur : "#2e8b57";
+  $("#fZonaAmbas").value = (t && t.zonaAmbas) ? t.zonaAmbas : "#8a4fa0";
+  $("#fFuente").value = (t && t.fuente) ? t.fuente : "";
   $("#formNuevoFondo").style.display = "";
 }
 function guardarFondo(){
@@ -1528,7 +1567,9 @@ function guardarFondo(){
   const grupos = {
     grupoTrabajo: $("#fGrupoTrabajo").value, grupoEquipo: $("#fGrupoEquipo").value,
     grupoEstudiantes: $("#fGrupoEstudiantes").value, grupoNovedades: $("#fGrupoNovedades").value,
-    grupoContactos: $("#fGrupoContactos").value
+    grupoContactos: $("#fGrupoContactos").value,
+    zonaNorte: $("#fZonaNorte").value, zonaSur: $("#fZonaSur").value, zonaAmbas: $("#fZonaAmbas").value,
+    fuente: $("#fFuente").value
   };
   const temas = cargarTemasPersonalizados();
   let idFinal = fondoEnEdicion;
@@ -3602,7 +3643,7 @@ function borrarContacto(){
 // ---------- Progreso ----------
 function abrirMeta(id){
   metaEnCurso = id;
-  $("#tituloMeta").textContent = id ? "✏ Editar meta" : "➕ Nueva meta";
+  $("#tituloMeta").textContent = id ? "✏ Editar objetivo institucional" : "➕ Nuevo objetivo institucional";
   const m = id ? estado.metas.find(x=>x.id===id) : null;
   $("#metaTitulo").value = m ? m.titulo : "";
   $("#ovMeta").classList.add("visible");
@@ -3610,7 +3651,7 @@ function abrirMeta(id){
 }
 function guardarMeta(){
   const titulo = $("#metaTitulo").value.trim();
-  if (!titulo){ toast("Escribí el título de la meta"); return; }
+  if (!titulo){ toast("Escribí el título del objetivo institucional"); return; }
   if (metaEnCurso){
     const m = estado.metas.find(x=>x.id===metaEnCurso);
     if (m) m.titulo = titulo;
@@ -3680,7 +3721,7 @@ function itemsProgreso(){
 }
 function progresoWord(){
   const items = itemsProgreso();
-  if (!items.length){ toast("No hay metas ni submetas para exportar"); return; }
+  if (!items.length){ toast("No hay objetivos institucionales ni submetas para exportar"); return; }
   const conFecha = items.filter(i=>i.fecha).sort((a,b)=>a.fecha.localeCompare(b.fecha));
   const sinFecha = items.filter(i=>!i.fecha);
   const porAnio = new Map();
@@ -3719,13 +3760,13 @@ function progresoWord(){
 }
 async function progresoCopiar(){
   const items = itemsProgreso();
-  if (!items.length){ toast("No hay metas ni submetas para copiar"); return; }
+  if (!items.length){ toast("No hay objetivos institucionales ni submetas para copiar"); return; }
   const conFecha = items.filter(i=>i.fecha).sort((a,b)=>a.fecha.localeCompare(b.fecha));
   const sinFecha = items.filter(i=>!i.fecha);
   const porAnio = new Map();
   for (const i of conFecha){ const y=i.fecha.slice(0,4); if(!porAnio.has(y)) porAnio.set(y,[]); porAnio.get(y).push(i); }
   const lineaItem = (i)=>"  • "+(i.fecha?fmtCorto(i.fecha)+" — ":"")+i.texto+" ("+i.meta+") "+(i.hecha?"✔ cumplida":"pendiente")+
-    (i.numero!==null?" · meta "+i.numero:"")+(i.comentario?" — "+i.comentario:"");
+    (i.numero!==null?" · 🎯 "+i.numero:"")+(i.comentario?" — "+i.comentario:"");
   let texto = "PROGRESO — MDAgenda\n\n";
   for (const [y, arr] of [...porAnio.entries()].sort((a,b)=>a[0].localeCompare(b[0]))){
     texto += "Año "+y+"\n";
@@ -3797,7 +3838,7 @@ function seccionActasHTML(){
 function seccionPEIHTML(){
   let h = "<h2 class='sub' style='margin-top:22px;'>Objetivos institucionales (borrador desde Progreso)</h2>";
   if (!estado.metas.length){
-    h += "<p class='sin-datos'>No hay metas cargadas todavía en la pestaña Progreso.</p>";
+    h += "<p class='sin-datos'>No hay objetivos institucionales cargados todavía en la pestaña Progreso.</p>";
     return h;
   }
   for (const m of estado.metas){
@@ -3946,7 +3987,7 @@ function renderProgreso(){
   const cont = $("#contProgreso");
   cont.innerHTML = "";
   if (!estado.metas.length){
-    cont.innerHTML = '<p class="sin-datos">Sin metas todavía. Creá la primera con "Nueva meta".</p>';
+    cont.innerHTML = '<p class="sin-datos">Sin objetivos institucionales todavía. Creá el primero con "Nuevo objetivo institucional".</p>';
     return;
   }
   const hoy = hoyISO();
@@ -3972,11 +4013,11 @@ function renderProgreso(){
     cab.appendChild(h3);
     const acc = document.createElement("div");
     acc.className = "acciones";
-    acc.innerHTML = '<button title="Editar meta">✏️</button><button title="Eliminar meta">🗑️</button>';
+    acc.innerHTML = '<button title="Editar objetivo institucional">✏️</button><button title="Eliminar objetivo institucional">🗑️</button>';
     const [mEd, mDel] = acc.querySelectorAll("button");
     mEd.onclick = ()=>abrirMeta(m.id);
     mDel.onclick = ()=>{
-      if (confirm("¿Eliminar la meta \""+m.titulo+"\" con todas sus submetas?")){
+      if (confirm("¿Eliminar el objetivo institucional \""+m.titulo+"\" con todas sus submetas?")){
         estado.metas = estado.metas.filter(x=>x.id!==m.id);
         guardar(); renderProgreso();
       }
