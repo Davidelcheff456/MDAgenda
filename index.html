@@ -995,15 +995,35 @@
       <input type="text" id="escDirNombre" placeholder="Nombre" style="flex:2;">
       <input type="tel" id="escDirTel" placeholder="Teléfono" style="flex:1;">
     </div>
-    <label>Vicedirector/a</label>
+    <label>Vicedirector/a 1</label>
     <div style="display:flex; gap:8px;">
-      <input type="text" id="escVicNombre" placeholder="Nombre" style="flex:2;">
-      <input type="tel" id="escVicTel" placeholder="Teléfono" style="flex:1;">
+      <input type="text" id="escVicNombre1" placeholder="Nombre" style="flex:2;">
+      <input type="tel" id="escVicTel1" placeholder="Teléfono" style="flex:1;">
     </div>
-    <label>POT</label>
+    <label>Vicedirector/a 2 (opcional)</label>
     <div style="display:flex; gap:8px;">
-      <input type="text" id="escPotNombre" placeholder="Nombre" style="flex:2;">
-      <input type="tel" id="escPotTel" placeholder="Teléfono" style="flex:1;">
+      <input type="text" id="escVicNombre2" placeholder="Nombre" style="flex:2;">
+      <input type="tel" id="escVicTel2" placeholder="Teléfono" style="flex:1;">
+    </div>
+    <label>Vicedirector/a 3 (opcional)</label>
+    <div style="display:flex; gap:8px;">
+      <input type="text" id="escVicNombre3" placeholder="Nombre" style="flex:2;">
+      <input type="tel" id="escVicTel3" placeholder="Teléfono" style="flex:1;">
+    </div>
+    <label>POT 1</label>
+    <div style="display:flex; gap:8px;">
+      <input type="text" id="escPotNombre1" placeholder="Nombre" style="flex:2;">
+      <input type="tel" id="escPotTel1" placeholder="Teléfono" style="flex:1;">
+    </div>
+    <label>POT 2 (opcional)</label>
+    <div style="display:flex; gap:8px;">
+      <input type="text" id="escPotNombre2" placeholder="Nombre" style="flex:2;">
+      <input type="tel" id="escPotTel2" placeholder="Teléfono" style="flex:1;">
+    </div>
+    <label>POT 3 (opcional)</label>
+    <div style="display:flex; gap:8px;">
+      <input type="text" id="escPotNombre3" placeholder="Nombre" style="flex:2;">
+      <input type="tel" id="escPotTel3" placeholder="Teléfono" style="flex:1;">
     </div>
     <label>Correo de la escuela</label>
     <input type="email" id="escCorreo">
@@ -1271,7 +1291,8 @@ function normalizarFechaEtiquetada(x){
 function contactoBase(){ return {nombre:"", telefono:""}; }
 function escuelaOrigenBase(){
   return {id: uid(), numero:"", nombre:"", zona:"", correo:"", direccion:"", lat:null, lng:null,
-    director: contactoBase(), vicedirector: contactoBase(), pot: contactoBase()};
+    director: contactoBase(), vicedirectores: [contactoBase(), contactoBase(), contactoBase()],
+    pots: [contactoBase(), contactoBase(), contactoBase()]};
 }
 function normalizarEscuela(e){
   if (typeof e.numero !== "string") e.numero = String(e.numero||"");
@@ -1280,10 +1301,28 @@ function normalizarEscuela(e){
   if (typeof e.direccion !== "string") e.direccion = "";
   if (e.lat===undefined) e.lat = null;
   if (e.lng===undefined) e.lng = null;
-  for (const k of ["director","vicedirector","pot"]){
-    if (!e[k] || typeof e[k] !== "object") e[k] = contactoBase();
-    if (typeof e[k].nombre !== "string") e[k].nombre = "";
-    if (typeof e[k].telefono !== "string") e[k].telefono = "";
+  if (!e.director || typeof e.director !== "object") e.director = contactoBase();
+  if (typeof e.director.nombre !== "string") e.director.nombre = "";
+  if (typeof e.director.telefono !== "string") e.director.telefono = "";
+  // migración: antes vicedirector/pot eran una sola persona (versiones viejas de la app)
+  if (!Array.isArray(e.vicedirectores)){
+    e.vicedirectores = (e.vicedirector && typeof e.vicedirector==="object" && (e.vicedirector.nombre || e.vicedirector.telefono))
+      ? [e.vicedirector] : [];
+  }
+  if (!Array.isArray(e.pots)){
+    e.pots = (e.pot && typeof e.pot==="object" && (e.pot.nombre || e.pot.telefono))
+      ? [e.pot] : [];
+  }
+  delete e.vicedirector;
+  delete e.pot;
+  for (const arr of [e.vicedirectores, e.pots]){
+    while (arr.length < 3) arr.push(contactoBase());
+    if (arr.length > 3) arr.length = 3;
+    for (let i=0; i<arr.length; i++){
+      if (!arr[i] || typeof arr[i] !== "object") arr[i] = contactoBase();
+      if (typeof arr[i].nombre !== "string") arr[i].nombre = "";
+      if (typeof arr[i].telefono !== "string") arr[i].telefono = "";
+    }
   }
   return e;
 }
@@ -3607,10 +3646,14 @@ function abrirEscuela(id){
   $("#escZona").value = e.zona || "";
   $("#escDirNombre").value = e.director.nombre || "";
   $("#escDirTel").value = e.director.telefono || "";
-  $("#escVicNombre").value = e.vicedirector.nombre || "";
-  $("#escVicTel").value = e.vicedirector.telefono || "";
-  $("#escPotNombre").value = e.pot.nombre || "";
-  $("#escPotTel").value = e.pot.telefono || "";
+  for (let i=0; i<3; i++){
+    const v = e.vicedirectores[i] || contactoBase();
+    $("#escVicNombre"+(i+1)).value = v.nombre || "";
+    $("#escVicTel"+(i+1)).value = v.telefono || "";
+    const p = e.pots[i] || contactoBase();
+    $("#escPotNombre"+(i+1)).value = p.nombre || "";
+    $("#escPotTel"+(i+1)).value = p.telefono || "";
+  }
   $("#escCorreo").value = e.correo || "";
   $("#escDireccion").value = e.direccion || "";
   actualizarLinkMaps("#escVerMaps", e.direccion);
@@ -3633,8 +3676,8 @@ function guardarEscuela(){
     correo: $("#escCorreo").value.trim(),
     direccion: $("#escDireccion").value.trim(),
     director: {nombre: $("#escDirNombre").value.trim(), telefono: $("#escDirTel").value.trim()},
-    vicedirector: {nombre: $("#escVicNombre").value.trim(), telefono: $("#escVicTel").value.trim()},
-    pot: {nombre: $("#escPotNombre").value.trim(), telefono: $("#escPotTel").value.trim()},
+    vicedirectores: [1,2,3].map(i=>({nombre: $("#escVicNombre"+i).value.trim(), telefono: $("#escVicTel"+i).value.trim()})),
+    pots: [1,2,3].map(i=>({nombre: $("#escPotNombre"+i).value.trim(), telefono: $("#escPotTel"+i).value.trim()})),
     lat: escLatTmp, lng: escLngTmp
   };
   if (escuelaEnCurso){
@@ -3854,9 +3897,22 @@ function contactosTodos(){
       accion:()=>abrirAlumno(a.id)});
   }
   for (const e of estado.escuelasOrigen){
+    const escLabel = (e.numero?"N° "+e.numero+" — ":"")+(e.nombre||"(sin nombre)");
     res.push({tipo:"Escuela de origen", label:e.numero?"N° "+e.numero:"", nombre: e.nombre||"(sin nombre)", tel:e.director.telefono, correo:e.correo, zona:e.zona,
-      buscable:((e.nombre||"")+" "+(e.numero||"")+" "+(e.director.telefono||"")+" "+(e.correo||"")).toLowerCase(),
+      buscable:((e.nombre||"")+" "+(e.numero||"")+" "+(e.director.nombre||"")+" "+(e.director.telefono||"")+" "+(e.correo||"")).toLowerCase(),
       accion:()=>abrirEscuela(e.id)});
+    for (const v of e.vicedirectores){
+      if (!v.nombre && !v.telefono) continue;
+      res.push({tipo:"Vicedirector/a", label:escLabel, nombre: v.nombre||"(sin nombre)", tel:v.telefono, correo:"", zona:e.zona,
+        buscable:((v.nombre||"")+" "+(v.telefono||"")+" "+escLabel).toLowerCase(),
+        accion:()=>abrirEscuela(e.id)});
+    }
+    for (const p of e.pots){
+      if (!p.nombre && !p.telefono) continue;
+      res.push({tipo:"POT (escuela)", label:escLabel, nombre: p.nombre||"(sin nombre)", tel:p.telefono, correo:"", zona:e.zona,
+        buscable:((p.nombre||"")+" "+(p.telefono||"")+" "+escLabel).toLowerCase(),
+        accion:()=>abrirEscuela(e.id)});
+    }
   }
   for (const c of estado.contactosExtra){
     const nom = nombreDe(c) || "(sin nombre)";
