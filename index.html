@@ -687,7 +687,9 @@
       <input type="color" id="fPapel" value="#ffffff">
       <label>Color de la barra lateral (menú de pestañas)</label>
       <input type="color" id="fSidebar" value="#e0dbc8">
-      <label>Color de acento (botones, cabecera)</label>
+      <label>Color de la barra superior (donde dice MDAgenda)</label>
+      <input type="color" id="fHeader" value="#1e4260">
+      <label>Color de acento (botones)</label>
       <input type="color" id="fAcento" value="#2c5f8a">
       <label>Color de texto</label>
       <input type="color" id="fTexto" value="#2b2b2b">
@@ -1481,7 +1483,7 @@ function generarCSSPersonalizado(t){
   const reglaFuente = t.fuente ? "body.tema-personalizado{font-family:"+t.fuente+";}" : "";
   return "body.tema-personalizado{background:"+t.fondo+"; color:"+t.texto+";}"+
     reglaFuente+
-    "body.tema-personalizado header.top{background:"+acentoOsc+";}"+
+    "body.tema-personalizado header.top{background:"+(t.header||acentoOsc)+";}"+
     "body.tema-personalizado main{background:"+t.papel+"; border-color:"+borde+";}"+
     "body.tema-personalizado nav.tabs.sidebar{background:"+(t.sidebar||"#e0dbc8")+"; border-color:"+borde+";}"+
     "body.tema-personalizado .g-trabajo{--grupo-color:"+gTrabajo+";}"+
@@ -1557,6 +1559,7 @@ function abrirFormFondo(t){
   $("#fFondo").value = t ? t.fondo : "#f6f4ee";
   $("#fPapel").value = t ? t.papel : "#ffffff";
   $("#fSidebar").value = (t && t.sidebar) ? t.sidebar : "#e0dbc8";
+  $("#fHeader").value = (t && t.header) ? t.header : "#1e4260";
   $("#fAcento").value = t ? t.acento : "#2c5f8a";
   $("#fTexto").value = t ? t.texto : "#2b2b2b";
   $("#fGrupoTrabajo").value = (t && t.grupoTrabajo) ? t.grupoTrabajo : "#e0935f";
@@ -1573,7 +1576,7 @@ function abrirFormFondo(t){
 }
 function fondoDesdeFormulario(){
   return {
-    fondo: $("#fFondo").value, papel: $("#fPapel").value, sidebar: $("#fSidebar").value, acento: $("#fAcento").value, texto: $("#fTexto").value,
+    fondo: $("#fFondo").value, papel: $("#fPapel").value, sidebar: $("#fSidebar").value, header: $("#fHeader").value, acento: $("#fAcento").value, texto: $("#fTexto").value,
     grupoTrabajo: $("#fGrupoTrabajo").value, grupoEquipo: $("#fGrupoEquipo").value,
     grupoEstudiantes: $("#fGrupoEstudiantes").value, grupoNovedades: $("#fGrupoNovedades").value,
     grupoContactos: $("#fGrupoContactos").value,
