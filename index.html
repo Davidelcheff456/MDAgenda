@@ -1560,26 +1560,39 @@ function abrirFormFondo(t){
   $("#fZonaAmbas").value = (t && t.zonaAmbas) ? t.zonaAmbas : "#8a4fa0";
   $("#fFuente").value = (t && t.fuente) ? t.fuente : "";
   $("#formNuevoFondo").style.display = "";
+  previsualizarFondo();
 }
-function guardarFondo(){
-  const nombre = $("#fNombre").value.trim();
-  if (!nombre){ toast("Ponele un nombre al fondo"); return; }
-  const grupos = {
+function fondoDesdeFormulario(){
+  return {
+    fondo: $("#fFondo").value, papel: $("#fPapel").value, acento: $("#fAcento").value, texto: $("#fTexto").value,
     grupoTrabajo: $("#fGrupoTrabajo").value, grupoEquipo: $("#fGrupoEquipo").value,
     grupoEstudiantes: $("#fGrupoEstudiantes").value, grupoNovedades: $("#fGrupoNovedades").value,
     grupoContactos: $("#fGrupoContactos").value,
     zonaNorte: $("#fZonaNorte").value, zonaSur: $("#fZonaSur").value, zonaAmbas: $("#fZonaAmbas").value,
     fuente: $("#fFuente").value
   };
+}
+function previsualizarFondo(){
+  if ($("#formNuevoFondo").style.display === "none") return;
+  const t = fondoDesdeFormulario();
+  document.body.classList.remove("tema-sepia","tema-oscuro");
+  document.body.classList.add("tema-personalizado");
+  const estilo = $("#estiloPersonalizado");
+  if (estilo) estilo.textContent = generarCSSPersonalizado(t);
+}
+function guardarFondo(){
+  const nombre = $("#fNombre").value.trim();
+  if (!nombre){ toast("Ponele un nombre al fondo"); return; }
+  const datos = fondoDesdeFormulario();
   const temas = cargarTemasPersonalizados();
   let idFinal = fondoEnEdicion;
   if (fondoEnEdicion){
     const t = temas.find(x=>x.id===fondoEnEdicion);
-    if (t){ t.nombre=nombre; t.fondo=$("#fFondo").value; t.papel=$("#fPapel").value; t.acento=$("#fAcento").value; t.texto=$("#fTexto").value; Object.assign(t, grupos); }
+    if (t){ t.nombre=nombre; Object.assign(t, datos); }
   } else {
     if (temas.length>=5){ toast("Ya tenés 5 fondos propios, borrá uno para crear otro"); return; }
     idFinal = uid();
-    temas.push({id: idFinal, nombre, fondo:$("#fFondo").value, papel:$("#fPapel").value, acento:$("#fAcento").value, texto:$("#fTexto").value, ...grupos});
+    temas.push({id: idFinal, nombre, ...datos});
   }
   guardarTemasPersonalizados(temas);
   $("#formNuevoFondo").style.display = "none";
@@ -4214,7 +4227,13 @@ function renderEstadisticas(){
 }
 
 // ---------- Generales ----------
-function cerrar(id){ document.getElementById(id).classList.remove("visible"); }
+function cerrar(id){
+  document.getElementById(id).classList.remove("visible");
+  if (id === "ovFondos"){
+    $("#formNuevoFondo").style.display = "none";
+    aplicarTema();
+  }
+}
 function renderTodo(){ renderTareas(); renderBitacora(); renderEquipo(); renderDocentes(); renderDisponible(); renderLicencias(); renderParo(); renderProgreso(); renderEstadisticas(); renderAlumnos(); renderEscuelas(); renderMemoria(); renderContactos(); }
 
 // Sidebar (menú lateral agrupado, colapsable en celular)
@@ -4330,7 +4349,11 @@ $("#btnFab").onclick = ()=>{ $("#ovInterrupcion").classList.add("visible"); $("#
 $("#btnGuardarInterrupcion").onclick = guardarInterrupcion;
 $("#logoBtn").onclick = ()=>{ $("#formNuevoFondo").style.display = "none"; renderFondos(); $("#ovFondos").classList.add("visible"); };
 $("#btnNuevoFondo").onclick = ()=>abrirFormFondo(null);
-$("#btnCancelarFondo").onclick = ()=>{ $("#formNuevoFondo").style.display = "none"; };
+$("#btnCancelarFondo").onclick = ()=>{ $("#formNuevoFondo").style.display = "none"; aplicarTema(); };
+document.querySelectorAll("#formNuevoFondo input, #formNuevoFondo select").forEach(el=>{
+  el.addEventListener("input", previsualizarFondo);
+  el.addEventListener("change", previsualizarFondo);
+});
 $("#btnGuardarFondo").onclick = guardarFondo;
 $("#btnAgregarEscuela").onclick = ()=>abrirEscuela(null);
 $("#btnGuardarEscuela").onclick = guardarEscuela;
@@ -4356,7 +4379,7 @@ $("#cTipo").onchange = actualizarBloquesContacto;
 $("#cRol").onchange = ()=>{ $("#cRolOtro").style.display = $("#cRol").value==="otro" ? "" : "none"; };
 document.querySelectorAll("[data-cerrar]").forEach(b=>{ b.onclick = ()=>cerrar(b.dataset.cerrar); });
 document.querySelectorAll(".overlay").forEach(ov=>{
-  ov.addEventListener("click", (e)=>{ if (e.target===ov) ov.classList.remove("visible"); });
+  ov.addEventListener("click", (e)=>{ if (e.target===ov) cerrar(ov.id); });
 });
 
 // ---------- Inicio ----------
