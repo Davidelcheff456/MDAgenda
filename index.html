@@ -51,10 +51,13 @@
     transition:transform .15s ease, opacity .15s ease;
   }
   .nav-grupo-tab:hover{opacity:1; transform:translateX(-3px);}
-  .nav-grupo-tab.activo{transform:translateX(0); opacity:1; box-shadow:3px 3px 10px rgba(0,0,0,.28);}
-  .nav-items-panel{flex:1; min-width:0; padding:2px 6px 2px 8px;}
+  .nav-grupo-tab.activo{transform:translateX(0); opacity:1; box-shadow:none;}
+  .nav-items-panel{flex:1; min-width:0; padding:0 6px 0 0; align-self:flex-start; box-sizing:border-box;}
   .nav-grupo-items{display:none; flex-direction:column; gap:2px;}
-  .nav-grupo-items.abierto{display:flex;}
+  .nav-grupo-items.abierto{
+    display:flex; height:100%; box-sizing:border-box; margin-left:-1px;
+    border:9px solid var(--grupo-color); border-radius:0 14px 14px 0; padding:10px 8px;
+  }
   .nav-grupo-items button{
     display:block; text-align:center; width:100%;
     padding:8px 10px; border:none; border-radius:6px; background:transparent;
@@ -3435,7 +3438,17 @@ function aplicarPermisos(){
     const primera = document.querySelector('.nav-grupo-items button[data-tab="'+pestanasPermitidas[0]+'"]');
     if (primera) primera.click();
   }
+  sincronizarAlturaPanelNav();
 }
+// El marco de la solapa activa debe cubrir exactamente desde el borde superior
+// de la primera solapa hasta el borde inferior de la última (columna fija de solapas),
+// sin quedar desfasado arriba ni extenderse de más abajo.
+function sincronizarAlturaPanelNav(){
+  const col = document.querySelector(".nav-tabs-col");
+  const panel = document.querySelector(".nav-items-panel");
+  if (col && panel) panel.style.height = col.offsetHeight+"px";
+}
+window.addEventListener("resize", sincronizarAlturaPanelNav);
 function renderChksPestanas(){
   const cont = $("#accChks");
   cont.innerHTML = "";
@@ -4628,26 +4641,31 @@ $("#btnMenu").onclick = ()=> sidebarNav.classList.contains("abierta") ? cerrarSi
 sidebarBackdrop.onclick = cerrarSidebar;
 
 // Tabs (pestañas individuales dentro del panel de la categoría abierta)
+// cerrarMenu=false se usa cuando la selección es automática (al abrir la categoría
+// en celular), para que el menú de solapas siga visible y se pueda elegir el submenú.
+function activarPestana(b, cerrarMenu){
+  document.querySelectorAll(".nav-grupo-items button[data-tab]").forEach(x=>x.classList.remove("activa"));
+  document.querySelectorAll("section.panel").forEach(x=>x.classList.remove("activa"));
+  b.classList.add("activa");
+  document.getElementById("panel-"+b.dataset.tab).classList.add("activa");
+  // Asegura que la solapa y el panel de su categoría queden marcados como abiertos
+  const panelGrupo = b.closest(".nav-grupo-items");
+  if (panelGrupo){
+    document.querySelectorAll(".nav-grupo-tab").forEach(t=>t.classList.remove("activo"));
+    document.querySelectorAll(".nav-grupo-items").forEach(p=>p.classList.remove("abierto"));
+    panelGrupo.classList.add("abierto");
+    const tab = document.querySelector('.nav-grupo-tab[data-grupo="'+panelGrupo.dataset.grupo+'"]');
+    if (tab) tab.classList.add("activo");
+  }
+  if (cerrarMenu) cerrarSidebar();
+}
 document.querySelectorAll(".nav-grupo-items button[data-tab]").forEach(b=>{
-  b.onclick = ()=>{
-    document.querySelectorAll(".nav-grupo-items button[data-tab]").forEach(x=>x.classList.remove("activa"));
-    document.querySelectorAll("section.panel").forEach(x=>x.classList.remove("activa"));
-    b.classList.add("activa");
-    document.getElementById("panel-"+b.dataset.tab).classList.add("activa");
-    // Asegura que la solapa y el panel de su categoría queden marcados como abiertos
-    const panelGrupo = b.closest(".nav-grupo-items");
-    if (panelGrupo){
-      document.querySelectorAll(".nav-grupo-tab").forEach(t=>t.classList.remove("activo"));
-      document.querySelectorAll(".nav-grupo-items").forEach(p=>p.classList.remove("abierto"));
-      panelGrupo.classList.add("abierto");
-      const tab = document.querySelector('.nav-grupo-tab[data-grupo="'+panelGrupo.dataset.grupo+'"]');
-      if (tab) tab.classList.add("activo");
-    }
-    cerrarSidebar();
-  };
+  b.onclick = ()=> activarPestana(b, true);
 });
 // Solapas de categoría: columna fija, no se mueven entre sí. Al hacer click se
 // despliega (o se cierra) el panel de opciones de esa categoría, sin desplazar las demás.
+// En celular, abrir la categoría NO cierra el menú: recién se cierra cuando el
+// usuario elige a mano un submenú concreto.
 document.querySelectorAll(".nav-grupo-tab").forEach(tab=>{
   tab.onclick = ()=>{
     const panel = document.querySelector('.nav-grupo-items[data-grupo="'+tab.dataset.grupo+'"]');
@@ -4659,7 +4677,7 @@ document.querySelectorAll(".nav-grupo-tab").forEach(tab=>{
       panel.classList.add("abierto");
       const primeraVisible = [...panel.querySelectorAll("button[data-tab]")]
         .find(b=>b.style.display!=="none");
-      if (primeraVisible) primeraVisible.click();
+      if (primeraVisible) activarPestana(primeraVisible, false);
     }
   };
 });
@@ -4788,6 +4806,8 @@ if (FIREBASE_ACTIVO){
 aplicarTema();
 aplicarPermisos();
 renderTodo();
+sincronizarAlturaPanelNav();
+setTimeout(sincronizarAlturaPanelNav, 300);
 </script>
 </body>
 </html>
