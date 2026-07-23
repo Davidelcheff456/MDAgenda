@@ -636,12 +636,22 @@
   <section class="panel" id="panel-alumnos">
     <div class="fila-orden">
       <button data-vista-al="alumnos" class="sel">🎒 Alumnos</button>
+      <button data-vista-al="espera">⏳ Lista de espera</button>
+      <button data-vista-al="baja">🚪 Baja</button>
       <button data-vista-al="escuelas">🏫 Escuelas de origen</button>
       <button data-vista-al="mapa">🗺️ Mapa</button>
     </div>
     <div id="vistaAlAlumnos">
       <button class="btn-agregar-doc" id="btnAgregarAlumno">➕ Agregar alumno</button>
+      <p class="mini-dato" id="resumenCupo" style="margin-bottom:12px;"></p>
       <div class="grilla-personas" id="grillaAlumnos"></div>
+    </div>
+    <div id="vistaAlEspera" style="display:none;">
+      <p class="mini-dato" style="margin-bottom:12px;">Alumnos anotados para ingresar cuando se libere un lugar. Tocá "Dar de alta" para pasarlos a atendidos.</p>
+      <div class="grilla-personas" id="grillaAlumnosEspera"></div>
+    </div>
+    <div id="vistaAlBaja" style="display:none;">
+      <div class="grilla-personas" id="grillaAlumnosBaja"></div>
     </div>
     <div id="vistaAlEscuelas" style="display:none;">
       <button class="btn-agregar-doc" id="btnAgregarEscuela">➕ Agregar escuela de origen</button>
@@ -870,6 +880,15 @@
     </label>
     <p style="font-size:.8rem; color:var(--gris); margin-top:6px;">Las funciones de los docentes nunca se reinician solas.</p>
 
+    <div class="seccion-admin" id="zonaCupos">
+      <label>🎒 Cupo de la modalidad</label>
+      <p style="font-size:.8rem; color:var(--gris);">Cantidad de lugares por zona. Se puede aumentar cuando haga falta.</p>
+      <div style="display:flex; gap:14px; flex-wrap:wrap; margin-top:6px;">
+        <div><label style="font-size:.78rem; margin-top:0;">Cupo zona norte</label><input type="number" id="optCupoNorte" min="0" style="width:90px;"></div>
+        <div><label style="font-size:.78rem; margin-top:0;">Cupo zona sur</label><input type="number" id="optCupoSur" min="0" style="width:90px;"></div>
+      </div>
+    </div>
+
     <div class="seccion-admin" id="zonaPapelera">
       <label>🗑 Papelera de la bitácora</label>
       <div id="contPapelera"></div>
@@ -1064,6 +1083,14 @@
       <option value="sur">Sur</option>
       <option value="ambas">Ambas zonas</option>
     </select>
+    <div id="alCupoZonaWrap" style="display:none;">
+      <label>Al ser de ambas zonas, ¿a qué cupo se lo cuenta?</label>
+      <select id="alCupoZona">
+        <option value="">Sin definir</option>
+        <option value="norte">Cupo zona norte</option>
+        <option value="sur">Cupo zona sur</option>
+      </select>
+    </div>
     <label>Fecha de ingreso a la modalidad</label>
     <input type="date" id="alFechaIngreso">
     <label>Estado</label>
@@ -1071,6 +1098,7 @@
       <option value="activo">Activo</option>
       <option value="revinculado">Revinculado</option>
       <option value="continua">Continúa (necesita más tiempo)</option>
+      <option value="espera">Lista de espera</option>
       <option value="baja">Baja</option>
     </select>
     <label>Padre/madre/tutor 1 (obligatorio)</label>
@@ -1094,6 +1122,8 @@
     <div id="alMiniMapa" style="display:none; height:180px; border:1px solid var(--borde); border-radius:8px; margin-top:6px;"></div>
     <label>Docentes asignados</label>
     <div id="alDocentesChks" class="chks-pestanas" style="grid-template-columns:1fr 1fr;"></div>
+    <label>Diagnóstico</label>
+    <textarea id="alDiagnostico" placeholder="Descripción del diagnóstico, si corresponde..."></textarea>
     <label>Notas</label>
     <textarea id="alNotas" placeholder="Observaciones, seguimiento..."></textarea>
 
@@ -1216,8 +1246,10 @@ const ESTADOS_ALUMNO = {
   activo:      {label:"Activo",                          color:"#2e8b57"},
   revinculado: {label:"Revinculado",                      color:"#2c5f8a"},
   continua:    {label:"Continúa (necesita más tiempo)",   color:"#e6a817"},
+  espera:      {label:"Lista de espera",                  color:"#5c6bc0"},
   baja:        {label:"Baja",                             color:"#6b7280"}
 };
+const ESTADOS_ATENDIDO = ["activo","revinculado","continua"];
 const TIPOS_TIEMPO = {
   productivo:  {label:"Productivo",   color:"#2e8b57", icon:"🛠"},
   informacion: {label:"Información",  color:"#2c5f8a", icon:"📰"},
@@ -1245,7 +1277,7 @@ function migrarEquipo(arr){
   if (!eq.some(p=>p.rol==="Director")) eq.unshift(personaBase("dir1","Director"));
   return eq;
 }
-const OPCIONES_BASE = {tema:"claro", resetFunciones:true};
+const OPCIONES_BASE = {tema:"claro", resetFunciones:true, cupos:{norte:6, sur:6}};
 const PREGUNTAS_MEMORIA = [
   {clave:"admConciliaciones", dimension:"Dimensión administrativa", pregunta:"Conciliaciones bancarias y rendiciones: ¿cómo están, qué quedó pendiente?"},
   {clave:"admObs", dimension:"Dimensión administrativa", pregunta:"Observaciones generales de la gestión administrativa"},
@@ -1330,17 +1362,19 @@ function normalizarEscuela(e){
   return e;
 }
 function alumnoBase(){
-  return {id: uid(), nombre:"", apellido:"", escuelaOrigenId:"", cursoOrigen:"", zona:"",
+  return {id: uid(), nombre:"", apellido:"", escuelaOrigenId:"", cursoOrigen:"", zona:"", cupoZona:"",
     padre1: contactoBase(), padre2: contactoBase(), correo:"", direccion:"", lat:null, lng:null,
-    fechaIngreso: hoyISO(), docentes: [], estado:"activo", notas:"", actas: []};
+    fechaIngreso: hoyISO(), docentes: [], estado:"activo", diagnostico:"", notas:"", actas: []};
 }
 function normalizarAlumno(a){
   if (!Array.isArray(a.docentes)) a.docentes = [];
   if (!Array.isArray(a.actas)) a.actas = [];
   if (typeof a.zona !== "string") a.zona = "";
+  if (a.cupoZona !== "norte" && a.cupoZona !== "sur") a.cupoZona = "";
   if (typeof a.cursoOrigen !== "string") a.cursoOrigen = "";
   if (typeof a.correo !== "string") a.correo = "";
   if (typeof a.direccion !== "string") a.direccion = "";
+  if (typeof a.diagnostico !== "string") a.diagnostico = "";
   if (typeof a.notas !== "string") a.notas = "";
   if (!ESTADOS_ALUMNO[a.estado]) a.estado = "activo";
   if (a.lat===undefined) a.lat = null;
@@ -1522,6 +1556,9 @@ function aplicarEstado(nuevo){
   estado.metas = Array.isArray(nuevo.metas) ? nuevo.metas : [];
   estado.opciones = Object.assign({...OPCIONES_BASE},
     (nuevo.opciones && typeof nuevo.opciones==="object") ? nuevo.opciones : {});
+  if (!estado.opciones.cupos || typeof estado.opciones.cupos !== "object") estado.opciones.cupos = {norte:6, sur:6};
+  if (typeof estado.opciones.cupos.norte !== "number" || isNaN(estado.opciones.cupos.norte)) estado.opciones.cupos.norte = 6;
+  if (typeof estado.opciones.cupos.sur !== "number" || isNaN(estado.opciones.cupos.sur)) estado.opciones.cupos.sur = 6;
   estado.escuelasOrigen = Array.isArray(nuevo.escuelasOrigen) ? nuevo.escuelasOrigen.map(normalizarEscuela) : [];
   estado.alumnos = Array.isArray(nuevo.alumnos) ? nuevo.alumnos.map(normalizarAlumno) : [];
   estado.memoria = normalizarMemoria(nuevo.memoria);
@@ -3532,9 +3569,13 @@ function cambiarVistaAlumnos(v){
   vistaAlumnos = v;
   document.querySelectorAll("[data-vista-al]").forEach(b=>b.classList.toggle("sel", b.dataset.vistaAl===v));
   $("#vistaAlAlumnos").style.display = v==="alumnos" ? "" : "none";
+  $("#vistaAlEspera").style.display = v==="espera" ? "" : "none";
+  $("#vistaAlBaja").style.display = v==="baja" ? "" : "none";
   $("#vistaAlEscuelas").style.display = v==="escuelas" ? "" : "none";
   $("#vistaAlMapa").style.display = v==="mapa" ? "" : "none";
   if (v==="alumnos") renderAlumnos();
+  else if (v==="espera") renderAlumnosEspera();
+  else if (v==="baja") renderAlumnosBaja();
   else if (v==="escuelas") renderEscuelas();
   else if (v==="mapa") renderMapaAlumnos();
 }
@@ -3740,30 +3781,95 @@ function poblarChksDocentes(idsSeleccionados){
     cont.appendChild(lab);
   }
 }
+function crearTarjetaAlumno(a, extraBoton){
+  const div = document.createElement("div");
+  div.className = "bloque-persona";
+  const esc = estado.escuelasOrigen.find(x=>x.id===a.escuelaOrigenId);
+  const est = ESTADOS_ALUMNO[a.estado] || ESTADOS_ALUMNO.activo;
+  const nom = nombreDe(a);
+  const cab = document.createElement("div");
+  cab.className = "bp-cab";
+  cab.innerHTML = '<div><div class="rol">Alumno/a <span class="chip-estado" style="background:'+est.color+';">'+est.label+'</span></div>'+
+    '<div class="nombre '+claseZona(a)+(nom?"":" vacio")+'">'+(nom?escapar(nom):"Sin nombre — tocá para completar")+'</div>'+
+    '<div class="mini-dato">'+(esc?"Origen: "+escapar(esc.nombre):"Sin escuela de origen")+(a.cursoOrigen?" — "+escapar(a.cursoOrigen):"")+'</div></div>'+
+    '<span class="ver">Ver ficha ›</span>';
+  cab.onclick = ()=>abrirAlumno(a.id);
+  div.appendChild(cab);
+  if (extraBoton){
+    const pie = document.createElement("div");
+    pie.style.cssText = "padding:0 14px 12px 14px;";
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "btn-mini-tarea";
+    btn.style.cssText = "margin-top:0;";
+    btn.textContent = extraBoton.texto;
+    btn.onclick = (ev)=>{ ev.stopPropagation(); extraBoton.onclick(a); };
+    pie.appendChild(btn);
+    div.appendChild(pie);
+  }
+  return div;
+}
+function contarMatricula(){
+  const c = {norte:0, sur:0};
+  for (const a of estado.alumnos){
+    if (!ESTADOS_ATENDIDO.includes(a.estado)) continue;
+    if (a.zona==="norte") c.norte++;
+    else if (a.zona==="sur") c.sur++;
+    else if (a.zona==="ambas"){
+      if (a.cupoZona==="norte") c.norte++;
+      else if (a.cupoZona==="sur") c.sur++;
+    }
+  }
+  return c;
+}
+function renderResumenCupo(){
+  const cont = $("#resumenCupo");
+  if (!cont) return;
+  const cupos = (estado.opciones && estado.opciones.cupos) ? estado.opciones.cupos : {norte:6, sur:6};
+  const m = contarMatricula();
+  const avisoN = m.norte > cupos.norte ? " ⚠️" : "";
+  const avisoS = m.sur > cupos.sur ? " ⚠️" : "";
+  cont.innerHTML = "Matrícula — Zona norte: <b>"+m.norte+" / "+cupos.norte+"</b>"+avisoN+
+    " &nbsp;·&nbsp; Zona sur: <b>"+m.sur+" / "+cupos.sur+"</b>"+avisoS;
+}
 function renderAlumnos(){
+  renderResumenCupo();
   const cont = $("#grillaAlumnos");
   if (!cont) return;
   cont.innerHTML = "";
-  if (!estado.alumnos.length){
-    cont.innerHTML = '<p class="sin-datos">No hay alumnos cargados todavía.</p>';
+  const lista = estado.alumnos.filter(a=>ESTADOS_ATENDIDO.includes(a.estado));
+  if (!lista.length){
+    cont.innerHTML = '<p class="sin-datos">No hay alumnos siendo atendidos todavía.</p>';
     return;
   }
-  for (const a of estado.alumnos){
-    const div = document.createElement("div");
-    div.className = "bloque-persona";
-    const esc = estado.escuelasOrigen.find(x=>x.id===a.escuelaOrigenId);
-    const est = ESTADOS_ALUMNO[a.estado] || ESTADOS_ALUMNO.activo;
-    const nom = nombreDe(a);
-    const cab = document.createElement("div");
-    cab.className = "bp-cab";
-    cab.innerHTML = '<div><div class="rol">Alumno/a <span class="chip-estado" style="background:'+est.color+';">'+est.label+'</span></div>'+
-      '<div class="nombre '+claseZona(a)+(nom?"":" vacio")+'">'+(nom?escapar(nom):"Sin nombre — tocá para completar")+'</div>'+
-      '<div class="mini-dato">'+(esc?"Origen: "+escapar(esc.nombre):"Sin escuela de origen")+(a.cursoOrigen?" — "+escapar(a.cursoOrigen):"")+'</div></div>'+
-      '<span class="ver">Ver ficha ›</span>';
-    cab.onclick = ()=>abrirAlumno(a.id);
-    div.appendChild(cab);
-    cont.appendChild(div);
+  for (const a of lista) cont.appendChild(crearTarjetaAlumno(a));
+}
+function renderAlumnosEspera(){
+  const cont = $("#grillaAlumnosEspera");
+  if (!cont) return;
+  cont.innerHTML = "";
+  const lista = estado.alumnos.filter(a=>a.estado==="espera");
+  if (!lista.length){
+    cont.innerHTML = '<p class="sin-datos">No hay alumnos en lista de espera.</p>';
+    return;
   }
+  for (const a of lista){
+    cont.appendChild(crearTarjetaAlumno(a, {texto:"✅ Dar de alta", onclick:(al)=>{
+      al.estado = "activo";
+      guardar(); renderAlumnos(); renderAlumnosEspera();
+    }}));
+  }
+}
+function renderAlumnosBaja(){
+  const cont = $("#grillaAlumnosBaja");
+  if (!cont) return;
+  cont.innerHTML = "";
+  const lista = estado.alumnos.filter(a=>a.estado==="baja");
+  if (!lista.length){
+    cont.innerHTML = '<p class="sin-datos">No hay alumnos dados de baja.</p>';
+    return;
+  }
+  for (const a of lista) cont.appendChild(crearTarjetaAlumno(a));
 }
 function abrirAlumno(id){
   alumnoEnCurso = id;
@@ -3774,6 +3880,8 @@ function abrirAlumno(id){
   poblarSelectEscuelas(a.escuelaOrigenId);
   $("#alCurso").value = a.cursoOrigen || "";
   $("#alZona").value = a.zona || "";
+  $("#alCupoZona").value = a.cupoZona || "";
+  actualizarVisibilidadCupoZona();
   $("#alFechaIngreso").value = a.fechaIngreso || hoyISO();
   $("#alEstado").value = a.estado || "activo";
   $("#alP1Nombre").value = a.padre1.nombre || "";
@@ -3791,6 +3899,7 @@ function abrirAlumno(id){
     $("#alMiniMapa").style.display = "none";
   }
   poblarChksDocentes(a.docentes);
+  $("#alDiagnostico").value = a.diagnostico || "";
   $("#alNotas").value = a.notas || "";
   $("#btnBorrarAlumno").style.display = id ? "" : "none";
   $("#formNuevaActa").style.display = "none";
@@ -3806,16 +3915,23 @@ function abrirAlumno(id){
   }
   $("#ovAlumno").classList.add("visible");
 }
+function actualizarVisibilidadCupoZona(){
+  const wrap = $("#alCupoZonaWrap");
+  if (!wrap) return;
+  wrap.style.display = $("#alZona").value==="ambas" ? "" : "none";
+}
 function guardarAlumno(){
   const nombre = $("#alNombre").value.trim();
   if (!nombre){ toast("Escribí el nombre del alumno"); return; }
   const p1nombre = $("#alP1Nombre").value.trim();
   if (!p1nombre){ toast("El primer contacto de padre/madre/tutor es obligatorio"); return; }
+  const zona = $("#alZona").value;
   const datos = {
     nombre, apellido: $("#alApellido").value.trim(),
     escuelaOrigenId: $("#alEscuela").value,
     cursoOrigen: $("#alCurso").value.trim(),
-    zona: $("#alZona").value,
+    zona,
+    cupoZona: zona==="ambas" ? $("#alCupoZona").value : "",
     fechaIngreso: $("#alFechaIngreso").value || hoyISO(),
     estado: $("#alEstado").value,
     padre1: {nombre: p1nombre, telefono: $("#alP1Tel").value.trim()},
@@ -3823,6 +3939,7 @@ function guardarAlumno(){
     correo: $("#alCorreo").value.trim(),
     direccion: $("#alDireccion").value.trim(),
     docentes: [...document.querySelectorAll("#alDocentesChks input:checked")].map(c=>c.value),
+    diagnostico: $("#alDiagnostico").value.trim(),
     notas: $("#alNotas").value.trim(),
     lat: alLatTmp, lng: alLngTmp
   };
@@ -3833,14 +3950,14 @@ function guardarAlumno(){
     estado.alumnos.push({...alumnoBase(), ...datos, actas: []});
   }
   cerrar("ovAlumno");
-  guardar(); renderAlumnos();
+  guardar(); renderAlumnos(); renderAlumnosEspera(); renderAlumnosBaja();
 }
 function borrarAlumno(){
   if (!alumnoEnCurso) return;
   if (!confirm("¿Eliminar este alumno y sus actas registradas?")) return;
   estado.alumnos = estado.alumnos.filter(x=>x.id!==alumnoEnCurso);
   cerrar("ovAlumno");
-  guardar(); renderAlumnos();
+  guardar(); renderAlumnos(); renderAlumnosEspera(); renderAlumnosBaja();
 }
 function renderActas(){
   const a = estado.alumnos.find(x=>x.id===alumnoEnCurso);
@@ -4204,11 +4321,11 @@ function todasLasActas(){
   return res;
 }
 function seccionTrayectoriasHTML(){
-  const conteo = {activo:0, revinculado:0, continua:0, baja:0};
+  const conteo = {activo:0, revinculado:0, continua:0, espera:0, baja:0};
   for (const a of estado.alumnos) if (conteo.hasOwnProperty(a.estado)) conteo[a.estado]++;
   let h = "<h2 class='sub'>Trayectorias escolares y revinculación</h2>";
   h += "<p style='font-size:.88rem; color:var(--gris); margin-bottom:10px;'>Matrícula actual: "+estado.alumnos.length+
-    " — Activos: "+conteo.activo+" · Revinculados: "+conteo.revinculado+" · Continúan (necesitan más tiempo): "+conteo.continua+" · Bajas: "+conteo.baja+"</p>";
+    " — Activos: "+conteo.activo+" · Revinculados: "+conteo.revinculado+" · Continúan (necesitan más tiempo): "+conteo.continua+" · En lista de espera: "+conteo.espera+" · Bajas: "+conteo.baja+"</p>";
   if (!estado.alumnos.length){
     h += "<p class='sin-datos'>No hay alumnos cargados todavía en la pestaña Alumnos.</p>";
     return h;
@@ -4630,7 +4747,7 @@ function cerrar(id){
     aplicarTema();
   }
 }
-function renderTodo(){ renderTareas(); renderBitacora(); renderEquipo(); renderDocentes(); renderDisponible(); renderLicencias(); renderParo(); renderProgreso(); renderEstadisticas(); renderAlumnos(); renderEscuelas(); renderMemoria(); renderContactos(); renderProvincia(); renderFeriados(); }
+function renderTodo(){ renderTareas(); renderBitacora(); renderEquipo(); renderDocentes(); renderDisponible(); renderLicencias(); renderParo(); renderProgreso(); renderEstadisticas(); renderAlumnos(); renderAlumnosEspera(); renderAlumnosBaja(); renderEscuelas(); renderMemoria(); renderContactos(); renderProvincia(); renderFeriados(); }
 
 // Sidebar (menú lateral agrupado, colapsable en celular)
 const sidebarNav = $("#sidebarNav");
@@ -4723,6 +4840,8 @@ $("#btnAgregarFuncion").onclick = ()=>{
 $("#btnOpciones").onclick = ()=>{
   $("#optTema").value = estado.opciones.tema || "claro";
   $("#optReset").checked = !!estado.opciones.resetFunciones;
+  $("#optCupoNorte").value = estado.opciones.cupos.norte;
+  $("#optCupoSur").value = estado.opciones.cupos.sur;
   renderPapelera();
   renderChksPestanas();
   cargarAccesos();
@@ -4731,6 +4850,10 @@ $("#btnOpciones").onclick = ()=>{
 $("#btnGuardarOpciones").onclick = ()=>{
   estado.opciones.tema = $("#optTema").value;
   estado.opciones.resetFunciones = $("#optReset").checked;
+  estado.opciones.cupos = {
+    norte: Math.max(0, parseInt($("#optCupoNorte").value,10) || 0),
+    sur: Math.max(0, parseInt($("#optCupoSur").value,10) || 0)
+  };
   aplicarTema();
   cerrar("ovOpciones");
   guardar(); renderTodo();
@@ -4762,6 +4885,7 @@ $("#btnBorrarEscuela").onclick = borrarEscuela;
 $("#btnAgregarAlumno").onclick = ()=>abrirAlumno(null);
 $("#btnGuardarAlumno").onclick = guardarAlumno;
 $("#btnBorrarAlumno").onclick = borrarAlumno;
+$("#alZona").onchange = actualizarVisibilidadCupoZona;
 $("#btnMostrarFormActa").onclick = ()=>{ $("#formNuevaActa").style.display = ""; };
 $("#btnCancelarActa").onclick = ()=>{ $("#formNuevaActa").style.display = "none"; };
 $("#btnGuardarActa").onclick = guardarActaNueva;
