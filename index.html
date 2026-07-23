@@ -655,6 +655,9 @@
     </div>
     <div id="vistaAlEscuelas" style="display:none;">
       <button class="btn-agregar-doc" id="btnAgregarEscuela">➕ Agregar escuela de origen</button>
+      <label style="margin-top:2px; font-size:.82rem;">Importar número, correo y dirección desde Excel (si el número ya existe, actualiza esos datos)</label>
+      <input type="file" id="inputExcelEscuelas" accept=".xlsx,.xls" style="margin-bottom:10px;">
+      <button type="button" class="btn-mini-tarea" id="btnUbicarEscuelasFaltantes" style="margin-bottom:14px;">📍 Ubicar automáticamente las que falten</button>
       <div class="grilla-personas" id="grillaEscuelas"></div>
     </div>
     <div id="vistaAlMapa" style="display:none;">
@@ -2296,6 +2299,82 @@ function manejarExcelProvincia(e){
   };
   reader.readAsArrayBuffer(file);
 }
+// Detecta la fila de encabezado (busca la celda "correo") y las columnas de
+// número/correo/dirección, para tolerar planillas con títulos y filas vacías arriba.
+function importarFilasEscuelas(filas){
+  // El encabezado real debe tener a la vez una celda de "correo" y otra de "dirección"
+  // (evita confundir un título como "Correos electrónicos de los colegios..." con el encabezado).
+  let filaHeader = -1, colNum = -1, colCorreo = -1, colDir = -1;
+  for (let r=0; r<filas.length; r++){
+    const fila = filas[r] || [];
+    let n=-1, co=-1, d=-1;
+    for (let c=0; c<fila.length; c++){
+      const txt = String(fila[c]==null?"":fila[c]).toLowerCase();
+      if (!txt) continue;
+      if (txt.includes("correo")) co = c;
+      else if (txt.includes("direcci")) d = c;
+      else if (n===-1 && /colegio|coelgio|escuela|n[°º.]|numero|número/.test(txt)) n = c;
+    }
+    if (co!==-1 && d!==-1){ filaHeader = r; colNum = n; colCorreo = co; colDir = d; break; }
+  }
+  // Si no se encontró una columna de número por su título (typos, etc.), se asume
+  // que está inmediatamente a la izquierda de la columna de correo.
+  if (colNum===-1 && colCorreo>0) colNum = colCorreo-1;
+  const inicio = filaHeader>=0 ? filaHeader+1 : 0;
+  const cNum = colNum>=0 ? colNum : 0;
+  const cCorreo = colCorreo>=0 ? colCorreo : 1;
+  const cDir = colDir>=0 ? colDir : 2;
+  let agregadas = 0, actualizadas = 0;
+  for (let r=inicio; r<filas.length; r++){
+    const fila = filas[r];
+    if (!fila) continue;
+    const numero = String(fila[cNum]==null?"":fila[cNum]).trim();
+    const correo = String(fila[cCorreo]==null?"":fila[cCorreo]).trim();
+    const direccion = cDir>=0 ? String(fila[cDir]==null?"":fila[cDir]).trim() : "";
+    if (!numero) continue;
+    let esc = estado.escuelasOrigen.find(x=>String(x.numero).trim()===numero);
+    if (esc){
+      if (correo) esc.correo = correo;
+      if (direccion) esc.direccion = direccion;
+      actualizadas++;
+    } else {
+      esc = escuelaOrigenBase();
+      esc.numero = numero;
+      esc.correo = correo;
+      esc.direccion = direccion;
+      estado.escuelasOrigen.push(esc);
+      agregadas++;
+    }
+  }
+  return {agregadas, actualizadas};
+}
+function manejarExcelEscuelas(e){
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  if (typeof XLSX === "undefined"){
+    toast("No se pudo cargar el lector de Excel. Revisá tu conexión a internet e intentá de nuevo.");
+    e.target.value = "";
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = (ev)=>{
+    try{
+      const data = new Uint8Array(ev.target.result);
+      const wb = XLSX.read(data, {type:"array"});
+      const hoja = wb.Sheets[wb.SheetNames[0]];
+      const filas = XLSX.utils.sheet_to_json(hoja, {header:1, raw:true, defval:""});
+      const {agregadas, actualizadas} = importarFilasEscuelas(filas);
+      guardar(); renderEscuelas();
+      const total = agregadas+actualizadas;
+      toast(total ? agregadas+" escuela(s) nueva(s), "+actualizadas+" actualizada(s) ✔" : "No se encontraron filas con número de escuela válido");
+    } catch(err){
+      console.error(err);
+      toast("No se pudo leer el archivo. Verificá que sea un Excel válido.");
+    }
+    e.target.value = "";
+  };
+  reader.readAsArrayBuffer(file);
+}
 
 // ---------- Modal nueva/editar tarea ----------
 function abrirTarea(owner, id){ // id null = nueva
@@ -3585,10 +3664,17 @@ let escLatTmp = null, escLngTmp = null;
 let mapaGrande = null, capaMarcadoresAlumnos = null, capaMarcadoresEscuelas = null;
 const COORD_INICIAL = {lat:-45.86, lng:-67.5}; // aprox. Comodoro Rivadavia, punto de partida del mapa
 
+// Caja aproximada de la provincia de Chubut (oeste,norte,este,sur en lon,lat). Todas las
+// direcciones de esta agenda son de Chubut, así que restringimos la búsqueda a esa zona:
+// evita que una calle "Warnes y Quintana" que también existe en otra provincia gane la búsqueda.
+const VIEWBOX_CHUBUT = "-72.5,-42.0,-63.0,-46.5";
 async function geocodificarDireccion(direccion){
   if (!direccion) return null;
   try{
-    const url = "https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ar&q="+encodeURIComponent(direccion);
+    let consulta = direccion.trim();
+    if (!/chubut/i.test(consulta)) consulta += ", Chubut, Argentina";
+    const url = "https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ar"+
+      "&bounded=1&viewbox="+VIEWBOX_CHUBUT+"&q="+encodeURIComponent(consulta);
     const resp = await fetch(url, {headers:{"Accept-Language":"es"}});
     const datos = await resp.json();
     if (datos && datos[0]) return {lat: parseFloat(datos[0].lat), lng: parseFloat(datos[0].lon)};
@@ -3614,6 +3700,41 @@ function asegurarMiniMapa(tipo, contId, lat, lng, alMover){
   }
   setTimeout(()=>entry.mapa.invalidateSize(), 150);
   alMover(lat, lng);
+}
+function pausa(ms){ return new Promise(res=>setTimeout(res, ms)); }
+function fueraDeChubut(lat, lng){
+  return lat < -46.5 || lat > -42.0 || lng < -72.5 || lng > -63.0;
+}
+// Ubica automáticamente, una por una, las escuelas que tienen dirección cargada pero no
+// tienen coordenadas todavía, y de paso vuelve a ubicar las que hayan quedado mal puestas
+// fuera de Chubut (por búsquedas viejas, antes de acotar la búsqueda a la provincia).
+// Nominatim (el buscador de direcciones) pide como máximo 1 consulta por segundo,
+// por eso va de a una con una pausa entre medio.
+async function geocodificarEscuelasFaltantes(){
+  const candidatas = estado.escuelasOrigen.filter(e=>{
+    if (!e.direccion || !e.direccion.trim()) return false;
+    if (e.lat==null || e.lng==null) return true;
+    return fueraDeChubut(e.lat, e.lng);
+  });
+  if (!candidatas.length){
+    toast("No hay escuelas con dirección pendientes de ubicar.");
+    return;
+  }
+  const btn = $("#btnUbicarEscuelasFaltantes");
+  const original = btn ? btn.textContent : "";
+  if (btn) btn.disabled = true;
+  let ubicadas = 0, sinResultado = 0;
+  for (let i=0; i<candidatas.length; i++){
+    const e = candidatas[i];
+    if (btn) btn.textContent = "📍 Ubicando "+(i+1)+" de "+candidatas.length+"...";
+    const punto = await geocodificarDireccion(e.direccion);
+    if (punto){ e.lat = punto.lat; e.lng = punto.lng; ubicadas++; }
+    else sinResultado++;
+    if (i < candidatas.length-1) await pausa(1100);
+  }
+  if (btn){ btn.disabled = false; btn.textContent = original; }
+  guardar(); renderEscuelas();
+  toast(ubicadas+" escuela(s) ubicada(s) automáticamente"+(sinResultado?", "+sinResultado+" no se encontraron (esas las marcás a mano)":""));
 }
 async function ubicarEnMapa(tipo){
   const direccion = tipo==="alumno" ? $("#alDireccion").value.trim() : $("#escDireccion").value.trim();
@@ -4882,6 +5003,8 @@ $("#btnGuardarFondo").onclick = guardarFondo;
 $("#btnAgregarEscuela").onclick = ()=>abrirEscuela(null);
 $("#btnGuardarEscuela").onclick = guardarEscuela;
 $("#btnBorrarEscuela").onclick = borrarEscuela;
+$("#inputExcelEscuelas").addEventListener("change", manejarExcelEscuelas);
+$("#btnUbicarEscuelasFaltantes").onclick = geocodificarEscuelasFaltantes;
 $("#btnAgregarAlumno").onclick = ()=>abrirAlumno(null);
 $("#btnGuardarAlumno").onclick = guardarAlumno;
 $("#btnBorrarAlumno").onclick = borrarAlumno;
