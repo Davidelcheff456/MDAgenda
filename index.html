@@ -1690,6 +1690,7 @@ function aplicarEstado(nuevo){
   if (typeof estado.opciones.cupos.sur !== "number" || isNaN(estado.opciones.cupos.sur)) estado.opciones.cupos.sur = 6;
   estado.escuelasOrigen = Array.isArray(nuevo.escuelasOrigen) ? nuevo.escuelasOrigen.map(normalizarEscuela) : [];
   estado.alumnos = Array.isArray(nuevo.alumnos) ? nuevo.alumnos.map(normalizarAlumno) : [];
+  if (asignarOrdenesEsperaFaltantes()) guardar();
   estado.memoria = normalizarMemoria(nuevo.memoria);
   estado.contactosExtra = Array.isArray(nuevo.contactosExtra) ? nuevo.contactosExtra.map(normalizarContactoExtra) : [];
   estado.fechasProvincia = Array.isArray(nuevo.fechasProvincia) ? nuevo.fechasProvincia.map(normalizarFechaEtiquetada) : [];
@@ -4315,6 +4316,29 @@ function ordenEsperaNum(a){
   const n = parseInt(a.ordenEspera, 10);
   return isNaN(n) ? Infinity : n;
 }
+// Próximo N° de orden disponible para la lista de espera de una zona (el que sigue al más alto ya usado).
+function siguienteOrdenEspera(zona, excluirId){
+  const nums = estado.alumnos
+    .filter(a=>a.estado==="espera" && zonaEfectiva(a)===zona && a.id!==excluirId)
+    .map(a=>parseInt(a.ordenEspera,10))
+    .filter(n=>!isNaN(n));
+  return nums.length ? Math.max(...nums)+1 : 1;
+}
+// Completa el N° de orden de alumnos en lista de espera que quedaron sin uno cargado (datos viejos o
+// importaciones parciales), respetando el orden por fecha de ingreso. Devuelve true si corrigió algo.
+function asignarOrdenesEsperaFaltantes(){
+  let cambios = false;
+  for (const zona of ["norte","sur"]){
+    const faltantes = estado.alumnos
+      .filter(a=>a.estado==="espera" && zonaEfectiva(a)===zona && !String(a.ordenEspera||"").trim())
+      .sort((x,y)=>(x.fechaIngreso||"").localeCompare(y.fechaIngreso||""));
+    for (const a of faltantes){
+      a.ordenEspera = String(siguienteOrdenEspera(zona, a.id));
+      cambios = true;
+    }
+  }
+  return cambios;
+}
 function renderListaEsperaColumna(contId, lista){
   const cont = $("#"+contId);
   if (!cont) return;
@@ -4439,10 +4463,22 @@ function actualizarVisibilidadCupoZona(){
   if (!wrap) return;
   wrap.style.display = $("#alZona").value==="ambas" ? "" : "none";
 }
+// A qué zona corresponde el alumno según lo cargado hasta ahora en el formulario (antes de guardar).
+function zonaFormularioAlumno(){
+  const z = $("#alZona").value;
+  if (z==="norte" || z==="sur") return z;
+  if (z==="ambas") return $("#alCupoZona").value || "";
+  return "";
+}
 function actualizarVisibilidadOrdenEspera(){
   const wrap = $("#alOrdenEsperaWrap");
   if (!wrap) return;
-  wrap.style.display = $("#alEstado").value==="espera" ? "" : "none";
+  const enEspera = $("#alEstado").value==="espera";
+  wrap.style.display = enEspera ? "" : "none";
+  if (enEspera && !$("#alOrdenEspera").value.trim()){
+    const zona = zonaFormularioAlumno();
+    if (zona) $("#alOrdenEspera").value = siguienteOrdenEspera(zona, alumnoEnCurso);
+  }
 }
 function actualizarAvisoCertificado(){
   const hasta = $("#alCertHasta").value;
@@ -4482,6 +4518,10 @@ function guardarAlumno(){
     notas: $("#alNotas").value.trim(),
     lat: alLatTmp, lng: alLngTmp
   };
+  if (datos.estado==="espera" && !datos.ordenEspera){
+    const zonaEf = zonaEfectiva(datos);
+    if (zonaEf) datos.ordenEspera = String(siguienteOrdenEspera(zonaEf, alumnoEnCurso));
+  }
   if (alumnoEnCurso){
     const a = estado.alumnos.find(x=>x.id===alumnoEnCurso);
     if (a) Object.assign(a, datos);
@@ -5442,7 +5482,8 @@ $("#btnDescargarAlumnosSur").onclick = ()=>descargarListaAlumnos("sur");
 $("#btnAgregarAlumno").onclick = ()=>abrirAlumno(null);
 $("#btnGuardarAlumno").onclick = guardarAlumno;
 $("#btnBorrarAlumno").onclick = borrarAlumno;
-$("#alZona").onchange = actualizarVisibilidadCupoZona;
+$("#alZona").onchange = ()=>{ actualizarVisibilidadCupoZona(); actualizarVisibilidadOrdenEspera(); };
+$("#alCupoZona").onchange = actualizarVisibilidadOrdenEspera;
 $("#alEstado").onchange = actualizarVisibilidadOrdenEspera;
 $("#alCertHasta").onchange = actualizarAvisoCertificado;
 $("#btnMostrarFormActa").onclick = ()=>{ $("#formNuevaActa").style.display = ""; };
