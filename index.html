@@ -1141,6 +1141,8 @@
     <select id="alEscuela"></select>
     <label>Curso/año en la escuela de origen</label>
     <input type="text" id="alCurso" placeholder="Ej.: 3° año">
+    <label>Modalidad (opcional, para escuelas técnicas desde 4° año)</label>
+    <input type="text" id="alModalidad" placeholder="Ej.: Electromecánica, Informática...">
     <label>Zona</label>
     <select id="alZona">
       <option value="">Sin zona</option>
@@ -1465,7 +1467,7 @@ function normalizarEscuela(e){
 }
 function condicionBase(){ return {tiene:false, detalle:""}; }
 function alumnoBase(){
-  return {id: uid(), nombre:"", apellido:"", edad:"", dni:"", escuelaOrigenId:"", cursoOrigen:"", zona:"", cupoZona:"",
+  return {id: uid(), nombre:"", apellido:"", edad:"", dni:"", escuelaOrigenId:"", cursoOrigen:"", modalidad:"", zona:"", cupoZona:"",
     padre1: contactoBase(), padre2: contactoBase(), correo:"", direccion:"", lat:null, lng:null,
     fechaIngreso: hoyISO(), docentes: [], estado:"activo", ordenEspera:"", certificadoDesde:"", certificadoHasta:"",
     cud: condicionBase(), ppi: condicionBase(), adecuacion: condicionBase(), espaciosCurriculares:"",
@@ -1488,6 +1490,7 @@ function normalizarAlumno(a){
   if (typeof a.zona !== "string") a.zona = "";
   if (a.cupoZona !== "norte" && a.cupoZona !== "sur") a.cupoZona = "";
   if (typeof a.cursoOrigen !== "string") a.cursoOrigen = "";
+  if (typeof a.modalidad !== "string") a.modalidad = "";
   if (typeof a.correo !== "string") a.correo = "";
   if (typeof a.direccion !== "string") a.direccion = "";
   if (typeof a.certificadoDesde !== "string") a.certificadoDesde = "";
@@ -4237,7 +4240,7 @@ function crearTarjetaAlumno(a, extraBoton, notaExtra){
   const bandaOrden = (a.estado==="espera" && a.ordenEspera) ? '<span class="orden-badge" title="N° de orden">'+escapar(String(a.ordenEspera))+'</span>' : '';
   cab.innerHTML = '<div><div class="rol">'+bandaOrden+'Alumno/a <span class="chip-estado" style="background:'+est.color+';">'+est.label+'</span></div>'+
     '<div class="nombre '+claseZona(a)+(nom?"":" vacio")+'">'+(nom?escapar(nom):"Sin nombre — tocá para completar")+'</div>'+
-    '<div class="mini-dato">'+(esc?"Origen: "+escapar(esc.nombre):"Sin escuela de origen")+(a.cursoOrigen?" — "+escapar(a.cursoOrigen):"")+'</div>'+
+    '<div class="mini-dato">'+(esc?"Origen: "+escapar(esc.nombre):"Sin escuela de origen")+(a.cursoOrigen?" — "+escapar(a.cursoOrigen):"")+(a.modalidad?" ("+escapar(a.modalidad)+")":"")+'</div>'+
     (notaExtra ? '<div class="mini-dato" style="color:#c0392b; font-weight:700;">'+notaExtra+'</div>' : '')+
     '</div>'+
     '<span class="ver">Ver ficha ›</span>';
@@ -4411,6 +4414,7 @@ function abrirAlumno(id){
   $("#alDni").value = a.dni || "";
   poblarSelectEscuelas(a.escuelaOrigenId);
   $("#alCurso").value = a.cursoOrigen || "";
+  $("#alModalidad").value = a.modalidad || "";
   $("#alZona").value = a.zona || "";
   $("#alCupoZona").value = a.cupoZona || "";
   actualizarVisibilidadCupoZona();
@@ -4499,6 +4503,7 @@ function guardarAlumno(){
     dni: $("#alDni").value.trim(),
     escuelaOrigenId: $("#alEscuela").value,
     cursoOrigen: $("#alCurso").value.trim(),
+    modalidad: $("#alModalidad").value.trim(),
     zona,
     cupoZona: zona==="ambas" ? $("#alCupoZona").value : "",
     fechaIngreso: $("#alFechaIngreso").value || hoyISO(),
