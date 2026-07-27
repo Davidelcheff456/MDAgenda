@@ -1411,6 +1411,14 @@ function alumnoBase(){
 function certificadoVencido(a){
   return !!(a.certificadoHasta && a.certificadoHasta < hoyISO());
 }
+// Días que faltan hasta la fecha (negativo si ya pasó)
+function diasHasta(iso){
+  return Math.round((parseISO(iso) - parseISO(hoyISO())) / (1000*60*60*24));
+}
+function certificadoPorVencer(a){
+  if (!a.certificadoHasta || certificadoVencido(a)) return false;
+  return diasHasta(a.certificadoHasta) <= 7;
+}
 function normalizarAlumno(a){
   if (!Array.isArray(a.docentes)) a.docentes = [];
   if (!Array.isArray(a.actas)) a.actas = [];
@@ -4035,10 +4043,18 @@ function renderAlumnosEspera(){
     return;
   }
   for (const a of lista){
+    let notaExtra = "";
+    if (certificadoVencido(a)){
+      notaExtra = "⛔ Certificado vencido desde "+fmtCorto(a.certificadoHasta);
+    } else if (certificadoPorVencer(a)){
+      const dias = diasHasta(a.certificadoHasta);
+      notaExtra = "<span style='color:#a67c00;'>⚠️ Certificado vence el "+fmtCorto(a.certificadoHasta)+
+        (dias<=0 ? " (hoy)" : " (en "+dias+" día"+(dias===1?"":"s")+")")+"</span>";
+    }
     cont.appendChild(crearTarjetaAlumno(a, {texto:"✅ Dar de alta", onclick:(al)=>{
       al.estado = "activo";
       guardar(); renderAlumnos(); renderAlumnosEspera();
-    }}));
+    }}, notaExtra));
   }
 }
 function renderAlumnosBaja(){
