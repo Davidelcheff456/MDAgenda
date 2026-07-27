@@ -172,6 +172,14 @@
   /* ---- EQUIPO / DOCENTES ---- */
   .grilla-personas{display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:16px;}
   .bloque-persona{border:1px solid var(--borde); border-radius:10px; background:#fbfaf6; overflow:hidden;}
+  .orden-badge{display:inline-flex; align-items:center; justify-content:center; min-width:22px; height:22px;
+    border-radius:50%; background:var(--azul); color:#fff; font-size:.72rem; font-weight:800; padding:0 5px; margin-right:6px;}
+  .espera-dos-col{display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start; margin-top:10px;}
+  .espera-col{border:1px solid var(--borde); border-radius:10px; padding:14px; background:#fbfaf6;}
+  .espera-col-titulo{margin:0 0 10px 0; font-size:1rem;}
+  .espera-col-acciones{display:flex; flex-direction:column; gap:8px; margin-bottom:14px;}
+  .espera-col-acciones input[type=file]{font-size:.78rem;}
+  @media (max-width:860px){ .espera-dos-col{grid-template-columns:1fr;} }
   .bp-cab{padding:13px 14px; cursor:pointer; border-bottom:1px solid var(--borde); background:#fff;
     display:flex; justify-content:space-between; align-items:center; gap:8px;}
   .bp-cab:hover{background:#eef2f6;}
@@ -286,7 +294,7 @@
   body.tema-oscuro .modal input, body.tema-oscuro .modal textarea, body.tema-oscuro .modal select,
   body.tema-oscuro table.horarios input{background:#20242b; color:#e4e6e9; border-color:#4a4f57;}
   body.tema-oscuro .fila-orden button, body.tema-oscuro .btn-copiar, body.tema-oscuro .btn-volver{background:#3a414b; color:#dfe3e8; border-color:#4a4f57;}
-  body.tema-oscuro .bloque-persona, body.tema-oscuro .dia-card, body.tema-oscuro .calendario{background:#2f353e; border-color:#4a4f57;}
+  body.tema-oscuro .bloque-persona, body.tema-oscuro .dia-card, body.tema-oscuro .calendario, body.tema-oscuro .espera-col{background:#2f353e; border-color:#4a4f57;}
   body.tema-oscuro .bp-cab{background:#343b45; border-color:#4a4f57;}
   body.tema-oscuro .bp-cab:hover{background:#3c4450;}
   body.tema-oscuro .cal-dia{background:#2a3038; border-color:#3d434c;}
@@ -654,8 +662,28 @@
       <div class="grilla-personas" id="grillaCertificados"></div>
     </div>
     <div id="vistaAlEspera" style="display:none;">
-      <p class="mini-dato" style="margin-bottom:12px;">Alumnos anotados para ingresar cuando se libere un lugar. Tocá "Dar de alta" para pasarlos a atendidos.</p>
-      <div class="grilla-personas" id="grillaAlumnosEspera"></div>
+      <p class="mini-dato" style="margin-bottom:6px;">Alumnos anotados para ingresar cuando se libere un lugar, ordenados por N° de orden. Tocá "Dar de alta" para pasarlos a atendidos.</p>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
+        <button type="button" class="btn-mini-tarea" id="btnImportarExcelEspera" style="margin-top:0;">📥 Importar Excel</button>
+        <button type="button" class="btn-mini-tarea" id="btnEjemploExcelEspera" style="margin-top:0;">📄 Descargar Excel de ejemplo</button>
+        <input type="file" id="inputExcelEspera" accept=".xlsx,.xls" style="display:none;">
+      </div>
+      <div class="espera-dos-col">
+        <div class="espera-col">
+          <h3 class="espera-col-titulo">🔵 Zona norte</h3>
+          <button type="button" class="btn-mini-tarea" id="btnDescargarEsperaNorte" style="margin:0 0 10px 0;">⬇️ Descargar Excel — Zona norte</button>
+          <div class="grilla-personas" id="grillaAlumnosEsperaNorte"></div>
+        </div>
+        <div class="espera-col">
+          <h3 class="espera-col-titulo">🟢 Zona sur</h3>
+          <button type="button" class="btn-mini-tarea" id="btnDescargarEsperaSur" style="margin:0 0 10px 0;">⬇️ Descargar Excel — Zona sur</button>
+          <div class="grilla-personas" id="grillaAlumnosEsperaSur"></div>
+        </div>
+      </div>
+      <div id="bloqueEsperaOtros" style="margin-top:18px; display:none;">
+        <p class="mini-dato">Sin zona definida (no aparecen en ninguna de las dos columnas de arriba):</p>
+        <div class="grilla-personas" id="grillaAlumnosEsperaOtros"></div>
+      </div>
     </div>
     <div id="vistaAlBaja" style="display:none;">
       <div class="grilla-personas" id="grillaAlumnosBaja"></div>
@@ -1122,6 +1150,12 @@
       <option value="espera">Lista de espera</option>
       <option value="baja">Baja</option>
     </select>
+    <div id="alOrdenEsperaWrap" style="display:none;">
+      <label>N° de orden en la lista de espera</label>
+      <input type="number" id="alOrdenEspera" min="1" style="max-width:120px;">
+    </div>
+    <label>Espacios curriculares cubiertos</label>
+    <textarea id="alEspaciosCurriculares" placeholder="Espacios/materias que ya tiene cubiertos, si corresponde..."></textarea>
     <label>Certificado — vigente desde</label>
     <input type="date" id="alCertDesde">
     <label>Certificado — vigente hasta</label>
@@ -1190,6 +1224,19 @@
       <button class="b-rojo" id="btnBorrarAlumno" style="display:none;">Eliminar alumno</button>
       <button class="b-cancelar" data-cerrar="ovAlumno">Cancelar</button>
       <button class="b-guardar" id="btnGuardarAlumno">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: preguntar zona al importar la lista de espera -->
+<div class="overlay" id="ovZonaEspera">
+  <div class="modal">
+    <h3>¿A qué zona corresponde este archivo?</h3>
+    <p style="font-size:.85rem; color:var(--gris);" id="zonaEsperaArchivo"></p>
+    <div class="pie" style="flex-wrap:wrap;">
+      <button class="b-cancelar" id="btnZonaEsperaCancelar">Cancelar</button>
+      <button class="b-guardar" id="btnZonaEsperaNorte">🔵 Zona norte</button>
+      <button class="b-guardar" id="btnZonaEsperaSur">🟢 Zona sur</button>
     </div>
   </div>
 </div>
@@ -1404,8 +1451,8 @@ function condicionBase(){ return {tiene:false, detalle:""}; }
 function alumnoBase(){
   return {id: uid(), nombre:"", apellido:"", edad:"", dni:"", escuelaOrigenId:"", cursoOrigen:"", zona:"", cupoZona:"",
     padre1: contactoBase(), padre2: contactoBase(), correo:"", direccion:"", lat:null, lng:null,
-    fechaIngreso: hoyISO(), docentes: [], estado:"activo", certificadoDesde:"", certificadoHasta:"",
-    cud: condicionBase(), ppi: condicionBase(), adecuacion: condicionBase(),
+    fechaIngreso: hoyISO(), docentes: [], estado:"activo", ordenEspera:"", certificadoDesde:"", certificadoHasta:"",
+    cud: condicionBase(), ppi: condicionBase(), adecuacion: condicionBase(), espaciosCurriculares:"",
     diagnostico:"", observaciones:"", documentacion:"", notas:"", actas: []};
 }
 function certificadoVencido(a){
@@ -1431,6 +1478,8 @@ function normalizarAlumno(a){
   if (typeof a.certificadoHasta !== "string") a.certificadoHasta = "";
   if (typeof a.edad !== "string" && typeof a.edad !== "number") a.edad = "";
   if (typeof a.dni !== "string") a.dni = "";
+  if (typeof a.ordenEspera !== "string" && typeof a.ordenEspera !== "number") a.ordenEspera = "";
+  if (typeof a.espaciosCurriculares !== "string") a.espaciosCurriculares = "";
   if (typeof a.diagnostico !== "string") a.diagnostico = "";
   if (typeof a.observaciones !== "string") a.observaciones = "";
   if (typeof a.documentacion !== "string") a.documentacion = "";
@@ -2436,6 +2485,173 @@ function manejarExcelEscuelas(e){
     e.target.value = "";
   };
   reader.readAsArrayBuffer(file);
+}
+
+// Importación de la lista de espera (una por zona). El encabezado real debe tener a la vez
+// una celda de "orden" y otra de "estudiante"/"apellido", para no confundirse con títulos.
+function importarFilasEspera(filas, zona){
+  let filaHeader = -1, cOrden = -1, cEst = -1, cEsc = -1, cAnio = -1, cEsp = -1, cDiag = -1;
+  for (let r=0; r<filas.length; r++){
+    const fila = filas[r] || [];
+    let orden=-1, est=-1, esc=-1, anio=-1, esp=-1, diag=-1;
+    for (let c=0; c<fila.length; c++){
+      const txt = String(fila[c]==null?"":fila[c]).toLowerCase();
+      if (!txt) continue;
+      if (/orden/.test(txt)) orden = c;
+      else if (/estudiante|apellido/.test(txt)) est = c;
+      else if (/escuela/.test(txt)) esc = c;
+      else if (/a[nñ]o/.test(txt) || /curso/.test(txt)) anio = c;
+      else if (/espacios|curricular/.test(txt)) esp = c;
+      else if (/diagn/.test(txt)) diag = c;
+    }
+    if (orden!==-1 && est!==-1){
+      filaHeader = r; cOrden = orden; cEst = est; cEsc = esc; cAnio = anio; cEsp = esp; cDiag = diag;
+      break;
+    }
+  }
+  const inicio = filaHeader>=0 ? filaHeader+1 : 0;
+  let agregados = 0, actualizados = 0;
+  for (let r=inicio; r<filas.length; r++){
+    const fila = filas[r];
+    if (!fila) continue;
+    const nombreCompleto = cEst>=0 ? String(fila[cEst]==null?"":fila[cEst]).trim() : "";
+    if (!nombreCompleto) continue;
+    // "Apellido y Nombre": si hay coma, todo lo anterior es apellido; si no, se toma
+    // la primera palabra como apellido y el resto como nombre.
+    let apellido = "", nombre = "";
+    if (nombreCompleto.includes(",")){
+      const partes = nombreCompleto.split(",");
+      apellido = partes[0].trim();
+      nombre = partes.slice(1).join(",").trim();
+    } else {
+      const partes = nombreCompleto.split(/\s+/);
+      apellido = partes[0] || "";
+      nombre = partes.slice(1).join(" ");
+    }
+    const ordenTxt = cOrden>=0 ? String(fila[cOrden]==null?"":fila[cOrden]).trim() : "";
+    const escuelaTxt = cEsc>=0 ? String(fila[cEsc]==null?"":fila[cEsc]).trim() : "";
+    const anioTxt = cAnio>=0 ? String(fila[cAnio]==null?"":fila[cAnio]).trim() : "";
+    const espaciosTxt = cEsp>=0 ? String(fila[cEsp]==null?"":fila[cEsp]).trim() : "";
+    const diagTxt = cDiag>=0 ? String(fila[cDiag]==null?"":fila[cDiag]).trim() : "";
+
+    // Se busca solo entre los que ya están en espera en esta misma zona, para no
+    // tocar por error a un alumno activo o dado de baja que tenga el mismo nombre.
+    let a = estado.alumnos.find(x=>x.estado==="espera" && x.zona===zona &&
+      x.nombre.trim().toLowerCase()===nombre.toLowerCase() &&
+      x.apellido.trim().toLowerCase()===apellido.toLowerCase());
+    const esNuevo = !a;
+    if (!a){ a = alumnoBase(); estado.alumnos.push(a); }
+    a.nombre = nombre; a.apellido = apellido;
+    a.estado = "espera";
+    a.zona = zona;
+    a.ordenEspera = ordenTxt;
+    if (anioTxt) a.cursoOrigen = anioTxt;
+    if (espaciosTxt) a.espaciosCurriculares = espaciosTxt;
+    if (diagTxt) a.diagnostico = diagTxt;
+    if (escuelaTxt){
+      // Primero se busca por número de escuela (lo más común en estas planillas: "749", "718"...),
+      // y si no hay coincidencia, por nombre exacto (para escuelas cargadas fuera del sistema
+      // numerado, por ejemplo colegios privados).
+      let match = estado.escuelasOrigen.find(esc=>esc.numero && esc.numero.trim()===escuelaTxt);
+      if (!match) match = estado.escuelasOrigen.find(esc=>esc.nombre.trim().toLowerCase()===escuelaTxt.toLowerCase());
+      if (match){
+        a.escuelaOrigenId = match.id;
+      } else if (!a.observaciones || !a.observaciones.includes(escuelaTxt)){
+        a.observaciones = (a.observaciones ? a.observaciones+"\n" : "")+
+          "Escuela/N° informado en la importación (no vinculada): "+escuelaTxt;
+      }
+    }
+    if (esNuevo) agregados++; else actualizados++;
+  }
+  return {agregados, actualizados};
+}
+// Un solo botón de importar: primero se elige el archivo, después se pregunta a qué
+// zona corresponde (así no depende de acordarse en qué columna hacer clic).
+let archivoEsperaPendiente = null;
+function manejarSeleccionExcelEspera(e){
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  archivoEsperaPendiente = file;
+  $("#zonaEsperaArchivo").textContent = "Archivo: "+file.name;
+  $("#ovZonaEspera").classList.add("visible");
+}
+function cancelarZonaEspera(){
+  archivoEsperaPendiente = null;
+  $("#inputExcelEspera").value = "";
+  $("#ovZonaEspera").classList.remove("visible");
+}
+function confirmarZonaEspera(zona){
+  const file = archivoEsperaPendiente;
+  $("#ovZonaEspera").classList.remove("visible");
+  $("#inputExcelEspera").value = "";
+  archivoEsperaPendiente = null;
+  if (!file) return;
+  procesarExcelEspera(file, zona);
+}
+function procesarExcelEspera(file, zona){
+  if (typeof XLSX === "undefined"){
+    toast("No se pudo cargar el lector de Excel. Revisá tu conexión a internet e intentá de nuevo.");
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = (ev)=>{
+    try{
+      const data = new Uint8Array(ev.target.result);
+      const wb = XLSX.read(data, {type:"array"});
+      const hoja = wb.Sheets[wb.SheetNames[0]];
+      const filas = XLSX.utils.sheet_to_json(hoja, {header:1, raw:true, defval:""});
+      const {agregados, actualizados} = importarFilasEspera(filas, zona);
+      guardar(); renderAlumnos(); renderAlumnosEspera();
+      const total = agregados+actualizados;
+      toast(total ? agregados+" alumno(s) nuevo(s), "+actualizados+" actualizado(s) ✔"
+        : "No se encontraron filas válidas (revisá que tenga las columnas N° de orden y Estudiante)");
+    } catch(err){
+      console.error(err);
+      toast("No se pudo leer el archivo. Verificá que sea un Excel válido.");
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+function descargarListaEspera(zona){
+  if (typeof XLSX === "undefined"){
+    toast("No se pudo cargar el generador de Excel. Revisá tu conexión a internet e intentá de nuevo.");
+    return;
+  }
+  const lista = estado.alumnos.filter(a=>a.estado==="espera" && zonaEfectivaEspera(a)===zona)
+    .sort((x,y)=>ordenEsperaNum(x)-ordenEsperaNum(y));
+  const filas = [["N° de orden","Estudiantes","Escuela/Curso","Curso","Espacios curriculares cubiertos","Diagnostico"]];
+  for (const a of lista){
+    const esc = estado.escuelasOrigen.find(x=>x.id===a.escuelaOrigenId);
+    filas.push([
+      a.ordenEspera || "",
+      (a.apellido||"")+(a.apellido && a.nombre ? ", " : "")+(a.nombre||""),
+      esc ? (esc.numero || esc.nombre) : "",
+      a.cursoOrigen || "",
+      a.espaciosCurriculares || "",
+      a.diagnostico || ""
+    ]);
+  }
+  const ws = XLSX.utils.aoa_to_sheet(filas);
+  ws["!cols"] = [{wch:10},{wch:30},{wch:26},{wch:10},{wch:34},{wch:34}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, zona==="norte" ? "Zona Norte" : "Zona Sur");
+  XLSX.writeFile(wb, "lista_espera_"+zona+"_"+hoyISO()+".xlsx");
+}
+function descargarEjemploExcelEspera(){
+  if (typeof XLSX === "undefined"){
+    toast("No se pudo cargar el generador de Excel. Revisá tu conexión a internet e intentá de nuevo.");
+    return;
+  }
+  const filas = [
+    ["N° de orden","Estudiantes","Escuela/Curso","Curso","Espacios curriculares cubiertos","Diagnostico"],
+    ["01", "PEREZ, Juan", 704, "3ero", "S/atención", "Ejemplo de diagnóstico"],
+    ["02", "GOMEZ, Ana", 711, "1ero", "S/atención", ""]
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(filas);
+  ws["!cols"] = [{wch:10},{wch:30},{wch:26},{wch:10},{wch:34},{wch:34}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Ejemplo");
+  XLSX.writeFile(wb, "ejemplo_lista_espera.xlsx");
 }
 
 // ---------- Modal nueva/editar tarea ----------
@@ -3976,7 +4192,8 @@ function crearTarjetaAlumno(a, extraBoton, notaExtra){
   const nom = nombreDe(a);
   const cab = document.createElement("div");
   cab.className = "bp-cab";
-  cab.innerHTML = '<div><div class="rol">Alumno/a <span class="chip-estado" style="background:'+est.color+';">'+est.label+'</span></div>'+
+  const bandaOrden = (a.estado==="espera" && a.ordenEspera) ? '<span class="orden-badge" title="N° de orden">'+escapar(String(a.ordenEspera))+'</span>' : '';
+  cab.innerHTML = '<div><div class="rol">'+bandaOrden+'Alumno/a <span class="chip-estado" style="background:'+est.color+';">'+est.label+'</span></div>'+
     '<div class="nombre '+claseZona(a)+(nom?"":" vacio")+'">'+(nom?escapar(nom):"Sin nombre — tocá para completar")+'</div>'+
     '<div class="mini-dato">'+(esc?"Origen: "+escapar(esc.nombre):"Sin escuela de origen")+(a.cursoOrigen?" — "+escapar(a.cursoOrigen):"")+'</div>'+
     (notaExtra ? '<div class="mini-dato" style="color:#c0392b; font-weight:700;">'+notaExtra+'</div>' : '')+
@@ -4033,13 +4250,24 @@ function renderAlumnos(){
   }
   for (const a of lista) cont.appendChild(crearTarjetaAlumno(a));
 }
-function renderAlumnosEspera(){
-  const cont = $("#grillaAlumnosEspera");
+// A qué columna (Norte/Sur) corresponde un alumno en espera. Si es de "ambas zonas",
+// se guía por el cupo al que se lo contó; si no tiene zona definida, no entra en ninguna
+// de las dos columnas y aparece en el bloque "Sin zona definida".
+function zonaEfectivaEspera(a){
+  if (a.zona==="norte" || a.zona==="sur") return a.zona;
+  if (a.zona==="ambas" && (a.cupoZona==="norte" || a.cupoZona==="sur")) return a.cupoZona;
+  return "";
+}
+function ordenEsperaNum(a){
+  const n = parseInt(a.ordenEspera, 10);
+  return isNaN(n) ? Infinity : n;
+}
+function renderListaEsperaColumna(contId, lista){
+  const cont = $("#"+contId);
   if (!cont) return;
   cont.innerHTML = "";
-  const lista = estado.alumnos.filter(a=>a.estado==="espera");
   if (!lista.length){
-    cont.innerHTML = '<p class="sin-datos">No hay alumnos en lista de espera.</p>';
+    cont.innerHTML = '<p class="sin-datos">Sin alumnos en esta lista.</p>';
     return;
   }
   for (const a of lista){
@@ -4056,6 +4284,18 @@ function renderAlumnosEspera(){
       guardar(); renderAlumnos(); renderAlumnosEspera();
     }}, notaExtra));
   }
+}
+function renderAlumnosEspera(){
+  const todos = estado.alumnos.filter(a=>a.estado==="espera");
+  const porOrden = (x,y)=>ordenEsperaNum(x)-ordenEsperaNum(y);
+  const norte = todos.filter(a=>zonaEfectivaEspera(a)==="norte").sort(porOrden);
+  const sur = todos.filter(a=>zonaEfectivaEspera(a)==="sur").sort(porOrden);
+  const otros = todos.filter(a=>zonaEfectivaEspera(a)==="").sort(porOrden);
+  renderListaEsperaColumna("grillaAlumnosEsperaNorte", norte);
+  renderListaEsperaColumna("grillaAlumnosEsperaSur", sur);
+  const bloqueOtros = $("#bloqueEsperaOtros");
+  if (bloqueOtros) bloqueOtros.style.display = otros.length ? "" : "none";
+  renderListaEsperaColumna("grillaAlumnosEsperaOtros", otros);
 }
 function renderAlumnosBaja(){
   const cont = $("#grillaAlumnosBaja");
@@ -4096,6 +4336,9 @@ function abrirAlumno(id){
   actualizarVisibilidadCupoZona();
   $("#alFechaIngreso").value = a.fechaIngreso || hoyISO();
   $("#alEstado").value = a.estado || "activo";
+  $("#alOrdenEspera").value = a.ordenEspera || "";
+  actualizarVisibilidadOrdenEspera();
+  $("#alEspaciosCurriculares").value = a.espaciosCurriculares || "";
   $("#alCertDesde").value = a.certificadoDesde || "";
   $("#alCertHasta").value = a.certificadoHasta || "";
   actualizarAvisoCertificado();
@@ -4143,6 +4386,11 @@ function actualizarVisibilidadCupoZona(){
   if (!wrap) return;
   wrap.style.display = $("#alZona").value==="ambas" ? "" : "none";
 }
+function actualizarVisibilidadOrdenEspera(){
+  const wrap = $("#alOrdenEsperaWrap");
+  if (!wrap) return;
+  wrap.style.display = $("#alEstado").value==="espera" ? "" : "none";
+}
 function actualizarAvisoCertificado(){
   const hasta = $("#alCertHasta").value;
   $("#alCertAviso").style.display = (hasta && hasta < hoyISO()) ? "" : "none";
@@ -4163,6 +4411,8 @@ function guardarAlumno(){
     cupoZona: zona==="ambas" ? $("#alCupoZona").value : "",
     fechaIngreso: $("#alFechaIngreso").value || hoyISO(),
     estado: $("#alEstado").value,
+    ordenEspera: $("#alOrdenEspera").value.trim(),
+    espaciosCurriculares: $("#alEspaciosCurriculares").value.trim(),
     certificadoDesde: $("#alCertDesde").value,
     certificadoHasta: $("#alCertHasta").value,
     cud: {tiene: $("#alCud").checked, detalle: $("#alCudDetalle").value.trim()},
@@ -4984,6 +5234,10 @@ function cerrar(id){
     $("#formNuevoFondo").style.display = "none";
     aplicarTema();
   }
+  if (id === "ovZonaEspera"){
+    archivoEsperaPendiente = null;
+    $("#inputExcelEspera").value = "";
+  }
 }
 function renderTodo(){ renderTareas(); renderBitacora(); renderEquipo(); renderDocentes(); renderDisponible(); renderLicencias(); renderParo(); renderProgreso(); renderEstadisticas(); renderAlumnos(); renderAlumnosEspera(); renderAlumnosBaja(); renderCertificadosARevisar(); renderEscuelas(); renderMemoria(); renderContactos(); renderProvincia(); renderFeriados(); }
 
@@ -5122,10 +5376,19 @@ $("#btnGuardarEscuela").onclick = guardarEscuela;
 $("#btnBorrarEscuela").onclick = borrarEscuela;
 $("#inputExcelEscuelas").addEventListener("change", manejarExcelEscuelas);
 $("#btnUbicarEscuelasFaltantes").onclick = geocodificarEscuelasFaltantes;
+$("#btnImportarExcelEspera").onclick = ()=>$("#inputExcelEspera").click();
+$("#inputExcelEspera").addEventListener("change", manejarSeleccionExcelEspera);
+$("#btnZonaEsperaCancelar").onclick = cancelarZonaEspera;
+$("#btnZonaEsperaNorte").onclick = ()=>confirmarZonaEspera("norte");
+$("#btnZonaEsperaSur").onclick = ()=>confirmarZonaEspera("sur");
+$("#btnDescargarEsperaNorte").onclick = ()=>descargarListaEspera("norte");
+$("#btnDescargarEsperaSur").onclick = ()=>descargarListaEspera("sur");
+$("#btnEjemploExcelEspera").onclick = descargarEjemploExcelEspera;
 $("#btnAgregarAlumno").onclick = ()=>abrirAlumno(null);
 $("#btnGuardarAlumno").onclick = guardarAlumno;
 $("#btnBorrarAlumno").onclick = borrarAlumno;
 $("#alZona").onchange = actualizarVisibilidadCupoZona;
+$("#alEstado").onchange = actualizarVisibilidadOrdenEspera;
 $("#alCertHasta").onchange = actualizarAvisoCertificado;
 $("#btnMostrarFormActa").onclick = ()=>{ $("#formNuevaActa").style.display = ""; };
 $("#btnCancelarActa").onclick = ()=>{ $("#formNuevaActa").style.display = "none"; };
