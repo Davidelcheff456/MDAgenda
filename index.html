@@ -1176,7 +1176,9 @@
     <textarea id="alEspaciosCurriculares" placeholder="Espacios/materias que ya tiene cubiertos, si corresponde..."></textarea>
     <label>Certificado — vigente desde</label>
     <input type="date" id="alCertDesde">
-    <label>Certificado — vigente hasta</label>
+    <label>Cantidad de días (opcional, si el certificado no indica la fecha de fin)</label>
+    <input type="number" id="alCertDias" min="1" style="max-width:120px;" placeholder="Ej.: 7">
+    <label>Certificado — vigente hasta <span class="mini-dato" style="font-weight:400;">(se calcula sola si cargás la cantidad de días)</span></label>
     <input type="date" id="alCertHasta">
     <p class="mini-dato" id="alCertAviso" style="display:none; color:#c0392b; font-weight:700;">⚠ El certificado está vencido. Conviene volver a consultar si lo renovaron para ver si corresponde la atención.</p>
 
@@ -1469,7 +1471,7 @@ function condicionBase(){ return {tiene:false, detalle:""}; }
 function alumnoBase(){
   return {id: uid(), nombre:"", apellido:"", edad:"", dni:"", escuelaOrigenId:"", cursoOrigen:"", modalidad:"", zona:"", cupoZona:"",
     padre1: contactoBase(), padre2: contactoBase(), correo:"", direccion:"", lat:null, lng:null,
-    fechaIngreso: hoyISO(), docentes: [], estado:"activo", ordenEspera:"", certificadoDesde:"", certificadoHasta:"",
+    fechaIngreso: hoyISO(), docentes: [], estado:"activo", ordenEspera:"", certificadoDesde:"", certificadoDias:"", certificadoHasta:"",
     cud: condicionBase(), ppi: condicionBase(), adecuacion: condicionBase(), espaciosCurriculares:"",
     diagnostico:"", observaciones:"", documentacion:"", notas:"", actas: []};
 }
@@ -1494,6 +1496,7 @@ function normalizarAlumno(a){
   if (typeof a.correo !== "string") a.correo = "";
   if (typeof a.direccion !== "string") a.direccion = "";
   if (typeof a.certificadoDesde !== "string") a.certificadoDesde = "";
+  if (typeof a.certificadoDias !== "string" && typeof a.certificadoDias !== "number") a.certificadoDias = "";
   if (typeof a.certificadoHasta !== "string") a.certificadoHasta = "";
   if (typeof a.edad !== "string" && typeof a.edad !== "number") a.edad = "";
   if (typeof a.dni !== "string") a.dni = "";
@@ -4424,6 +4427,7 @@ function abrirAlumno(id){
   actualizarVisibilidadOrdenEspera();
   $("#alEspaciosCurriculares").value = a.espaciosCurriculares || "";
   $("#alCertDesde").value = a.certificadoDesde || "";
+  $("#alCertDias").value = a.certificadoDias || "";
   $("#alCertHasta").value = a.certificadoHasta || "";
   actualizarAvisoCertificado();
   $("#alCud").checked = !!a.cud.tiene;
@@ -4491,6 +4495,16 @@ function actualizarAvisoCertificado(){
   const hasta = $("#alCertHasta").value;
   $("#alCertAviso").style.display = (hasta && hasta < hoyISO()) ? "" : "none";
 }
+// Si hay fecha de inicio y cantidad de días cargados, calcula sola la fecha de fin
+// (el día de inicio cuenta como día 1: "3 días desde el 27/7" vence el 29/7).
+function actualizarCertHastaPorDias(){
+  const desde = $("#alCertDesde").value;
+  const dias = parseInt($("#alCertDias").value, 10);
+  if (desde && !isNaN(dias) && dias>=1){
+    $("#alCertHasta").value = sumarDias(desde, dias-1);
+    actualizarAvisoCertificado();
+  }
+}
 function guardarAlumno(){
   const nombre = $("#alNombre").value.trim();
   if (!nombre){ toast("Escribí el nombre del alumno"); return; }
@@ -4511,6 +4525,7 @@ function guardarAlumno(){
     ordenEspera: $("#alOrdenEspera").value.trim(),
     espaciosCurriculares: $("#alEspaciosCurriculares").value.trim(),
     certificadoDesde: $("#alCertDesde").value,
+    certificadoDias: $("#alCertDias").value.trim(),
     certificadoHasta: $("#alCertHasta").value,
     cud: {tiene: $("#alCud").checked, detalle: $("#alCudDetalle").value.trim()},
     ppi: {tiene: $("#alPpi").checked, detalle: $("#alPpiDetalle").value.trim()},
@@ -5495,6 +5510,8 @@ $("#alZona").onchange = ()=>{ actualizarVisibilidadCupoZona(); actualizarVisibil
 $("#alCupoZona").onchange = actualizarVisibilidadOrdenEspera;
 $("#alEstado").onchange = actualizarVisibilidadOrdenEspera;
 $("#alCertHasta").onchange = actualizarAvisoCertificado;
+$("#alCertDesde").addEventListener("input", actualizarCertHastaPorDias);
+$("#alCertDias").addEventListener("input", actualizarCertHastaPorDias);
 $("#btnMostrarFormActa").onclick = ()=>{ $("#formNuevaActa").style.display = ""; };
 $("#btnCancelarActa").onclick = ()=>{ $("#formNuevaActa").style.display = "none"; };
 $("#btnGuardarActa").onclick = guardarActaNueva;
