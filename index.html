@@ -655,7 +655,22 @@
     <div id="vistaAlAlumnos">
       <button class="btn-agregar-doc" id="btnAgregarAlumno">➕ Agregar alumno</button>
       <p class="mini-dato" id="resumenCupo" style="margin-bottom:12px;"></p>
-      <div class="grilla-personas" id="grillaAlumnos"></div>
+      <div class="espera-dos-col">
+        <div class="espera-col">
+          <h3 class="espera-col-titulo">🔵 Zona norte</h3>
+          <button type="button" class="btn-mini-tarea" id="btnDescargarAlumnosNorte" style="margin:0 0 10px 0;">⬇️ Descargar Excel — Zona norte</button>
+          <div class="grilla-personas" id="grillaAlumnosNorte"></div>
+        </div>
+        <div class="espera-col">
+          <h3 class="espera-col-titulo">🟢 Zona sur</h3>
+          <button type="button" class="btn-mini-tarea" id="btnDescargarAlumnosSur" style="margin:0 0 10px 0;">⬇️ Descargar Excel — Zona sur</button>
+          <div class="grilla-personas" id="grillaAlumnosSur"></div>
+        </div>
+      </div>
+      <div id="bloqueAlumnosOtros" style="margin-top:18px; display:none;">
+        <p class="mini-dato">Sin zona definida (no aparecen en ninguna de las dos columnas de arriba):</p>
+        <div class="grilla-personas" id="grillaAlumnosOtros"></div>
+      </div>
     </div>
     <div id="vistaAlCertificados" style="display:none;">
       <p class="mini-dato" style="margin-bottom:12px;">Alumnos atendidos cuyo certificado ya venció. Conviene volver a consultar si lo renovaron para saber si corresponde seguir con la atención.</p>
@@ -2617,7 +2632,7 @@ function descargarListaEspera(zona){
     toast("No se pudo cargar el generador de Excel. Revisá tu conexión a internet e intentá de nuevo.");
     return;
   }
-  const lista = estado.alumnos.filter(a=>a.estado==="espera" && zonaEfectivaEspera(a)===zona)
+  const lista = estado.alumnos.filter(a=>a.estado==="espera" && zonaEfectiva(a)===zona)
     .sort((x,y)=>ordenEsperaNum(x)-ordenEsperaNum(y));
   const filas = [["N° de orden","Estudiantes","Escuela/Curso","Curso","Espacios curriculares cubiertos","Diagnostico"]];
   for (const a of lista){
@@ -2636,6 +2651,31 @@ function descargarListaEspera(zona){
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, zona==="norte" ? "Zona Norte" : "Zona Sur");
   XLSX.writeFile(wb, "lista_espera_"+zona+"_"+hoyISO()+".xlsx");
+}
+function descargarListaAlumnos(zona){
+  if (typeof XLSX === "undefined"){
+    toast("No se pudo cargar el generador de Excel. Revisá tu conexión a internet e intentá de nuevo.");
+    return;
+  }
+  const lista = estado.alumnos.filter(a=>ESTADOS_ATENDIDO.includes(a.estado) && zonaEfectiva(a)===zona)
+    .sort(ordenAlfabetico);
+  const filas = [["N° de orden","Estudiantes","Escuela/Curso","Curso","Espacios curriculares cubiertos","Diagnostico"]];
+  for (const a of lista){
+    const esc = estado.escuelasOrigen.find(x=>x.id===a.escuelaOrigenId);
+    filas.push([
+      "",
+      (a.apellido||"")+(a.apellido && a.nombre ? ", " : "")+(a.nombre||""),
+      esc ? (esc.numero || esc.nombre) : "",
+      a.cursoOrigen || "",
+      a.espaciosCurriculares || "",
+      a.diagnostico || ""
+    ]);
+  }
+  const ws = XLSX.utils.aoa_to_sheet(filas);
+  ws["!cols"] = [{wch:10},{wch:30},{wch:26},{wch:10},{wch:34},{wch:34}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, zona==="norte" ? "Zona Norte" : "Zona Sur");
+  XLSX.writeFile(wb, "alumnos_"+zona+"_"+hoyISO()+".xlsx");
 }
 function descargarEjemploExcelEspera(){
   if (typeof XLSX === "undefined"){
@@ -4238,22 +4278,35 @@ function renderResumenCupo(){
   cont.innerHTML = "Matrícula — Zona norte: <b>"+m.norte+" / "+cupos.norte+"</b>"+avisoN+
     " &nbsp;·&nbsp; Zona sur: <b>"+m.sur+" / "+cupos.sur+"</b>"+avisoS;
 }
-function renderAlumnos(){
-  renderResumenCupo();
-  const cont = $("#grillaAlumnos");
+function ordenAlfabetico(x,y){
+  return (x.apellido+" "+x.nombre).trim().toLowerCase().localeCompare((y.apellido+" "+y.nombre).trim().toLowerCase(), "es");
+}
+function renderListaAlumnosColumna(contId, lista){
+  const cont = $("#"+contId);
   if (!cont) return;
   cont.innerHTML = "";
-  const lista = estado.alumnos.filter(a=>ESTADOS_ATENDIDO.includes(a.estado));
   if (!lista.length){
-    cont.innerHTML = '<p class="sin-datos">No hay alumnos siendo atendidos todavía.</p>';
+    cont.innerHTML = '<p class="sin-datos">Sin alumnos en esta lista.</p>';
     return;
   }
   for (const a of lista) cont.appendChild(crearTarjetaAlumno(a));
 }
-// A qué columna (Norte/Sur) corresponde un alumno en espera. Si es de "ambas zonas",
-// se guía por el cupo al que se lo contó; si no tiene zona definida, no entra en ninguna
-// de las dos columnas y aparece en el bloque "Sin zona definida".
-function zonaEfectivaEspera(a){
+function renderAlumnos(){
+  renderResumenCupo();
+  const todos = estado.alumnos.filter(a=>ESTADOS_ATENDIDO.includes(a.estado));
+  const norte = todos.filter(a=>zonaEfectiva(a)==="norte").sort(ordenAlfabetico);
+  const sur = todos.filter(a=>zonaEfectiva(a)==="sur").sort(ordenAlfabetico);
+  const otros = todos.filter(a=>zonaEfectiva(a)==="").sort(ordenAlfabetico);
+  renderListaAlumnosColumna("grillaAlumnosNorte", norte);
+  renderListaAlumnosColumna("grillaAlumnosSur", sur);
+  const bloqueOtros = $("#bloqueAlumnosOtros");
+  if (bloqueOtros) bloqueOtros.style.display = otros.length ? "" : "none";
+  renderListaAlumnosColumna("grillaAlumnosOtros", otros);
+}
+// A qué columna (Norte/Sur) corresponde un alumno. Si es de "ambas zonas", se guía por el
+// cupo al que se lo contó; si no tiene zona definida, no entra en ninguna de las dos
+// columnas y aparece en el bloque "Sin zona definida".
+function zonaEfectiva(a){
   if (a.zona==="norte" || a.zona==="sur") return a.zona;
   if (a.zona==="ambas" && (a.cupoZona==="norte" || a.cupoZona==="sur")) return a.cupoZona;
   return "";
@@ -4288,9 +4341,9 @@ function renderListaEsperaColumna(contId, lista){
 function renderAlumnosEspera(){
   const todos = estado.alumnos.filter(a=>a.estado==="espera");
   const porOrden = (x,y)=>ordenEsperaNum(x)-ordenEsperaNum(y);
-  const norte = todos.filter(a=>zonaEfectivaEspera(a)==="norte").sort(porOrden);
-  const sur = todos.filter(a=>zonaEfectivaEspera(a)==="sur").sort(porOrden);
-  const otros = todos.filter(a=>zonaEfectivaEspera(a)==="").sort(porOrden);
+  const norte = todos.filter(a=>zonaEfectiva(a)==="norte").sort(porOrden);
+  const sur = todos.filter(a=>zonaEfectiva(a)==="sur").sort(porOrden);
+  const otros = todos.filter(a=>zonaEfectiva(a)==="").sort(porOrden);
   renderListaEsperaColumna("grillaAlumnosEsperaNorte", norte);
   renderListaEsperaColumna("grillaAlumnosEsperaSur", sur);
   const bloqueOtros = $("#bloqueEsperaOtros");
@@ -5384,6 +5437,8 @@ $("#btnZonaEsperaSur").onclick = ()=>confirmarZonaEspera("sur");
 $("#btnDescargarEsperaNorte").onclick = ()=>descargarListaEspera("norte");
 $("#btnDescargarEsperaSur").onclick = ()=>descargarListaEspera("sur");
 $("#btnEjemploExcelEspera").onclick = descargarEjemploExcelEspera;
+$("#btnDescargarAlumnosNorte").onclick = ()=>descargarListaAlumnos("norte");
+$("#btnDescargarAlumnosSur").onclick = ()=>descargarListaAlumnos("sur");
 $("#btnAgregarAlumno").onclick = ()=>abrirAlumno(null);
 $("#btnGuardarAlumno").onclick = guardarAlumno;
 $("#btnBorrarAlumno").onclick = borrarAlumno;
