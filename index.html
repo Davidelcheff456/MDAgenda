@@ -636,6 +636,7 @@
   <section class="panel" id="panel-alumnos">
     <div class="fila-orden">
       <button data-vista-al="alumnos" class="sel">🎒 Alumnos</button>
+      <button data-vista-al="certificados">📄 Certificados a revisar</button>
       <button data-vista-al="espera">⏳ Lista de espera</button>
       <button data-vista-al="baja">🚪 Baja</button>
       <button data-vista-al="escuelas">🏫 Escuelas de origen</button>
@@ -645,6 +646,10 @@
       <button class="btn-agregar-doc" id="btnAgregarAlumno">➕ Agregar alumno</button>
       <p class="mini-dato" id="resumenCupo" style="margin-bottom:12px;"></p>
       <div class="grilla-personas" id="grillaAlumnos"></div>
+    </div>
+    <div id="vistaAlCertificados" style="display:none;">
+      <p class="mini-dato" style="margin-bottom:12px;">Alumnos atendidos cuyo certificado ya venció. Conviene volver a consultar si lo renovaron para saber si corresponde seguir con la atención.</p>
+      <div class="grilla-personas" id="grillaCertificados"></div>
     </div>
     <div id="vistaAlEspera" style="display:none;">
       <p class="mini-dato" style="margin-bottom:12px;">Alumnos anotados para ingresar cuando se libere un lugar. Tocá "Dar de alta" para pasarlos a atendidos.</p>
@@ -1104,6 +1109,11 @@
       <option value="espera">Lista de espera</option>
       <option value="baja">Baja</option>
     </select>
+    <label>Certificado — vigente desde</label>
+    <input type="date" id="alCertDesde">
+    <label>Certificado — vigente hasta</label>
+    <input type="date" id="alCertHasta">
+    <p class="mini-dato" id="alCertAviso" style="display:none; color:#c0392b; font-weight:700;">⚠ El certificado está vencido. Conviene volver a consultar si lo renovaron para ver si corresponde la atención.</p>
     <label>Padre/madre/tutor 1 (obligatorio)</label>
     <div style="display:flex; gap:8px;">
       <input type="text" id="alP1Nombre" placeholder="Nombre" style="flex:2;">
@@ -1367,7 +1377,11 @@ function normalizarEscuela(e){
 function alumnoBase(){
   return {id: uid(), nombre:"", apellido:"", escuelaOrigenId:"", cursoOrigen:"", zona:"", cupoZona:"",
     padre1: contactoBase(), padre2: contactoBase(), correo:"", direccion:"", lat:null, lng:null,
-    fechaIngreso: hoyISO(), docentes: [], estado:"activo", diagnostico:"", notas:"", actas: []};
+    fechaIngreso: hoyISO(), docentes: [], estado:"activo", certificadoDesde:"", certificadoHasta:"",
+    diagnostico:"", notas:"", actas: []};
+}
+function certificadoVencido(a){
+  return !!(a.certificadoHasta && a.certificadoHasta < hoyISO());
 }
 function normalizarAlumno(a){
   if (!Array.isArray(a.docentes)) a.docentes = [];
@@ -1377,6 +1391,8 @@ function normalizarAlumno(a){
   if (typeof a.cursoOrigen !== "string") a.cursoOrigen = "";
   if (typeof a.correo !== "string") a.correo = "";
   if (typeof a.direccion !== "string") a.direccion = "";
+  if (typeof a.certificadoDesde !== "string") a.certificadoDesde = "";
+  if (typeof a.certificadoHasta !== "string") a.certificadoHasta = "";
   if (typeof a.diagnostico !== "string") a.diagnostico = "";
   if (typeof a.notas !== "string") a.notas = "";
   if (!ESTADOS_ALUMNO[a.estado]) a.estado = "activo";
@@ -3648,11 +3664,13 @@ function cambiarVistaAlumnos(v){
   vistaAlumnos = v;
   document.querySelectorAll("[data-vista-al]").forEach(b=>b.classList.toggle("sel", b.dataset.vistaAl===v));
   $("#vistaAlAlumnos").style.display = v==="alumnos" ? "" : "none";
+  $("#vistaAlCertificados").style.display = v==="certificados" ? "" : "none";
   $("#vistaAlEspera").style.display = v==="espera" ? "" : "none";
   $("#vistaAlBaja").style.display = v==="baja" ? "" : "none";
   $("#vistaAlEscuelas").style.display = v==="escuelas" ? "" : "none";
   $("#vistaAlMapa").style.display = v==="mapa" ? "" : "none";
   if (v==="alumnos") renderAlumnos();
+  else if (v==="certificados") renderCertificadosARevisar();
   else if (v==="espera") renderAlumnosEspera();
   else if (v==="baja") renderAlumnosBaja();
   else if (v==="escuelas") renderEscuelas();
@@ -3902,7 +3920,7 @@ function poblarChksDocentes(idsSeleccionados){
     cont.appendChild(lab);
   }
 }
-function crearTarjetaAlumno(a, extraBoton){
+function crearTarjetaAlumno(a, extraBoton, notaExtra){
   const div = document.createElement("div");
   div.className = "bloque-persona";
   const esc = estado.escuelasOrigen.find(x=>x.id===a.escuelaOrigenId);
@@ -3912,7 +3930,9 @@ function crearTarjetaAlumno(a, extraBoton){
   cab.className = "bp-cab";
   cab.innerHTML = '<div><div class="rol">Alumno/a <span class="chip-estado" style="background:'+est.color+';">'+est.label+'</span></div>'+
     '<div class="nombre '+claseZona(a)+(nom?"":" vacio")+'">'+(nom?escapar(nom):"Sin nombre — tocá para completar")+'</div>'+
-    '<div class="mini-dato">'+(esc?"Origen: "+escapar(esc.nombre):"Sin escuela de origen")+(a.cursoOrigen?" — "+escapar(a.cursoOrigen):"")+'</div></div>'+
+    '<div class="mini-dato">'+(esc?"Origen: "+escapar(esc.nombre):"Sin escuela de origen")+(a.cursoOrigen?" — "+escapar(a.cursoOrigen):"")+'</div>'+
+    (notaExtra ? '<div class="mini-dato" style="color:#c0392b; font-weight:700;">'+notaExtra+'</div>' : '')+
+    '</div>'+
     '<span class="ver">Ver ficha ›</span>';
   cab.onclick = ()=>abrirAlumno(a.id);
   div.appendChild(cab);
@@ -3992,6 +4012,19 @@ function renderAlumnosBaja(){
   }
   for (const a of lista) cont.appendChild(crearTarjetaAlumno(a));
 }
+function renderCertificadosARevisar(){
+  const cont = $("#grillaCertificados");
+  if (!cont) return;
+  cont.innerHTML = "";
+  const lista = estado.alumnos.filter(a=>ESTADOS_ATENDIDO.includes(a.estado) && certificadoVencido(a));
+  if (!lista.length){
+    cont.innerHTML = '<p class="sin-datos">No hay certificados vencidos pendientes de revisar.</p>';
+    return;
+  }
+  for (const a of lista){
+    cont.appendChild(crearTarjetaAlumno(a, null, "⚠ Certificado vencido desde "+fmtCorto(a.certificadoHasta)));
+  }
+}
 function abrirAlumno(id){
   alumnoEnCurso = id;
   const a = id ? estado.alumnos.find(x=>x.id===id) : alumnoBase();
@@ -4005,6 +4038,9 @@ function abrirAlumno(id){
   actualizarVisibilidadCupoZona();
   $("#alFechaIngreso").value = a.fechaIngreso || hoyISO();
   $("#alEstado").value = a.estado || "activo";
+  $("#alCertDesde").value = a.certificadoDesde || "";
+  $("#alCertHasta").value = a.certificadoHasta || "";
+  actualizarAvisoCertificado();
   $("#alP1Nombre").value = a.padre1.nombre || "";
   $("#alP1Tel").value = a.padre1.telefono || "";
   $("#alP2Nombre").value = a.padre2.nombre || "";
@@ -4041,6 +4077,10 @@ function actualizarVisibilidadCupoZona(){
   if (!wrap) return;
   wrap.style.display = $("#alZona").value==="ambas" ? "" : "none";
 }
+function actualizarAvisoCertificado(){
+  const hasta = $("#alCertHasta").value;
+  $("#alCertAviso").style.display = (hasta && hasta < hoyISO()) ? "" : "none";
+}
 function guardarAlumno(){
   const nombre = $("#alNombre").value.trim();
   if (!nombre){ toast("Escribí el nombre del alumno"); return; }
@@ -4055,6 +4095,8 @@ function guardarAlumno(){
     cupoZona: zona==="ambas" ? $("#alCupoZona").value : "",
     fechaIngreso: $("#alFechaIngreso").value || hoyISO(),
     estado: $("#alEstado").value,
+    certificadoDesde: $("#alCertDesde").value,
+    certificadoHasta: $("#alCertHasta").value,
     padre1: {nombre: p1nombre, telefono: $("#alP1Tel").value.trim()},
     padre2: {nombre: $("#alP2Nombre").value.trim(), telefono: $("#alP2Tel").value.trim()},
     correo: $("#alCorreo").value.trim(),
@@ -4071,14 +4113,14 @@ function guardarAlumno(){
     estado.alumnos.push({...alumnoBase(), ...datos, actas: []});
   }
   cerrar("ovAlumno");
-  guardar(); renderAlumnos(); renderAlumnosEspera(); renderAlumnosBaja();
+  guardar(); renderAlumnos(); renderAlumnosEspera(); renderAlumnosBaja(); renderCertificadosARevisar();
 }
 function borrarAlumno(){
   if (!alumnoEnCurso) return;
   if (!confirm("¿Eliminar este alumno y sus actas registradas?")) return;
   estado.alumnos = estado.alumnos.filter(x=>x.id!==alumnoEnCurso);
   cerrar("ovAlumno");
-  guardar(); renderAlumnos(); renderAlumnosEspera(); renderAlumnosBaja();
+  guardar(); renderAlumnos(); renderAlumnosEspera(); renderAlumnosBaja(); renderCertificadosARevisar();
 }
 function renderActas(){
   const a = estado.alumnos.find(x=>x.id===alumnoEnCurso);
@@ -4868,7 +4910,7 @@ function cerrar(id){
     aplicarTema();
   }
 }
-function renderTodo(){ renderTareas(); renderBitacora(); renderEquipo(); renderDocentes(); renderDisponible(); renderLicencias(); renderParo(); renderProgreso(); renderEstadisticas(); renderAlumnos(); renderAlumnosEspera(); renderAlumnosBaja(); renderEscuelas(); renderMemoria(); renderContactos(); renderProvincia(); renderFeriados(); }
+function renderTodo(){ renderTareas(); renderBitacora(); renderEquipo(); renderDocentes(); renderDisponible(); renderLicencias(); renderParo(); renderProgreso(); renderEstadisticas(); renderAlumnos(); renderAlumnosEspera(); renderAlumnosBaja(); renderCertificadosARevisar(); renderEscuelas(); renderMemoria(); renderContactos(); renderProvincia(); renderFeriados(); }
 
 // Sidebar (menú lateral agrupado, colapsable en celular)
 const sidebarNav = $("#sidebarNav");
@@ -5009,6 +5051,7 @@ $("#btnAgregarAlumno").onclick = ()=>abrirAlumno(null);
 $("#btnGuardarAlumno").onclick = guardarAlumno;
 $("#btnBorrarAlumno").onclick = borrarAlumno;
 $("#alZona").onchange = actualizarVisibilidadCupoZona;
+$("#alCertHasta").onchange = actualizarAvisoCertificado;
 $("#btnMostrarFormActa").onclick = ()=>{ $("#formNuevaActa").style.display = ""; };
 $("#btnCancelarActa").onclick = ()=>{ $("#formNuevaActa").style.display = "none"; };
 $("#btnGuardarActa").onclick = guardarActaNueva;
