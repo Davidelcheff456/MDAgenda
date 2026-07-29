@@ -4382,6 +4382,29 @@ function asignarOrdenesEsperaFaltantes(){
   }
   return cambios;
 }
+// Ubica a un alumno en la posición deseada dentro de la lista de espera de su zona, corriendo
+// un lugar a todos los que quedaron en el medio (hacia adelante si bajó de número, hacia atrás
+// si subió). Si la posición no es válida o se deja vacía, lo manda al final.
+function insertarEnOrdenEspera(zona, alumnoId, posicionDeseada){
+  const resto = estado.alumnos
+    .filter(a=>a.estado==="espera" && zonaEfectiva(a)===zona && a.id!==alumnoId)
+    .sort((x,y)=>ordenEsperaNum(x)-ordenEsperaNum(y));
+  const actual = estado.alumnos.find(a=>a.id===alumnoId);
+  if (!actual) return;
+  let pos = parseInt(posicionDeseada, 10);
+  if (isNaN(pos) || pos<1) pos = resto.length+1;
+  pos = Math.min(pos, resto.length+1);
+  resto.splice(pos-1, 0, actual);
+  resto.forEach((a,i)=>{ a.ordenEspera = String(i+1); });
+}
+// Renumera 1..N la lista de espera de una zona después de que alguien la dejó (alta, baja,
+// cambio de zona), para que no queden números salteados.
+function cerrarHuecoOrdenEspera(zona, alumnoIdExcluir){
+  const resto = estado.alumnos
+    .filter(a=>a.estado==="espera" && zonaEfectiva(a)===zona && a.id!==alumnoIdExcluir)
+    .sort((x,y)=>ordenEsperaNum(x)-ordenEsperaNum(y));
+  resto.forEach((a,i)=>{ a.ordenEspera = String(i+1); });
+}
 function renderListaEsperaColumna(contId, lista, q){
   const cont = $("#"+contId);
   if (!cont) return;
@@ -4392,7 +4415,10 @@ function renderListaEsperaColumna(contId, lista, q){
   }
   for (const a of lista){
     cont.appendChild(crearTarjetaAlumno(a, {texto:"✅ Dar de alta", onclick:(al)=>{
+      const zonaAntes = zonaEfectiva(al);
       al.estado = "activo";
+      al.ordenEspera = "";
+      if (zonaAntes) cerrarHuecoOrdenEspera(zonaAntes, al.id);
       guardar(); renderAlumnos(); renderAlumnosEspera();
     }}, true));
   }
@@ -4536,6 +4562,11 @@ function guardarAlumno(){
   if (!nombre){ toast("Escribí el nombre del alumno"); return; }
   const p1nombre = $("#alP1Nombre").value.trim();
   if (!p1nombre){ toast("El primer contacto de padre/madre/tutor es obligatorio"); return; }
+  let zonaAntes = "", estadoAntes = "";
+  if (alumnoEnCurso){
+    const previo = estado.alumnos.find(x=>x.id===alumnoEnCurso);
+    if (previo){ zonaAntes = zonaEfectiva(previo); estadoAntes = previo.estado; }
+  }
   const zona = $("#alZona").value;
   const datos = {
     nombre, apellido: $("#alApellido").value.trim(),
@@ -4567,15 +4598,30 @@ function guardarAlumno(){
     notas: $("#alNotas").value.trim(),
     lat: alLatTmp, lng: alLngTmp
   };
-  if (datos.estado==="espera" && !datos.ordenEspera){
-    const zonaEf = zonaEfectiva(datos);
-    if (zonaEf) datos.ordenEspera = String(siguienteOrdenEspera(zonaEf, alumnoEnCurso));
-  }
+  let alumnoGuardado;
   if (alumnoEnCurso){
     const a = estado.alumnos.find(x=>x.id===alumnoEnCurso);
     if (a) Object.assign(a, datos);
+    alumnoGuardado = a;
   } else {
-    estado.alumnos.push({...alumnoBase(), ...datos, actas: []});
+    const nuevo = {...alumnoBase(), ...datos, actas: []};
+    estado.alumnos.push(nuevo);
+    alumnoGuardado = nuevo;
+  }
+  if (alumnoGuardado){
+    const zonaNueva = zonaEfectiva(alumnoGuardado);
+    if (alumnoGuardado.estado==="espera" && zonaNueva){
+      // Ubica al alumno en el N° de orden que haya puesto (o al final si lo dejó vacío),
+      // corriendo a los demás de esa zona un lugar para que no queden números repetidos.
+      insertarEnOrdenEspera(zonaNueva, alumnoGuardado.id, alumnoGuardado.ordenEspera);
+    } else {
+      alumnoGuardado.ordenEspera = "";
+    }
+    // Si salió de la lista de espera de la zona anterior (cambió de zona o de estado),
+    // renumera lo que quedó ahí para cerrar el hueco.
+    if (estadoAntes==="espera" && zonaAntes && (zonaAntes!==zonaNueva || alumnoGuardado.estado!=="espera")){
+      cerrarHuecoOrdenEspera(zonaAntes, alumnoGuardado.id);
+    }
   }
   cerrar("ovAlumno");
   guardar(); renderAlumnos(); renderAlumnosEspera(); renderAlumnosBaja(); renderCertificadosARevisar();
@@ -4583,7 +4629,10 @@ function guardarAlumno(){
 function borrarAlumno(){
   if (!alumnoEnCurso) return;
   if (!confirm("¿Eliminar este alumno y sus actas registradas?")) return;
+  const previo = estado.alumnos.find(x=>x.id===alumnoEnCurso);
+  const zonaAntes = (previo && previo.estado==="espera") ? zonaEfectiva(previo) : "";
   estado.alumnos = estado.alumnos.filter(x=>x.id!==alumnoEnCurso);
+  if (zonaAntes) cerrarHuecoOrdenEspera(zonaAntes, alumnoEnCurso);
   cerrar("ovAlumno");
   guardar(); renderAlumnos(); renderAlumnosEspera(); renderAlumnosBaja(); renderCertificadosARevisar();
 }
