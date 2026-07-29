@@ -5641,6 +5641,9 @@ $("#cTipo").onchange = actualizarBloquesContacto;
 $("#cRol").onchange = ()=>{ $("#cRolOtro").style.display = $("#cRol").value==="otro" ? "" : "none"; };
 document.querySelectorAll("[data-cerrar]").forEach(b=>{ b.onclick = ()=>cerrar(b.dataset.cerrar); });
 document.querySelectorAll(".overlay").forEach(ov=>{
+  // La ficha de alumno (ovAlumno) queda afuera a propósito: es un formulario largo y un click
+  // afuera por descuido no debe cerrarla y perder lo cargado. Ahí hay que usar Guardar o Cancelar.
+  if (ov.id==="ovAlumno") return;
   ov.addEventListener("click", (e)=>{ if (e.target===ov) cerrar(ov.id); });
 });
 
