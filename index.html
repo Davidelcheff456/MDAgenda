@@ -5656,6 +5656,21 @@ aplicarPermisos();
 renderTodo();
 sincronizarAlturaPanelNav();
 setTimeout(sincronizarAlturaPanelNav, 300);
+
+// Revisión automática de vigencia de certificados: como el estado se calcula comparando
+// contra la fecha de hoy, si se deja la página abierta varios días sin tocar nada hay que
+// forzar el recálculo cuando cambia el día. Se revisa cada 5 minutos y también apenas la
+// pestaña vuelve a estar visible (por si la máquina estuvo en reposo).
+let ultimaFechaVistaCertificados = hoyISO();
+function revisarCambioDeFechaCertificados(){
+  const hoy = hoyISO();
+  if (hoy !== ultimaFechaVistaCertificados){
+    ultimaFechaVistaCertificados = hoy;
+    renderAlumnos(); renderAlumnosEspera(); renderAlumnosBaja(); renderCertificadosARevisar();
+  }
+}
+setInterval(revisarCambioDeFechaCertificados, 5*60*1000);
+document.addEventListener("visibilitychange", ()=>{ if (!document.hidden) revisarCambioDeFechaCertificados(); });
 </script>
 </body>
 </html>
