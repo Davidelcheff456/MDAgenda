@@ -2642,12 +2642,13 @@ function descargarListaEspera(zona){
   }
   const lista = estado.alumnos.filter(a=>a.estado==="espera" && zonaEfectiva(a)===zona)
     .sort((x,y)=>ordenEsperaNum(x)-ordenEsperaNum(y));
-  const filas = [["N° de orden","Estudiantes","Escuela/Curso","Curso","Espacios curriculares cubiertos","Diagnostico"]];
+  const filas = [["N° de orden","Estudiantes","Certificado vigente hasta","Escuela/Curso","Curso","Espacios curriculares cubiertos","Diagnostico"]];
   for (const a of lista){
     const esc = estado.escuelasOrigen.find(x=>x.id===a.escuelaOrigenId);
     filas.push([
       a.ordenEspera || "",
       (a.apellido||"")+(a.apellido && a.nombre ? ", " : "")+(a.nombre||""),
+      a.certificadoHasta ? fmtCorto(a.certificadoHasta) : "",
       esc ? (esc.numero || esc.nombre) : "",
       a.cursoOrigen || "",
       a.espaciosCurriculares || "",
@@ -2655,7 +2656,22 @@ function descargarListaEspera(zona){
     ]);
   }
   const ws = XLSX.utils.aoa_to_sheet(filas);
-  ws["!cols"] = [{wch:10},{wch:30},{wch:26},{wch:10},{wch:34},{wch:34}];
+  ws["!cols"] = [{wch:10},{wch:30},{wch:20},{wch:26},{wch:10},{wch:34},{wch:34}];
+  // Fila completa en rojo si el certificado está vencido, en amarillo si vence dentro de 7 días.
+  const nCols = filas[0].length;
+  for (let i=0; i<lista.length; i++){
+    const a = lista[i];
+    let estilo = null;
+    if (certificadoVencido(a)) estilo = {fill:{patternType:"solid", fgColor:{rgb:"FFC7CE"}}, font:{color:{rgb:"9C0006"}}};
+    else if (certificadoPorVencer(a)) estilo = {fill:{patternType:"solid", fgColor:{rgb:"FFEB9C"}}, font:{color:{rgb:"9C6500"}}};
+    if (!estilo) continue;
+    const filaExcel = i+1; // fila 0 = encabezado
+    for (let c=0; c<nCols; c++){
+      const addr = XLSX.utils.encode_cell({r:filaExcel, c});
+      if (!ws[addr]) ws[addr] = {t:"s", v:""};
+      ws[addr].s = estilo;
+    }
+  }
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, zona==="norte" ? "Zona Norte" : "Zona Sur");
   XLSX.writeFile(wb, "lista_espera_"+zona+"_"+hoyISO()+".xlsx");
