@@ -659,6 +659,10 @@
         <input type="file" id="inputExcelAlumnos" accept=".xlsx,.xls" style="display:none;">
       </div>
       <p class="mini-dato" id="resumenCupo" style="margin-bottom:12px;"></p>
+      <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:center; margin-bottom:14px;">
+        <label class="chk" style="display:flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" id="filtroAlumnosPot"> Atendido por POT</label>
+        <label class="chk" style="display:flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" id="filtroAlumnosNoPot"> No atendido por POT</label>
+      </div>
       <div class="espera-dos-col">
         <div class="espera-col">
           <h3 class="espera-col-titulo">🔵 Zona norte</h3>
@@ -1177,6 +1181,7 @@
       <label>N° de orden en la lista de espera</label>
       <input type="number" id="alOrdenEspera" min="1" style="max-width:120px;">
     </div>
+    <label class="chk" style="display:flex; align-items:center; gap:8px; margin-top:10px;"><input type="checkbox" id="alAtendidoPot" style="width:16px; height:16px;"> Atendido únicamente por el POT</label>
     <label>Espacios curriculares cubiertos</label>
     <textarea id="alEspaciosCurriculares" placeholder="Espacios/materias que ya tiene cubiertos, si corresponde..."></textarea>
     <label>Certificado — vigente desde</label>
@@ -1491,7 +1496,7 @@ function alumnoBase(){
     padre1: contactoBase(), padre2: contactoBase(), correo:"", direccion:"", lat:null, lng:null,
     fechaIngreso: hoyISO(), docentes: [], estado:"activo", ordenEspera:"", certificadoDesde:"", certificadoDias:"", certificadoHasta:"",
     cud: condicionBase(), ppi: condicionBase(), adecuacion: condicionBase(), espaciosCurriculares:"",
-    diagnostico:"", observaciones:"", documentacion:"", notas:"", actas: []};
+    diagnostico:"", observaciones:"", documentacion:"", notas:"", atendidoPot:false, actas: []};
 }
 function certificadoVencido(a){
   return !!(a.certificadoHasta && a.certificadoHasta < hoyISO());
@@ -1511,6 +1516,7 @@ function normalizarAlumno(a){
   if (a.cupoZona !== "norte" && a.cupoZona !== "sur") a.cupoZona = "";
   if (typeof a.cursoOrigen !== "string") a.cursoOrigen = "";
   if (typeof a.modalidad !== "string") a.modalidad = "";
+  a.atendidoPot = !!a.atendidoPot;
   if (typeof a.correo !== "string") a.correo = "";
   if (typeof a.direccion !== "string") a.direccion = "";
   if (typeof a.certificadoDesde !== "string") a.certificadoDesde = "";
@@ -4481,7 +4487,8 @@ function crearTarjetaAlumno(a, extraBoton, minimal){
   } else {
     const esc = estado.escuelasOrigen.find(x=>x.id===a.escuelaOrigenId);
     const est = ESTADOS_ALUMNO[a.estado] || ESTADOS_ALUMNO.activo;
-    cab.innerHTML = '<div><div class="rol">'+bandaOrden+'Alumno/a <span class="chip-estado" style="background:'+est.color+';">'+est.label+'</span></div>'+
+    const bandaPot = a.atendidoPot ? ' <span class="chip-estado" style="background:#6a4c93;" title="Atendido únicamente por el POT">POT</span>' : '';
+    cab.innerHTML = '<div><div class="rol">'+bandaOrden+'Alumno/a <span class="chip-estado" style="background:'+est.color+';">'+est.label+'</span>'+bandaPot+'</div>'+
       '<div class="nombre '+claseZona(a)+(nom?"":" vacio")+'">'+(nom?escapar(nom):"Sin nombre — tocá para completar")+'</div>'+
       '<div class="mini-dato">'+(esc?"Origen: "+escapar(esc.nombre):"Sin escuela de origen")+(a.cursoOrigen?" — "+escapar(a.cursoOrigen):"")+(a.modalidad?" ("+escapar(a.modalidad)+")":"")+'</div>'+
       lineaCert+
@@ -4529,27 +4536,37 @@ function renderResumenCupo(){
 function ordenAlfabetico(x,y){
   return (x.apellido+" "+x.nombre).trim().toLowerCase().localeCompare((y.apellido+" "+y.nombre).trim().toLowerCase(), "es");
 }
-function renderListaAlumnosColumna(contId, lista){
+function renderListaAlumnosColumna(contId, lista, hayFiltro){
   const cont = $("#"+contId);
   if (!cont) return;
   cont.innerHTML = "";
   if (!lista.length){
-    cont.innerHTML = '<p class="sin-datos">Sin alumnos en esta lista.</p>';
+    cont.innerHTML = '<p class="sin-datos">'+(hayFiltro ? "Sin resultados para el filtro." : "Sin alumnos en esta lista.")+'</p>';
     return;
   }
   for (const a of lista) cont.appendChild(crearTarjetaAlumno(a));
 }
 function renderAlumnos(){
   renderResumenCupo();
-  const todos = estado.alumnos.filter(a=>ESTADOS_ATENDIDO.includes(a.estado));
+  const fPot = $("#filtroAlumnosPot") && $("#filtroAlumnosPot").checked;
+  const fNoPot = $("#filtroAlumnosNoPot") && $("#filtroAlumnosNoPot").checked;
+  const hayFiltro = fPot || fNoPot;
+  let todos = estado.alumnos.filter(a=>ESTADOS_ATENDIDO.includes(a.estado));
+  if (hayFiltro){
+    todos = todos.filter(a=>{
+      if (fPot && a.atendidoPot) return true;
+      if (fNoPot && !a.atendidoPot) return true;
+      return false;
+    });
+  }
   const norte = todos.filter(a=>zonaEfectiva(a)==="norte").sort(ordenAlfabetico);
   const sur = todos.filter(a=>zonaEfectiva(a)==="sur").sort(ordenAlfabetico);
   const otros = todos.filter(a=>zonaEfectiva(a)==="").sort(ordenAlfabetico);
-  renderListaAlumnosColumna("grillaAlumnosNorte", norte);
-  renderListaAlumnosColumna("grillaAlumnosSur", sur);
+  renderListaAlumnosColumna("grillaAlumnosNorte", norte, hayFiltro);
+  renderListaAlumnosColumna("grillaAlumnosSur", sur, hayFiltro);
   const bloqueOtros = $("#bloqueAlumnosOtros");
   if (bloqueOtros) bloqueOtros.style.display = otros.length ? "" : "none";
-  renderListaAlumnosColumna("grillaAlumnosOtros", otros);
+  renderListaAlumnosColumna("grillaAlumnosOtros", otros, hayFiltro);
 }
 // A qué columna (Norte/Sur) corresponde un alumno. Si es de "ambas zonas", se guía por el
 // cupo al que se lo contó; si no tiene zona definida, no entra en ninguna de las dos
@@ -4683,6 +4700,7 @@ function abrirAlumno(id){
   $("#alEstado").value = a.estado || "activo";
   $("#alOrdenEspera").value = a.ordenEspera || "";
   actualizarVisibilidadOrdenEspera();
+  $("#alAtendidoPot").checked = !!a.atendidoPot;
   $("#alEspaciosCurriculares").value = a.espaciosCurriculares || "";
   $("#alCertDesde").value = a.certificadoDesde || "";
   $("#alCertDias").value = a.certificadoDias || "";
@@ -4786,6 +4804,7 @@ function guardarAlumno(){
     fechaIngreso: $("#alFechaIngreso").value || hoyISO(),
     estado: $("#alEstado").value,
     ordenEspera: $("#alOrdenEspera").value.trim(),
+    atendidoPot: $("#alAtendidoPot").checked,
     espaciosCurriculares: $("#alEspaciosCurriculares").value.trim(),
     certificadoDesde: $("#alCertDesde").value,
     certificadoDias: $("#alCertDias").value.trim(),
@@ -5797,6 +5816,8 @@ $("#btnZonaAlumnosCancelar").onclick = cancelarZonaAlumnos;
 $("#btnZonaAlumnosNorte").onclick = ()=>confirmarZonaAlumnos("norte");
 $("#btnZonaAlumnosSur").onclick = ()=>confirmarZonaAlumnos("sur");
 $("#btnEjemploExcelAlumnos").onclick = descargarEjemploExcelAlumnos;
+$("#filtroAlumnosPot").addEventListener("change", renderAlumnos);
+$("#filtroAlumnosNoPot").addEventListener("change", renderAlumnos);
 $("#btnAgregarAlumno").onclick = ()=>abrirAlumno(null);
 $("#btnGuardarAlumno").onclick = guardarAlumno;
 $("#btnBorrarAlumno").onclick = borrarAlumno;
