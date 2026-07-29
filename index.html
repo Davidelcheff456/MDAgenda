@@ -646,7 +646,6 @@
   <section class="panel" id="panel-alumnos">
     <div class="fila-orden">
       <button data-vista-al="alumnos" class="sel">🎒 Alumnos</button>
-      <button data-vista-al="certificados">📄 Certificados a revisar</button>
       <button data-vista-al="espera">⏳ Lista de espera</button>
       <button data-vista-al="baja">🚪 Baja</button>
       <button data-vista-al="escuelas">🏫 Escuelas de origen</button>
@@ -672,13 +671,14 @@
         <div class="grilla-personas" id="grillaAlumnosOtros"></div>
       </div>
     </div>
-    <div id="vistaAlCertificados" style="display:none;">
-      <p class="mini-dato" style="margin-bottom:12px;">Alumnos atendidos cuyo certificado ya venció. Conviene volver a consultar si lo renovaron para saber si corresponde seguir con la atención.</p>
-      <div class="grilla-personas" id="grillaCertificados"></div>
-    </div>
     <div id="vistaAlEspera" style="display:none;">
       <p class="mini-dato" style="margin-bottom:6px;">Alumnos anotados para ingresar cuando se libere un lugar, ordenados por N° de orden. Tocá "Dar de alta" para pasarlos a atendidos.</p>
-      <input type="text" id="buscarEsperaInput" placeholder="🔎 Buscar estudiante en lista de espera..." autocomplete="off" style="margin-bottom:12px;">
+      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:12px;">
+        <input type="text" id="buscarEsperaInput" placeholder="🔎 Buscar estudiante en lista de espera..." autocomplete="off" style="flex:1; min-width:220px; margin-bottom:0;">
+        <label class="chk" style="display:flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" id="filtroEsperaVencido"> ⛔ Certificados vencidos</label>
+        <label class="chk" style="display:flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" id="filtroEsperaSinCert"> Sin certificado</label>
+        <label class="chk" style="display:flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" id="filtroEsperaAlDia"> Certificado al día</label>
+      </div>
       <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
         <button type="button" class="btn-mini-tarea" id="btnImportarExcelEspera" style="margin-top:0;">📥 Importar Excel</button>
         <button type="button" class="btn-mini-tarea" id="btnEjemploExcelEspera" style="margin-top:0;">📄 Descargar Excel de ejemplo</button>
@@ -4008,13 +4008,11 @@ function cambiarVistaAlumnos(v){
   vistaAlumnos = v;
   document.querySelectorAll("[data-vista-al]").forEach(b=>b.classList.toggle("sel", b.dataset.vistaAl===v));
   $("#vistaAlAlumnos").style.display = v==="alumnos" ? "" : "none";
-  $("#vistaAlCertificados").style.display = v==="certificados" ? "" : "none";
   $("#vistaAlEspera").style.display = v==="espera" ? "" : "none";
   $("#vistaAlBaja").style.display = v==="baja" ? "" : "none";
   $("#vistaAlEscuelas").style.display = v==="escuelas" ? "" : "none";
   $("#vistaAlMapa").style.display = v==="mapa" ? "" : "none";
   if (v==="alumnos") renderAlumnos();
-  else if (v==="certificados") renderCertificadosARevisar();
   else if (v==="espera") renderAlumnosEspera();
   else if (v==="baja") renderAlumnosBaja();
   else if (v==="escuelas") renderEscuelas();
@@ -4433,7 +4431,7 @@ function renderListaEsperaColumna(contId, lista, q){
   if (!cont) return;
   cont.innerHTML = "";
   if (!lista.length){
-    cont.innerHTML = '<p class="sin-datos">'+(q ? "Sin resultados para la búsqueda." : "Sin alumnos en esta lista.")+'</p>';
+    cont.innerHTML = '<p class="sin-datos">'+(q ? "Sin resultados para la búsqueda o el filtro." : "Sin alumnos en esta lista.")+'</p>';
     return;
   }
   for (const a of lista){
@@ -4448,17 +4446,30 @@ function renderListaEsperaColumna(contId, lista, q){
 }
 function renderAlumnosEspera(){
   const q = ($("#buscarEsperaInput") ? $("#buscarEsperaInput").value : "").trim().toLowerCase();
+  const fVencido = $("#filtroEsperaVencido") && $("#filtroEsperaVencido").checked;
+  const fSinCert = $("#filtroEsperaSinCert") && $("#filtroEsperaSinCert").checked;
+  const fAlDia = $("#filtroEsperaAlDia") && $("#filtroEsperaAlDia").checked;
+  const hayFiltroEstado = fVencido || fSinCert || fAlDia;
   let todos = estado.alumnos.filter(a=>a.estado==="espera");
   if (q) todos = todos.filter(a=>((a.apellido||"")+" "+(a.nombre||"")).toLowerCase().includes(q));
+  if (hayFiltroEstado){
+    todos = todos.filter(a=>{
+      if (fVencido && certificadoVencido(a)) return true;
+      if (fSinCert && !a.certificadoHasta) return true;
+      if (fAlDia && a.certificadoHasta && !certificadoVencido(a)) return true;
+      return false;
+    });
+  }
+  const hayFiltro = !!q || hayFiltroEstado;
   const porOrden = (x,y)=>ordenEsperaNum(x)-ordenEsperaNum(y);
   const norte = todos.filter(a=>zonaEfectiva(a)==="norte").sort(porOrden);
   const sur = todos.filter(a=>zonaEfectiva(a)==="sur").sort(porOrden);
   const otros = todos.filter(a=>zonaEfectiva(a)==="").sort(porOrden);
-  renderListaEsperaColumna("grillaAlumnosEsperaNorte", norte, q);
-  renderListaEsperaColumna("grillaAlumnosEsperaSur", sur, q);
+  renderListaEsperaColumna("grillaAlumnosEsperaNorte", norte, hayFiltro);
+  renderListaEsperaColumna("grillaAlumnosEsperaSur", sur, hayFiltro);
   const bloqueOtros = $("#bloqueEsperaOtros");
   if (bloqueOtros) bloqueOtros.style.display = otros.length ? "" : "none";
-  renderListaEsperaColumna("grillaAlumnosEsperaOtros", otros, q);
+  renderListaEsperaColumna("grillaAlumnosEsperaOtros", otros, hayFiltro);
 }
 function renderAlumnosBaja(){
   const cont = $("#grillaAlumnosBaja");
@@ -4467,17 +4478,6 @@ function renderAlumnosBaja(){
   const lista = estado.alumnos.filter(a=>a.estado==="baja");
   if (!lista.length){
     cont.innerHTML = '<p class="sin-datos">No hay alumnos dados de baja.</p>';
-    return;
-  }
-  for (const a of lista) cont.appendChild(crearTarjetaAlumno(a));
-}
-function renderCertificadosARevisar(){
-  const cont = $("#grillaCertificados");
-  if (!cont) return;
-  cont.innerHTML = "";
-  const lista = estado.alumnos.filter(a=>ESTADOS_ATENDIDO.includes(a.estado) && certificadoVencido(a));
-  if (!lista.length){
-    cont.innerHTML = '<p class="sin-datos">No hay certificados vencidos pendientes de revisar.</p>';
     return;
   }
   for (const a of lista) cont.appendChild(crearTarjetaAlumno(a));
@@ -4647,7 +4647,7 @@ function guardarAlumno(){
     }
   }
   cerrar("ovAlumno");
-  guardar(); renderAlumnos(); renderAlumnosEspera(); renderAlumnosBaja(); renderCertificadosARevisar();
+  guardar(); renderAlumnos(); renderAlumnosEspera(); renderAlumnosBaja();
 }
 function borrarAlumno(){
   if (!alumnoEnCurso) return;
@@ -4657,7 +4657,7 @@ function borrarAlumno(){
   estado.alumnos = estado.alumnos.filter(x=>x.id!==alumnoEnCurso);
   if (zonaAntes) cerrarHuecoOrdenEspera(zonaAntes, alumnoEnCurso);
   cerrar("ovAlumno");
-  guardar(); renderAlumnos(); renderAlumnosEspera(); renderAlumnosBaja(); renderCertificadosARevisar();
+  guardar(); renderAlumnos(); renderAlumnosEspera(); renderAlumnosBaja();
 }
 function renderActas(){
   const a = estado.alumnos.find(x=>x.id===alumnoEnCurso);
@@ -5453,7 +5453,7 @@ function cerrar(id){
     $("#inputExcelEspera").value = "";
   }
 }
-function renderTodo(){ renderTareas(); renderBitacora(); renderEquipo(); renderDocentes(); renderDisponible(); renderLicencias(); renderParo(); renderProgreso(); renderEstadisticas(); renderAlumnos(); renderAlumnosEspera(); renderAlumnosBaja(); renderCertificadosARevisar(); renderEscuelas(); renderMemoria(); renderContactos(); renderProvincia(); renderFeriados(); }
+function renderTodo(){ renderTareas(); renderBitacora(); renderEquipo(); renderDocentes(); renderDisponible(); renderLicencias(); renderParo(); renderProgreso(); renderEstadisticas(); renderAlumnos(); renderAlumnosEspera(); renderAlumnosBaja(); renderEscuelas(); renderMemoria(); renderContactos(); renderProvincia(); renderFeriados(); }
 
 // Sidebar (menú lateral agrupado, colapsable en celular)
 const sidebarNav = $("#sidebarNav");
@@ -5591,6 +5591,9 @@ $("#btnBorrarEscuela").onclick = borrarEscuela;
 $("#inputExcelEscuelas").addEventListener("change", manejarExcelEscuelas);
 $("#btnUbicarEscuelasFaltantes").onclick = geocodificarEscuelasFaltantes;
 $("#buscarEsperaInput").addEventListener("input", renderAlumnosEspera);
+$("#filtroEsperaVencido").addEventListener("change", renderAlumnosEspera);
+$("#filtroEsperaSinCert").addEventListener("change", renderAlumnosEspera);
+$("#filtroEsperaAlDia").addEventListener("change", renderAlumnosEspera);
 $("#btnImportarExcelEspera").onclick = ()=>$("#inputExcelEspera").click();
 $("#inputExcelEspera").addEventListener("change", manejarSeleccionExcelEspera);
 $("#btnZonaEsperaCancelar").onclick = cancelarZonaEspera;
@@ -5666,7 +5669,7 @@ function revisarCambioDeFechaCertificados(){
   const hoy = hoyISO();
   if (hoy !== ultimaFechaVistaCertificados){
     ultimaFechaVistaCertificados = hoy;
-    renderAlumnos(); renderAlumnosEspera(); renderAlumnosBaja(); renderCertificadosARevisar();
+    renderAlumnos(); renderAlumnosEspera(); renderAlumnosBaja();
   }
 }
 setInterval(revisarCambioDeFechaCertificados, 5*60*1000);
