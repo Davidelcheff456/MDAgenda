@@ -653,6 +653,11 @@
     </div>
     <div id="vistaAlAlumnos">
       <button class="btn-agregar-doc" id="btnAgregarAlumno">➕ Agregar alumno</button>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin:10px 0;">
+        <button type="button" class="btn-mini-tarea" id="btnImportarExcelAlumnos" style="margin-top:0;">📥 Importar Excel</button>
+        <button type="button" class="btn-mini-tarea" id="btnEjemploExcelAlumnos" style="margin-top:0;">📄 Descargar Excel de ejemplo</button>
+        <input type="file" id="inputExcelAlumnos" accept=".xlsx,.xls" style="display:none;">
+      </div>
       <p class="mini-dato" id="resumenCupo" style="margin-bottom:12px;"></p>
       <div class="espera-dos-col">
         <div class="espera-col">
@@ -1257,6 +1262,19 @@
       <button class="b-cancelar" id="btnZonaEsperaCancelar">Cancelar</button>
       <button class="b-guardar" id="btnZonaEsperaNorte">🔵 Zona norte</button>
       <button class="b-guardar" id="btnZonaEsperaSur">🟢 Zona sur</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: preguntar zona al importar alumnos atendidos -->
+<div class="overlay" id="ovZonaAlumnos">
+  <div class="modal">
+    <h3>¿A qué zona corresponde este archivo?</h3>
+    <p style="font-size:.85rem; color:var(--gris);" id="zonaAlumnosArchivo"></p>
+    <div class="pie" style="flex-wrap:wrap;">
+      <button class="b-cancelar" id="btnZonaAlumnosCancelar">Cancelar</button>
+      <button class="b-guardar" id="btnZonaAlumnosNorte">🔵 Zona norte</button>
+      <button class="b-guardar" id="btnZonaAlumnosSur">🟢 Zona sur</button>
     </div>
   </div>
 </div>
@@ -2634,6 +2652,171 @@ function procesarExcelEspera(file, zona){
     }
   };
   reader.readAsArrayBuffer(file);
+}
+
+// Convierte una fecha escrita como D/M/AAAA o D/M/AA (como se anota a mano) a formato ISO.
+// Si el texto no matchea ese patrón, devuelve null en vez de inventar una fecha.
+function parsearFechaDDMMYYYY(txt){
+  const m = String(txt).trim().match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+  if (!m) return null;
+  let [, d, mo, y] = m;
+  const dNum = parseInt(d,10), moNum = parseInt(mo,10);
+  if (moNum<1 || moNum>12 || dNum<1 || dNum>31) return null;
+  if (y.length===2) y = (parseInt(y,10)<70 ? "20" : "19") + y;
+  return y+"-"+mo.padStart(2,"0")+"-"+d.padStart(2,"0");
+}
+// Importación de Alumnos atendidos (activos) desde Excel: nombre, escuela, curso, modalidad,
+// dirección, hasta dos contactos y espacios curriculares. El encabezado real debe tener a la vez
+// una celda de "estudiante"/"apellido" y otra de "escuela", para no confundirse con títulos.
+function importarFilasAlumnos(filas, zona){
+  let filaHeader=-1, cEst=-1, cEsc=-1, cCurso=-1, cMod=-1, cDir=-1, cC1N=-1, cC1T=-1, cC2N=-1, cC2T=-1, cEsp=-1, cIni=-1;
+  for (let r=0; r<filas.length; r++){
+    const fila = filas[r] || [];
+    let est=-1, esc=-1, curso=-1, mod=-1, dir=-1, c1n=-1, c1t=-1, c2n=-1, c2t=-1, esp=-1, ini=-1;
+    for (let c=0; c<fila.length; c++){
+      const txt = String(fila[c]==null?"":fila[c]).toLowerCase();
+      if (!txt) continue;
+      if (/contacto\s*1.*nombre/.test(txt)) c1n = c;
+      else if (/contacto\s*1.*tel/.test(txt)) c1t = c;
+      else if (/contacto\s*2.*nombre/.test(txt)) c2n = c;
+      else if (/contacto\s*2.*tel/.test(txt)) c2t = c;
+      else if (/estudiante|apellido/.test(txt)) est = c;
+      else if (/escuela/.test(txt)) esc = c;
+      else if (/modalidad/.test(txt)) mod = c;
+      else if (/curso/.test(txt)) curso = c;
+      else if (/direcci/.test(txt)) dir = c;
+      else if (/espacios|curricular/.test(txt)) esp = c;
+      else if (/inicio/.test(txt)) ini = c;
+    }
+    if (est!==-1 && esc!==-1){
+      filaHeader=r; cEst=est; cEsc=esc; cCurso=curso; cMod=mod; cDir=dir; cC1N=c1n; cC1T=c1t; cC2N=c2n; cC2T=c2t; cEsp=esp; cIni=ini;
+      break;
+    }
+  }
+  const inicio = filaHeader>=0 ? filaHeader+1 : 0;
+  let agregados=0, actualizados=0;
+  for (let r=inicio; r<filas.length; r++){
+    const fila = filas[r];
+    if (!fila) continue;
+    const nombreCompleto = cEst>=0 ? String(fila[cEst]==null?"":fila[cEst]).trim() : "";
+    if (!nombreCompleto) continue;
+    let apellido="", nombre="";
+    if (nombreCompleto.includes(",")){
+      const partes = nombreCompleto.split(",");
+      apellido = partes[0].trim();
+      nombre = partes.slice(1).join(",").trim();
+    } else {
+      const partes = nombreCompleto.split(/\s+/);
+      apellido = partes[0] || "";
+      nombre = partes.slice(1).join(" ");
+    }
+    const escuelaTxt = cEsc>=0 ? String(fila[cEsc]==null?"":fila[cEsc]).trim() : "";
+    const cursoTxt = cCurso>=0 ? String(fila[cCurso]==null?"":fila[cCurso]).trim() : "";
+    const modTxt = cMod>=0 ? String(fila[cMod]==null?"":fila[cMod]).trim() : "";
+    const dirTxt = cDir>=0 ? String(fila[cDir]==null?"":fila[cDir]).trim() : "";
+    const c1nTxt = cC1N>=0 ? String(fila[cC1N]==null?"":fila[cC1N]).trim() : "";
+    const c1tTxt = cC1T>=0 ? String(fila[cC1T]==null?"":fila[cC1T]).trim() : "";
+    const c2nTxt = cC2N>=0 ? String(fila[cC2N]==null?"":fila[cC2N]).trim() : "";
+    const c2tTxt = cC2T>=0 ? String(fila[cC2T]==null?"":fila[cC2T]).trim() : "";
+    const espTxt = cEsp>=0 ? String(fila[cEsp]==null?"":fila[cEsp]).trim() : "";
+    const iniTxt = cIni>=0 ? String(fila[cIni]==null?"":fila[cIni]).trim() : "";
+
+    // Se busca solo entre los que ya están atendidos en esta misma zona, para no tocar por
+    // error a alguien en espera o dado de baja que tenga el mismo nombre.
+    let a = estado.alumnos.find(x=>ESTADOS_ATENDIDO.includes(x.estado) && x.zona===zona &&
+      x.nombre.trim().toLowerCase()===nombre.toLowerCase() &&
+      x.apellido.trim().toLowerCase()===apellido.toLowerCase());
+    const esNuevo = !a;
+    if (!a){ a = alumnoBase(); estado.alumnos.push(a); }
+    a.nombre = nombre; a.apellido = apellido;
+    a.estado = "activo";
+    a.zona = zona;
+    if (cursoTxt) a.cursoOrigen = cursoTxt;
+    if (modTxt) a.modalidad = modTxt;
+    if (dirTxt) a.direccion = dirTxt;
+    if (c1nTxt) a.padre1.nombre = c1nTxt;
+    if (c1tTxt) a.padre1.telefono = c1tTxt;
+    if (c2nTxt) a.padre2.nombre = c2nTxt;
+    if (c2tTxt) a.padre2.telefono = c2tTxt;
+    if (espTxt) a.espaciosCurriculares = espTxt;
+    if (iniTxt){
+      const fechaISO = parsearFechaDDMMYYYY(iniTxt);
+      if (fechaISO) a.fechaIngreso = fechaISO;
+    }
+    if (escuelaTxt){
+      let match = estado.escuelasOrigen.find(esc=>esc.numero && esc.numero.trim()===escuelaTxt);
+      if (!match) match = estado.escuelasOrigen.find(esc=>esc.nombre.trim().toLowerCase()===escuelaTxt.toLowerCase());
+      if (match){
+        a.escuelaOrigenId = match.id;
+      } else if (!a.observaciones || !a.observaciones.includes(escuelaTxt)){
+        a.observaciones = (a.observaciones ? a.observaciones+"\n" : "")+
+          "Escuela/N° informado en la importación (no vinculada): "+escuelaTxt;
+      }
+    }
+    if (esNuevo) agregados++; else actualizados++;
+  }
+  return {agregados, actualizados};
+}
+let archivoAlumnosPendiente = null;
+function manejarSeleccionExcelAlumnos(e){
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  archivoAlumnosPendiente = file;
+  $("#zonaAlumnosArchivo").textContent = "Archivo: "+file.name;
+  $("#ovZonaAlumnos").classList.add("visible");
+}
+function cancelarZonaAlumnos(){
+  archivoAlumnosPendiente = null;
+  $("#inputExcelAlumnos").value = "";
+  $("#ovZonaAlumnos").classList.remove("visible");
+}
+function confirmarZonaAlumnos(zona){
+  const file = archivoAlumnosPendiente;
+  $("#ovZonaAlumnos").classList.remove("visible");
+  $("#inputExcelAlumnos").value = "";
+  archivoAlumnosPendiente = null;
+  if (!file) return;
+  procesarExcelAlumnos(file, zona);
+}
+function procesarExcelAlumnos(file, zona){
+  if (typeof XLSX === "undefined"){
+    toast("No se pudo cargar el lector de Excel. Revisá tu conexión a internet e intentá de nuevo.");
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = (ev)=>{
+    try{
+      const data = new Uint8Array(ev.target.result);
+      const wb = XLSX.read(data, {type:"array"});
+      const hoja = wb.Sheets[wb.SheetNames[0]];
+      const filas = XLSX.utils.sheet_to_json(hoja, {header:1, raw:true, defval:""});
+      const {agregados, actualizados} = importarFilasAlumnos(filas, zona);
+      guardar(); renderAlumnos();
+      const total = agregados+actualizados;
+      toast(total ? agregados+" alumno(s) nuevo(s), "+actualizados+" actualizado(s) ✔"
+        : "No se encontraron filas válidas (revisá que tenga las columnas Estudiante y Escuela)");
+    } catch(err){
+      console.error(err);
+      toast("No se pudo leer el archivo. Verificá que sea un Excel válido.");
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+function descargarEjemploExcelAlumnos(){
+  if (typeof XLSX === "undefined"){
+    toast("No se pudo cargar el generador de Excel. Revisá tu conexión a internet e intentá de nuevo.");
+    return;
+  }
+  const filas = [
+    ["Apellido y Nombre","Escuela (N°)","Curso","Modalidad","Dirección","Contacto 1 - Nombre","Contacto 1 - Teléfono","Contacto 2 - Nombre","Contacto 2 - Teléfono","Espacios curriculares","Fecha de inicio"],
+    ["PEREZ, Juan", 704, "3er año", "", "Calle Falsa 123", "María Pérez (madre)", "297-4000000", "", "", "S/atención", "06/04/2026"],
+    ["GOMEZ, Ana", 711, "4to año", "Economía y Administración", "Av. Siempreviva 742", "Carlos Gómez (padre)", "297-5000000", "", "", "Economía (POT)", "10/04/2026"]
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(filas);
+  ws["!cols"] = [{wch:26},{wch:12},{wch:12},{wch:22},{wch:30},{wch:22},{wch:16},{wch:22},{wch:16},{wch:34},{wch:14}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Ejemplo");
+  XLSX.writeFile(wb, "ejemplo_alumnos.xlsx");
 }
 function descargarListaEspera(zona){
   if (typeof XLSX === "undefined"){
@@ -5452,6 +5635,10 @@ function cerrar(id){
     archivoEsperaPendiente = null;
     $("#inputExcelEspera").value = "";
   }
+  if (id === "ovZonaAlumnos"){
+    archivoAlumnosPendiente = null;
+    $("#inputExcelAlumnos").value = "";
+  }
 }
 function renderTodo(){ renderTareas(); renderBitacora(); renderEquipo(); renderDocentes(); renderDisponible(); renderLicencias(); renderParo(); renderProgreso(); renderEstadisticas(); renderAlumnos(); renderAlumnosEspera(); renderAlumnosBaja(); renderEscuelas(); renderMemoria(); renderContactos(); renderProvincia(); renderFeriados(); }
 
@@ -5604,6 +5791,12 @@ $("#btnDescargarEsperaSur").onclick = ()=>descargarListaEspera("sur");
 $("#btnEjemploExcelEspera").onclick = descargarEjemploExcelEspera;
 $("#btnDescargarAlumnosNorte").onclick = ()=>descargarListaAlumnos("norte");
 $("#btnDescargarAlumnosSur").onclick = ()=>descargarListaAlumnos("sur");
+$("#btnImportarExcelAlumnos").onclick = ()=>$("#inputExcelAlumnos").click();
+$("#inputExcelAlumnos").addEventListener("change", manejarSeleccionExcelAlumnos);
+$("#btnZonaAlumnosCancelar").onclick = cancelarZonaAlumnos;
+$("#btnZonaAlumnosNorte").onclick = ()=>confirmarZonaAlumnos("norte");
+$("#btnZonaAlumnosSur").onclick = ()=>confirmarZonaAlumnos("sur");
+$("#btnEjemploExcelAlumnos").onclick = descargarEjemploExcelAlumnos;
 $("#btnAgregarAlumno").onclick = ()=>abrirAlumno(null);
 $("#btnGuardarAlumno").onclick = guardarAlumno;
 $("#btnBorrarAlumno").onclick = borrarAlumno;
