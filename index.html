@@ -4266,7 +4266,9 @@ function poblarChksDocentes(idsSeleccionados){
 }
 // Línea de estado del certificado, compartida por todas las tarjetas de alumno.
 // Si está vencido o por vencer, ese aviso reemplaza al dato plano (contiene la misma info).
-function lineaCertificado(a){
+// resaltarVigente: en la lista de espera, si el certificado tiene más de dos semanas de vigencia,
+// se destaca en azul y negrita (para distinguirlo de un vistazo de los que hay que revisar pronto).
+function lineaCertificado(a, resaltarVigente){
   if (certificadoVencido(a)){
     return "<span style='color:#c0392b; font-weight:700;'>⛔ Certificado vencido desde "+fmtCorto(a.certificadoHasta)+"</span>";
   }
@@ -4275,7 +4277,12 @@ function lineaCertificado(a){
     return "<span style='color:#a67c00; font-weight:700;'>⚠️ Certificado vence el "+fmtCorto(a.certificadoHasta)+
       (dias<=0 ? " (hoy)" : " (en "+dias+" día"+(dias===1?"":"s")+")")+"</span>";
   }
-  if (a.certificadoHasta) return "Certificado vigente hasta "+fmtCorto(a.certificadoHasta);
+  if (a.certificadoHasta){
+    if (resaltarVigente && diasHasta(a.certificadoHasta) > 14){
+      return "<span style='color:#2c5f8a; font-weight:700;'>Certificado vigente hasta "+fmtCorto(a.certificadoHasta)+"</span>";
+    }
+    return "Certificado vigente hasta "+fmtCorto(a.certificadoHasta);
+  }
   return "Fecha de certificado faltante";
 }
 function crearTarjetaAlumno(a, extraBoton, minimal){
@@ -4285,7 +4292,7 @@ function crearTarjetaAlumno(a, extraBoton, minimal){
   const cab = document.createElement("div");
   cab.className = "bp-cab";
   const bandaOrden = (a.estado==="espera" && a.ordenEspera) ? '<span class="orden-badge" title="N° de orden">'+escapar(String(a.ordenEspera))+'</span>' : '';
-  const lineaCert = '<div class="mini-dato">'+lineaCertificado(a)+'</div>';
+  const lineaCert = '<div class="mini-dato">'+lineaCertificado(a, !!minimal)+'</div>';
   if (minimal){
     cab.innerHTML = '<div><div class="nombre '+claseZona(a)+(nom?"":" vacio")+'">'+bandaOrden+(nom?escapar(nom):"Sin nombre — tocá para completar")+'</div>'+
       lineaCert+
