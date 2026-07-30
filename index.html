@@ -194,6 +194,9 @@
   .btn-mini-tarea{margin-top:6px; padding:6px 12px; border:1px dashed var(--borde); background:#fff;
     border-radius:6px; cursor:pointer; font-size:.83rem; color:var(--azul); width:100%;}
   .btn-mini-tarea:hover{background:#eef2f6;}
+  /* Par de botones Importar/Ejemplo Excel: lado a lado, angostos (ancho del texto), del mismo tamaño. */
+  .btn-excel-par{width:auto; min-width:200px; flex:0 0 auto; text-align:center;}
+  .input-buscador{padding:9px 12px; font-size:.95rem; border:1px solid var(--borde); border-radius:8px; box-sizing:border-box;}
   .btn-agregar-doc{margin-bottom:16px; padding:9px 18px; border:none; border-radius:8px; background:var(--verde);
     color:#fff; font-size:.92rem; font-weight:600; cursor:pointer;}
   .bp-funciones{border-bottom:1px dashed var(--borde); padding-bottom:8px; margin-bottom:8px;}
@@ -654,8 +657,8 @@
     <div id="vistaAlAlumnos">
       <button class="btn-agregar-doc" id="btnAgregarAlumno">➕ Agregar alumno</button>
       <div style="display:flex; gap:10px; flex-wrap:wrap; margin:10px 0;">
-        <button type="button" class="btn-mini-tarea" id="btnImportarExcelAlumnos" style="margin-top:0;">📥 Importar Excel</button>
-        <button type="button" class="btn-mini-tarea" id="btnEjemploExcelAlumnos" style="margin-top:0;">📄 Descargar Excel de ejemplo</button>
+        <button type="button" class="btn-mini-tarea btn-excel-par" id="btnImportarExcelAlumnos" style="margin-top:0;">📥 Importar Excel</button>
+        <button type="button" class="btn-mini-tarea btn-excel-par" id="btnEjemploExcelAlumnos" style="margin-top:0;">📄 Descargar Excel de ejemplo</button>
         <input type="file" id="inputExcelAlumnos" accept=".xlsx,.xls" style="display:none;">
       </div>
       <p class="mini-dato" id="resumenCupo" style="margin-bottom:12px;"></p>
@@ -683,14 +686,14 @@
     <div id="vistaAlEspera" style="display:none;">
       <p class="mini-dato" style="margin-bottom:6px;">Alumnos anotados para ingresar cuando se libere un lugar, ordenados por N° de orden. Tocá "Dar de alta" para pasarlos a atendidos.</p>
       <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:12px;">
-        <input type="text" id="buscarEsperaInput" placeholder="🔎 Buscar por apellido o nombre..." autocomplete="off" style="flex:0 1 220px; min-width:160px; margin-bottom:0;">
+        <input type="text" id="buscarEsperaInput" class="input-buscador" placeholder="🔎 Buscar por apellido o nombre..." autocomplete="off" style="flex:0 1 220px; min-width:160px; margin-bottom:0;">
         <label class="chk" style="display:flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" id="filtroEsperaVencido"> ⛔ Certificados vencidos</label>
         <label class="chk" style="display:flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" id="filtroEsperaSinCert"> Sin certificado</label>
         <label class="chk" style="display:flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" id="filtroEsperaAlDia"> Certificado al día</label>
       </div>
       <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
-        <button type="button" class="btn-mini-tarea" id="btnImportarExcelEspera" style="margin-top:0;">📥 Importar Excel</button>
-        <button type="button" class="btn-mini-tarea" id="btnEjemploExcelEspera" style="margin-top:0;">📄 Descargar Excel de ejemplo</button>
+        <button type="button" class="btn-mini-tarea btn-excel-par" id="btnImportarExcelEspera" style="margin-top:0;">📥 Importar Excel</button>
+        <button type="button" class="btn-mini-tarea btn-excel-par" id="btnEjemploExcelEspera" style="margin-top:0;">📄 Descargar Excel de ejemplo</button>
         <input type="file" id="inputExcelEspera" accept=".xlsx,.xls" style="display:none;">
       </div>
       <div class="espera-dos-col">
@@ -737,7 +740,7 @@
   <!-- CONTACTOS -->
   <section class="panel" id="panel-contactos">
     <button class="btn-agregar-doc" id="btnAgregarContacto">➕ Agregar contacto</button>
-    <input type="text" id="buscarContactosInput" placeholder="Buscar por nombre, escuela, teléfono..." autocomplete="off" style="margin-bottom:14px;">
+    <input type="text" id="buscarContactosInput" class="input-buscador" placeholder="Buscar por nombre, escuela, teléfono..." autocomplete="off" style="margin-bottom:14px; width:100%;">
     <div id="resultadosContactos"></div>
   </section>
 </main>
