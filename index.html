@@ -523,6 +523,11 @@
         </select>
         <button class="btn-mas" id="btnAgregar" title="Agregar tarea">+</button>
       </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
+        <button type="button" class="btn-mini-tarea btn-excel-par" id="btnImportarExcelTareas" style="margin-top:0;">📥 Importar cronograma (Excel)</button>
+        <button type="button" class="btn-mini-tarea btn-excel-par" id="btnEjemploExcelTareas" style="margin-top:0;">📄 Descargar Excel de ejemplo</button>
+        <input type="file" id="inputExcelTareas" accept=".xlsx,.xls" style="display:none;">
+      </div>
       <div class="caja-tareas"><ul class="lista-tareas" id="listaTareas"></ul></div>
 
       <div class="calendario">
@@ -559,6 +564,11 @@
         <input type="date" id="ferFecha" title="Fecha">
         <button class="btn-mas" id="btnAgregarFeriado" title="Agregar feriado">+</button>
         <span id="avisoEdicionFer" style="display:none; font-size:.8rem; color:var(--gris);">Editando — <a id="cancelEdicionFer" style="color:var(--azul); cursor:pointer;">cancelar</a></span>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
+        <button type="button" class="btn-mini-tarea btn-excel-par" id="btnImportarExcelFeriados" style="margin-top:0;">📥 Importar Excel</button>
+        <button type="button" class="btn-mini-tarea btn-excel-par" id="btnEjemploExcelFeriados" style="margin-top:0;">📄 Descargar Excel de ejemplo</button>
+        <input type="file" id="inputExcelFeriados" accept=".xlsx,.xls" style="display:none;">
       </div>
       <div id="listaFeriados"></div>
     </div>
@@ -2465,6 +2475,159 @@ function manejarExcelProvincia(e){
     e.target.value = "";
   };
   reader.readAsArrayBuffer(file);
+}
+// ---- Importar Feriados desde Excel (mismo formato que Calendario de provincia: fecha + nombre) ----
+function manejarExcelFeriados(e){
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  if (typeof XLSX === "undefined"){
+    toast("No se pudo cargar el lector de Excel. Revisá tu conexión a internet e intentá de nuevo.");
+    e.target.value = "";
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = (ev)=>{
+    try{
+      const data = new Uint8Array(ev.target.result);
+      const wb = XLSX.read(data, {type:"array", cellDates:true});
+      const hoja = wb.Sheets[wb.SheetNames[0]];
+      const filas = XLSX.utils.sheet_to_json(hoja, {header:1, raw:true, defval:""});
+      let agregados = 0;
+      for (const fila of filas){
+        if (!fila || !fila.length) continue;
+        const iso = fechaExcelAISO(fila[0]);
+        const nombre = (fila[1]!=null ? String(fila[1]) : "").trim();
+        if (!iso || !nombre) continue;
+        estado.feriados.push({id: uid(), nombre, fecha: iso});
+        agregados++;
+      }
+      guardar(); renderFeriados(); renderCalendario();
+      toast(agregados ? agregados+" feriado(s) agregado(s) ✔" : "No se encontraron filas con fecha y nombre válidos");
+    } catch(err){
+      console.error(err);
+      toast("No se pudo leer el archivo. Verificá que sea un Excel válido.");
+    }
+    e.target.value = "";
+  };
+  reader.readAsArrayBuffer(file);
+}
+function descargarEjemploExcelFeriados(){
+  if (typeof XLSX === "undefined"){
+    toast("No se pudo cargar el generador de Excel. Revisá tu conexión a internet e intentá de nuevo.");
+    return;
+  }
+  const anio = new Date().getFullYear();
+  const filas = [
+    [new Date(anio,7,17), "Feriado trasladable — Paso a la Inmortalidad del Gral. José de San Martín"],
+    [new Date(anio,11,25), "Feriado inamovible — Navidad"]
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(filas);
+  ws["!cols"] = [{wch:14},{wch:60}];
+  for (let r=0; r<filas.length; r++){
+    const addr = XLSX.utils.encode_cell({r, c:0});
+    if (ws[addr]) ws[addr].z = "dd/mm/yyyy";
+  }
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Feriados");
+  XLSX.writeFile(wb, "ejemplo_feriados.xlsx");
+}
+// ---- Importar cronograma como Tareas desde Excel ----
+// Formato esperado: Fecha inicio | Fecha fin (opcional) | Descripción.
+// Si hay fecha fin distinta de la de inicio, se arma un rango informativo al principio
+// del texto y la tarea queda ubicada (a efectos de orden/vencimiento) en la fecha fin,
+// que es el plazo real de la actividad.
+function importarFilasTareas(filas){
+  let filaHeader = -1, cIni = -1, cFin = -1, cDesc = -1;
+  for (let r=0; r<filas.length; r++){
+    const fila = filas[r] || [];
+    let ini=-1, fin=-1, desc=-1;
+    for (let c=0; c<fila.length; c++){
+      const txt = String(fila[c]==null?"":fila[c]).toLowerCase();
+      if (!txt) continue;
+      if (/inicio/.test(txt) || /^fecha$/.test(txt)) ini = c;
+      else if (/fin/.test(txt)) fin = c;
+      else if (/descrip|tarea|detalle/.test(txt)) desc = c;
+    }
+    if (ini!==-1 && desc!==-1){
+      filaHeader = r; cIni = ini; cFin = fin; cDesc = desc;
+      break;
+    }
+  }
+  const inicioFila = filaHeader>=0 ? filaHeader+1 : 0;
+  let agregadas = 0;
+  for (let r=inicioFila; r<filas.length; r++){
+    const fila = filas[r];
+    if (!fila) continue;
+    const desc = cDesc>=0 ? String(fila[cDesc]==null?"":fila[cDesc]).trim() : "";
+    if (!desc) continue;
+    const isoIni = cIni>=0 ? fechaExcelAISO(fila[cIni]) : null;
+    const isoFin = cFin>=0 ? fechaExcelAISO(fila[cFin]) : null;
+    if (!isoIni && !isoFin) continue;
+    let texto = desc;
+    if (isoIni && isoFin && isoIni!==isoFin){
+      const dIni = parseISO(isoIni), dFin = parseISO(isoFin);
+      const ddmm = (d)=>String(d.getDate()).padStart(2,"0")+"/"+String(d.getMonth()+1).padStart(2,"0");
+      texto = "["+ddmm(dIni)+" al "+ddmm(dFin)+"] "+desc;
+    }
+    estado.tareas.push({
+      id: uid(), texto,
+      fecha: isoFin || isoIni,
+      estrellas: 0,
+      tipoTiempo: "productivo",
+      creada: Date.now()
+    });
+    agregadas++;
+  }
+  return agregadas;
+}
+function manejarExcelTareas(e){
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  if (typeof XLSX === "undefined"){
+    toast("No se pudo cargar el lector de Excel. Revisá tu conexión a internet e intentá de nuevo.");
+    e.target.value = "";
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = (ev)=>{
+    try{
+      const data = new Uint8Array(ev.target.result);
+      const wb = XLSX.read(data, {type:"array", cellDates:true});
+      const hoja = wb.Sheets[wb.SheetNames[0]];
+      const filas = XLSX.utils.sheet_to_json(hoja, {header:1, raw:true, defval:""});
+      const agregadas = importarFilasTareas(filas);
+      guardar(); renderTareas();
+      toast(agregadas ? agregadas+" tarea(s) agregada(s) ✔" : "No se encontraron filas válidas (revisá que tenga las columnas Fecha inicio y Descripción)");
+    } catch(err){
+      console.error(err);
+      toast("No se pudo leer el archivo. Verificá que sea un Excel válido.");
+    }
+    e.target.value = "";
+  };
+  reader.readAsArrayBuffer(file);
+}
+function descargarEjemploExcelTareas(){
+  if (typeof XLSX === "undefined"){
+    toast("No se pudo cargar el generador de Excel. Revisá tu conexión a internet e intentá de nuevo.");
+    return;
+  }
+  const anio = new Date().getFullYear();
+  const filas = [
+    ["Fecha inicio","Fecha fin (opcional)","Descripción"],
+    [new Date(anio,7,3), new Date(anio,7,7), "Planificación de la Jornada por los ED"],
+    [new Date(anio,8,14), "", "Ejemplo de tarea con una sola fecha"]
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(filas);
+  ws["!cols"] = [{wch:14},{wch:20},{wch:55}];
+  for (let r=1; r<filas.length; r++){
+    for (const c of [0,1]){
+      const addr = XLSX.utils.encode_cell({r, c});
+      if (ws[addr] && ws[addr].v instanceof Date) ws[addr].z = "dd/mm/yyyy";
+    }
+  }
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Tareas");
+  XLSX.writeFile(wb, "ejemplo_cronograma_tareas.xlsx");
 }
 // Detecta la fila de encabezado (busca la celda "correo") y las columnas de
 // número/correo/dirección, para tolerar planillas con títulos y filas vacías arriba.
@@ -5899,6 +6062,12 @@ $("#btnEjemploExcelProvincia").onclick = descargarEjemploExcelProvincia;
 $("#cancelEdicionProv").onclick = cancelarEdicionProvincia;
 $("#cancelEdicionFer").onclick = cancelarEdicionFeriado;
 $("#inputExcelProvincia").addEventListener("change", manejarExcelProvincia);
+$("#btnImportarExcelTareas").onclick = ()=>$("#inputExcelTareas").click();
+$("#btnEjemploExcelTareas").onclick = descargarEjemploExcelTareas;
+$("#inputExcelTareas").addEventListener("change", manejarExcelTareas);
+$("#btnImportarExcelFeriados").onclick = ()=>$("#inputExcelFeriados").click();
+$("#btnEjemploExcelFeriados").onclick = descargarEjemploExcelFeriados;
+$("#inputExcelFeriados").addEventListener("change", manejarExcelFeriados);
 $("#btnAgregarFeriado").onclick = agregarFeriado;
 $("#calCapaTareas").onchange = renderCalendario;
 $("#calCapaFeriados").onchange = renderCalendario;
