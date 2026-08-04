@@ -99,9 +99,10 @@
   .caja-tareas{background:#dceefb; border:1px solid #b8d9f0; border-radius:14px; padding:6px 14px; margin-bottom:4px;}
   body.tema-sepia .caja-tareas{background:#e9eff3; border-color:#cdd8e0;}
   body.tema-oscuro .caja-tareas{background:#26333f; border-color:#3a4a5a;}
-  ul.lista-tareas li{display:flex; align-items:center; gap:10px; padding:10px 8px;
-    border-bottom:1px solid #eee; flex-wrap:wrap;}
-  ul.lista-tareas li.vencida{background:#fdf1ef; border-left:4px solid var(--rojo);}
+  ul.lista-tareas li{display:flex; align-items:center; gap:10px; padding:12px 14px;
+    border:1px solid var(--borde); border-radius:10px; background:#fff; margin:8px 0; flex-wrap:wrap; cursor:pointer;}
+  ul.lista-tareas li:hover{border-color:var(--azul); box-shadow:0 1px 4px rgba(0,0,0,.1);}
+  ul.lista-tareas li.vencida{background:#fdf1ef; border-color:var(--rojo); border-left:4px solid var(--rojo);}
   .t-texto{flex:1; min-width:160px;}
   li.vencida .t-texto{color:var(--rojo); font-weight:600;}
   .chip-fecha{font-size:.8rem; padding:3px 9px; border-radius:12px; background:#eef2f6; color:var(--azul-osc); white-space:nowrap;}
@@ -190,7 +191,7 @@
   .bp-cab .materia .mat-sec{font-weight:400; color:var(--gris);}
   .bp-cab .ver{font-size:.75rem; color:var(--gris); white-space:nowrap;}
   .bp-tareas{padding:10px 12px;}
-  .bp-tareas ul.lista-tareas li{padding:7px 4px; font-size:.9rem;}
+  .bp-tareas ul.lista-tareas li{padding:7px 8px; font-size:.9rem; margin:5px 0;}
   .btn-mini-tarea{margin-top:6px; padding:6px 12px; border:1px dashed var(--borde); background:#fff;
     border-radius:6px; cursor:pointer; font-size:.83rem; color:var(--azul); width:100%;}
   .btn-mini-tarea:hover{background:#eef2f6;}
@@ -297,7 +298,7 @@
   body.tema-oscuro .modal input, body.tema-oscuro .modal textarea, body.tema-oscuro .modal select,
   body.tema-oscuro table.horarios input{background:#20242b; color:#e4e6e9; border-color:#4a4f57;}
   body.tema-oscuro .fila-orden button, body.tema-oscuro .btn-copiar, body.tema-oscuro .btn-volver{background:#3a414b; color:#dfe3e8; border-color:#4a4f57;}
-  body.tema-oscuro .bloque-persona, body.tema-oscuro .dia-card, body.tema-oscuro .calendario, body.tema-oscuro .espera-col{background:#2f353e; border-color:#4a4f57;}
+  body.tema-oscuro .bloque-persona, body.tema-oscuro .dia-card, body.tema-oscuro .calendario, body.tema-oscuro .espera-col, body.tema-oscuro ul.lista-tareas li{background:#2f353e; border-color:#4a4f57;}
   body.tema-oscuro .bp-cab{background:#343b45; border-color:#4a4f57;}
   body.tema-oscuro .bp-cab:hover{background:#3c4450;}
   body.tema-oscuro .cal-dia{background:#2a3038; border-color:#3d434c;}
@@ -305,8 +306,7 @@
   body.tema-oscuro .chip-fecha, body.tema-oscuro .semana>h3, body.tema-oscuro table.intervalos th{background:#374252; color:#cfe0f2;}
   body.tema-oscuro .modal{background:#2a3038; color:#e4e6e9;}
   body.tema-oscuro .modal h3, body.tema-oscuro h2.sub, body.tema-oscuro .semana>h3{color:#a8c6e8;}
-  body.tema-oscuro ul.lista-tareas li{border-color:#3d434c;}
-  body.tema-oscuro ul.lista-tareas li.vencida{background:#3d2a28;}
+  body.tema-oscuro ul.lista-tareas li.vencida{background:#3d2a28; border-color:var(--rojo);}
   body.tema-oscuro table.intervalos td, body.tema-oscuro .funcion, body.tema-oscuro .dia ul li{border-color:#3d434c;}
   body.tema-oscuro .dia-cab, body.tema-oscuro .bp-cab .nombre, body.tema-oscuro .dia-card .pers b, body.tema-oscuro table.intervalos td.hora{color:#e4e6e9;}
   body.tema-oscuro .b-cancelar{background:#3a414b; color:#dfe3e8;}
@@ -2021,6 +2021,8 @@ function filaTarea(t, owner){
   const li = document.createElement("li");
   const vencida = t.fecha && t.fecha < hoyISO();
   if (vencida) li.classList.add("vencida");
+  li.title = "Tocá para modificar";
+  li.onclick = ()=>abrirTarea(owner, t.id);
 
   const est = document.createElement("div");
   est.className = "estrellas";
@@ -2052,12 +2054,11 @@ function filaTarea(t, owner){
   acc.className = "acciones";
   acc.innerHTML =
     '<button title="Marcar como lista">✅</button>'+
-    '<button title="Editar">✏️</button>'+
     '<button title="Eliminar">🗑️</button>';
-  const [bOk, bEd, bDel] = acc.querySelectorAll("button");
-  bOk.onclick = ()=>abrirCompletar(owner, t.id);
-  bEd.onclick = ()=>abrirTarea(owner, t.id);
-  bDel.onclick = ()=>{
+  const [bOk, bDel] = acc.querySelectorAll("button");
+  bOk.onclick = (ev)=>{ ev.stopPropagation(); abrirCompletar(owner, t.id); };
+  bDel.onclick = (ev)=>{
+    ev.stopPropagation();
     if (confirm("¿Eliminar la tarea \""+t.texto+"\"? No se guardará en la bitácora.")){
       const lista = listaDe(owner);
       const i = lista.findIndex(x=>x.id===t.id);
@@ -2272,6 +2273,7 @@ function cambiarVistaTareas(v){
   if (v!=="feriados") cancelarEdicionFeriado();
   if (v==="provincia") renderProvincia();
   else if (v==="feriados") renderFeriados();
+  guardarUltimaVista();
 }
 function renderListaFechas(cont, lista, onEditar, onBorrar){
   cont.innerHTML = "";
@@ -4209,6 +4211,7 @@ function cambiarVistaAlumnos(v){
   else if (v==="baja") renderAlumnosBaja();
   else if (v==="escuelas") renderEscuelas();
   else if (v==="mapa") renderMapaAlumnos();
+  guardarUltimaVista();
 }
 let miniMapas = {};
 let alLatTmp = null, alLngTmp = null;
@@ -5672,6 +5675,41 @@ function cerrarSidebar(){ sidebarNav.classList.remove("abierta"); sidebarBackdro
 $("#btnMenu").onclick = ()=> sidebarNav.classList.contains("abierta") ? cerrarSidebar() : abrirSidebar();
 sidebarBackdrop.onclick = cerrarSidebar;
 
+// Recuerda en qué sección (y subsección) se quedó el usuario, para no volver siempre a
+// Tareas cuando la página se recarga sola (por ejemplo al volver de otra app en el celular).
+function guardarUltimaVista(){
+  try{
+    const tabActivo = document.querySelector(".nav-grupo-items button.activa");
+    if (!tabActivo) return;
+    const datos = {tab: tabActivo.dataset.tab};
+    if (datos.tab==="alumnos") datos.subAlumnos = vistaAlumnos;
+    if (datos.tab==="tareas"){
+      const subTar = document.querySelector("[data-vista-tar].sel");
+      if (subTar) datos.subTareas = subTar.dataset.vistaTar;
+    }
+    localStorage.setItem("mdagenda_ultimaVista", JSON.stringify(datos));
+  }catch(e){}
+}
+function restaurarUltimaVista(){
+  try{
+    const raw = localStorage.getItem("mdagenda_ultimaVista");
+    if (!raw) return;
+    const datos = JSON.parse(raw);
+    if (!datos || !datos.tab) return;
+    const boton = document.querySelector('.nav-grupo-items button[data-tab="'+datos.tab+'"]');
+    if (!boton || boton.style.display==="none") return; // no permitido para este rol: se queda en el default
+    boton.click();
+    if (datos.tab==="alumnos" && datos.subAlumnos){
+      const subBtn = document.querySelector('[data-vista-al="'+datos.subAlumnos+'"]');
+      if (subBtn) subBtn.click();
+    }
+    if (datos.tab==="tareas" && datos.subTareas){
+      const subBtn = document.querySelector('[data-vista-tar="'+datos.subTareas+'"]');
+      if (subBtn) subBtn.click();
+    }
+  }catch(e){}
+}
+
 // Tabs (pestañas individuales dentro del panel de la categoría abierta)
 // cerrarMenu=false se usa cuando la selección es automática (al abrir la categoría
 // en celular), para que el menú de solapas siga visible y se pueda elegir el submenú.
@@ -5690,6 +5728,7 @@ function activarPestana(b, cerrarMenu){
     if (tab) tab.classList.add("activo");
   }
   if (cerrarMenu) cerrarSidebar();
+  guardarUltimaVista();
 }
 document.querySelectorAll(".nav-grupo-items button[data-tab]").forEach(b=>{
   b.onclick = ()=> activarPestana(b, true);
@@ -5877,6 +5916,7 @@ if (FIREBASE_ACTIVO){
 aplicarTema();
 aplicarPermisos();
 renderTodo();
+restaurarUltimaVista();
 sincronizarAlturaPanelNav();
 setTimeout(sincronizarAlturaPanelNav, 300);
 
