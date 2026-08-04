@@ -35,11 +35,11 @@
   nav.tabs.sidebar{display:flex; flex-direction:row; align-items:flex-start; gap:0; width:206px; flex-shrink:0;
     padding:18px 0 24px 22px; box-sizing:border-box; background:#e0dbc8; border-right:1px solid var(--borde); overflow:visible;}
   /* Colores de categoría — configurables en un tema personalizado */
-  .g-trabajo{--grupo-color:#e0935f;}
-  .g-equipo{--grupo-color:#4f8fc9;}
-  .g-estudiantes{--grupo-color:#3fa1a1;}
-  .g-novedades{--grupo-color:#c96b6b;}
-  .g-contactos{--grupo-color:#8a6fb0;}
+  .g-trabajo{--grupo-color:#e0935f; --grupo-color-oscuro:#a8703f;}
+  .g-equipo{--grupo-color:#4f8fc9; --grupo-color-oscuro:#356a9c;}
+  .g-estudiantes{--grupo-color:#3fa1a1; --grupo-color-oscuro:#2a7878;}
+  .g-novedades{--grupo-color:#c96b6b; --grupo-color-oscuro:#994f4f;}
+  .g-contactos{--grupo-color:#8a6fb0; --grupo-color-oscuro:#665184;}
   /* Columna fija de lengüetas (como los separadores de una carpeta): no se mueven
      al abrir una categoría, solo se despliega el panel de opciones a su derecha. */
   .nav-tabs-col{display:flex; flex-direction:column; gap:10px; flex-shrink:0;}
@@ -58,18 +58,19 @@
   .nav-grupo-items.abierto{
     display:flex; height:100%; box-sizing:border-box; margin-left:-1px;
     border:9px solid var(--grupo-color); border-radius:0 14px 14px 0; padding:10px 8px;
+    background:var(--grupo-color);
   }
   .nav-grupo-items button{
     display:block; text-align:center; width:100%;
-    padding:8px 10px; border:none; border-radius:6px; background:transparent;
-    color:#4a4a4a; cursor:pointer; font-size:.83rem; font-weight:600; line-height:1.3;
+    padding:8px 10px; border:none; border-radius:6px; background:var(--grupo-color-oscuro);
+    color:#fff; cursor:pointer; font-size:.83rem; font-weight:600; line-height:1.3; margin-bottom:2px;
+    transition:filter .1s ease;
   }
-  .nav-grupo-items button:hover{background:#e6e2d6;}
-  .nav-grupo-items button.activa{background:var(--grupo-color); color:#fff;}
+  .nav-grupo-items button:hover{filter:brightness(1.15);}
+  .nav-grupo-items button.activa{background:#fff; color:var(--grupo-color-oscuro); box-shadow:0 1px 4px rgba(0,0,0,.25);}
   body.tema-sepia nav.tabs.sidebar{background:#d9c48c;}
   body.tema-oscuro nav.tabs.sidebar{background:#12151a;}
-  body.tema-oscuro .nav-grupo-items button{color:#c9ced4;}
-  body.tema-oscuro .nav-grupo-items button:hover{background:#3a414b;}
+  body.tema-oscuro .nav-grupo-items button.activa{background:#1c2027;}
 
   main{background:var(--papel); border:1px solid var(--borde); margin:18px 22px 30px 14px; flex:1; min-width:0;
     border-radius:10px; padding:22px; min-height:60vh;}
@@ -661,6 +662,8 @@
         <input type="text" id="buscarAlumnosInput" class="input-buscador" placeholder="🔎 Buscar por apellido o nombre..." autocomplete="off" style="flex:0 1 220px; min-width:160px; margin-bottom:0;">
         <label class="chk" style="display:flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" id="filtroAlumnosPot"> Atendido por POT</label>
         <label class="chk" style="display:flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" id="filtroAlumnosNoPot"> No atendido por POT</label>
+        <label class="chk" style="display:flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" id="filtroAlumnosCertVencido"> ⛔ Certificados vencidos</label>
+        <label class="chk" style="display:flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" id="filtroAlumnosCertAlDia"> Certificado al día</label>
       </div>
       <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
         <button type="button" class="btn-mini-tarea btn-excel-par" id="btnImportarExcelAlumnos" style="margin-top:0;">📥 Importar Excel</button>
@@ -4558,7 +4561,10 @@ function renderAlumnos(){
   const q = ($("#buscarAlumnosInput") ? $("#buscarAlumnosInput").value : "").trim().toLowerCase();
   const fPot = $("#filtroAlumnosPot") && $("#filtroAlumnosPot").checked;
   const fNoPot = $("#filtroAlumnosNoPot") && $("#filtroAlumnosNoPot").checked;
+  const fCertVencido = $("#filtroAlumnosCertVencido") && $("#filtroAlumnosCertVencido").checked;
+  const fCertAlDia = $("#filtroAlumnosCertAlDia") && $("#filtroAlumnosCertAlDia").checked;
   const hayFiltroEstado = fPot || fNoPot;
+  const hayFiltroCert = fCertVencido || fCertAlDia;
   let todos = estado.alumnos.filter(a=>ESTADOS_ATENDIDO.includes(a.estado));
   if (q) todos = todos.filter(a=>((a.apellido||"")+" "+(a.nombre||"")).toLowerCase().includes(q));
   if (hayFiltroEstado){
@@ -4568,7 +4574,14 @@ function renderAlumnos(){
       return false;
     });
   }
-  const hayFiltro = !!q || hayFiltroEstado;
+  if (hayFiltroCert){
+    todos = todos.filter(a=>{
+      if (fCertVencido && certificadoVencido(a)) return true;
+      if (fCertAlDia && a.certificadoHasta && !certificadoVencido(a)) return true;
+      return false;
+    });
+  }
+  const hayFiltro = !!q || hayFiltroEstado || hayFiltroCert;
   const norte = todos.filter(a=>zonaEfectiva(a)==="norte").sort(ordenAlfabetico);
   const sur = todos.filter(a=>zonaEfectiva(a)==="sur").sort(ordenAlfabetico);
   const otros = todos.filter(a=>zonaEfectiva(a)==="").sort(ordenAlfabetico);
@@ -5865,6 +5878,8 @@ $("#btnEjemploExcelAlumnos").onclick = descargarEjemploExcelAlumnos;
 $("#buscarAlumnosInput").addEventListener("input", renderAlumnos);
 $("#filtroAlumnosPot").addEventListener("change", renderAlumnos);
 $("#filtroAlumnosNoPot").addEventListener("change", renderAlumnos);
+$("#filtroAlumnosCertVencido").addEventListener("change", renderAlumnos);
+$("#filtroAlumnosCertAlDia").addEventListener("change", renderAlumnos);
 $("#btnAgregarAlumno").onclick = ()=>abrirAlumno(null);
 $("#btnGuardarAlumno").onclick = guardarAlumno;
 $("#btnBorrarAlumno").onclick = borrarAlumno;
