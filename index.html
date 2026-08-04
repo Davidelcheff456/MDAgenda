@@ -663,6 +663,7 @@
       </div>
       <p class="mini-dato" id="resumenCupo" style="margin-bottom:12px;"></p>
       <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:center; margin-bottom:14px;">
+        <input type="text" id="buscarAlumnosInput" class="input-buscador" placeholder="🔎 Buscar por apellido o nombre..." autocomplete="off" style="flex:0 1 220px; min-width:160px; margin-bottom:0;">
         <label class="chk" style="display:flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" id="filtroAlumnosPot"> Atendido por POT</label>
         <label class="chk" style="display:flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" id="filtroAlumnosNoPot"> No atendido por POT</label>
       </div>
@@ -4554,17 +4555,20 @@ function renderListaAlumnosColumna(contId, lista, hayFiltro){
 }
 function renderAlumnos(){
   renderResumenCupo();
+  const q = ($("#buscarAlumnosInput") ? $("#buscarAlumnosInput").value : "").trim().toLowerCase();
   const fPot = $("#filtroAlumnosPot") && $("#filtroAlumnosPot").checked;
   const fNoPot = $("#filtroAlumnosNoPot") && $("#filtroAlumnosNoPot").checked;
-  const hayFiltro = fPot || fNoPot;
+  const hayFiltroEstado = fPot || fNoPot;
   let todos = estado.alumnos.filter(a=>ESTADOS_ATENDIDO.includes(a.estado));
-  if (hayFiltro){
+  if (q) todos = todos.filter(a=>((a.apellido||"")+" "+(a.nombre||"")).toLowerCase().includes(q));
+  if (hayFiltroEstado){
     todos = todos.filter(a=>{
       if (fPot && a.atendidoPot) return true;
       if (fNoPot && !a.atendidoPot) return true;
       return false;
     });
   }
+  const hayFiltro = !!q || hayFiltroEstado;
   const norte = todos.filter(a=>zonaEfectiva(a)==="norte").sort(ordenAlfabetico);
   const sur = todos.filter(a=>zonaEfectiva(a)==="sur").sort(ordenAlfabetico);
   const otros = todos.filter(a=>zonaEfectiva(a)==="").sort(ordenAlfabetico);
@@ -5858,6 +5862,7 @@ $("#btnZonaAlumnosCancelar").onclick = cancelarZonaAlumnos;
 $("#btnZonaAlumnosNorte").onclick = ()=>confirmarZonaAlumnos("norte");
 $("#btnZonaAlumnosSur").onclick = ()=>confirmarZonaAlumnos("sur");
 $("#btnEjemploExcelAlumnos").onclick = descargarEjemploExcelAlumnos;
+$("#buscarAlumnosInput").addEventListener("input", renderAlumnos);
 $("#filtroAlumnosPot").addEventListener("change", renderAlumnos);
 $("#filtroAlumnosNoPot").addEventListener("change", renderAlumnos);
 $("#btnAgregarAlumno").onclick = ()=>abrirAlumno(null);
