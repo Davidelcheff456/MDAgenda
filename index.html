@@ -103,11 +103,14 @@
   ul.lista-tareas li{display:flex; align-items:center; gap:10px; padding:12px 14px;
     border:1px solid var(--borde); border-radius:10px; background:#fff; margin:8px 0; flex-wrap:wrap; cursor:pointer;}
   ul.lista-tareas li:hover{border-color:var(--azul); box-shadow:0 1px 4px rgba(0,0,0,.1);}
+  ul.lista-tareas li.destino-supervision{background:#e3f4fb; border-color:#8ec9de; border-left:4px solid #4fa8c9;}
   ul.lista-tareas li.vencida{background:#fdf1ef; border-color:var(--rojo); border-left:4px solid var(--rojo);}
   .t-texto{flex:1; min-width:160px;}
   li.vencida .t-texto{color:var(--rojo); font-weight:600;}
   .chip-fecha{font-size:.8rem; padding:3px 9px; border-radius:12px; background:#eef2f6; color:var(--azul-osc); white-space:nowrap;}
   li.vencida .chip-fecha{background:var(--rojo); color:#fff;}
+  .chip-destino{font-size:.75rem; padding:3px 9px; border-radius:12px; background:#eef2f6; color:var(--azul-osc); white-space:nowrap; font-weight:600;}
+  .chip-destino-supervision{background:#4fa8c9; color:#fff;}
   .acciones{display:flex; gap:6px;}
   .acciones button{border:none; background:none; cursor:pointer; font-size:1.1rem; padding:4px 6px; border-radius:6px;}
   .acciones button:hover{background:#eee;}
@@ -307,6 +310,7 @@
   body.tema-oscuro .chip-fecha, body.tema-oscuro .semana>h3, body.tema-oscuro table.intervalos th{background:#374252; color:#cfe0f2;}
   body.tema-oscuro .modal{background:#2a3038; color:#e4e6e9;}
   body.tema-oscuro .modal h3, body.tema-oscuro h2.sub, body.tema-oscuro .semana>h3{color:#a8c6e8;}
+  body.tema-oscuro ul.lista-tareas li.destino-supervision{background:#1c3a47; border-color:#4fa8c9;}
   body.tema-oscuro ul.lista-tareas li.vencida{background:#3d2a28; border-color:var(--rojo);}
   body.tema-oscuro table.intervalos td, body.tema-oscuro .funcion, body.tema-oscuro .dia ul li{border-color:#3d434c;}
   body.tema-oscuro .dia-cab, body.tema-oscuro .bp-cab .nombre, body.tema-oscuro .dia-card .pers b, body.tema-oscuro table.intervalos td.hora{color:#e4e6e9;}
@@ -511,6 +515,11 @@
         <button data-orden="prioridad">Prioridad</button>
         <button data-orden="fecha">Fecha límite</button>
       </div>
+      <div class="fila-orden">
+        <span>Mostrar:</span>
+        <label class="chk" style="display:flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" id="filtroTarEsc370"> 🏫 Escuela 370</label>
+        <label class="chk" style="display:flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" id="filtroTarSupervision"> 🏛 Supervisión</label>
+      </div>
       <div class="form-alta">
         <input type="text" id="nuevaDesc" placeholder="Nueva tarea..." maxlength="300">
         <input type="date" id="nuevaFecha" title="Fecha límite">
@@ -520,6 +529,11 @@
           <option value="informacion">📰 Información</option>
           <option value="reflexion">🧠 Reflexión</option>
           <option value="imponderable">⚡ Imponderable</option>
+        </select>
+        <select id="nuevaDestino" title="Para quién es (opcional)">
+          <option value="">Sin destino específico</option>
+          <option value="esc370">🏫 Escuela 370</option>
+          <option value="supervision">🏛 Supervisión</option>
         </select>
         <button class="btn-mas" id="btnAgregar" title="Agregar tarea">+</button>
       </div>
@@ -793,6 +807,12 @@
         <option value="informacion">📰 Información</option>
         <option value="reflexion">🧠 Reflexión</option>
         <option value="imponderable">⚡ Imponderable</option>
+      </select>
+      <label>Para quién es (opcional)</label>
+      <select id="editDestino">
+        <option value="">Sin destino específico</option>
+        <option value="esc370">🏫 Escuela 370</option>
+        <option value="supervision">🏛 Supervisión</option>
       </select>
     </div>
     <div id="campoSeguimiento">
@@ -1403,6 +1423,12 @@ const TIPOS_TIEMPO = {
   imponderable:{label:"Imponderable", color:"#c0392b", icon:"⚡"}
 };
 const ORDEN_TIEMPO = ["productivo","informacion","reflexion","imponderable"];
+// A quién corresponde la tarea (opcional). Por ahora solo estas dos opciones;
+// las de supervisión se destacan en celeste claro en la lista.
+const DESTINOS_TAREA = {
+  esc370: {label:"Escuela 370", icon:"🏫"},
+  supervision: {label:"Supervisión", icon:"🏛"}
+};
 const DIAS_SEMANA = ["lun","mar","mie","jue","vie","sab","dom"];
 const NOMBRE_DIA = {lun:"Lunes",mar:"Martes",mie:"Miércoles",jue:"Jueves",vie:"Viernes",sab:"Sábado",dom:"Domingo"};
 const MIN_ESCUELA = 8*60, MAX_ESCUELA = 18*60; // rango de la grilla: 8:00 a 18:00
@@ -2034,6 +2060,7 @@ function refrescarEstrellasModal(){
 function filaTarea(t, owner){
   const li = document.createElement("li");
   const vencida = t.fecha && t.fecha < hoyISO();
+  if (t.destino==="supervision") li.classList.add("destino-supervision");
   if (vencida) li.classList.add("vencida");
   li.title = "Tocá para modificar";
   li.onclick = ()=>abrirTarea(owner, t.id);
@@ -2055,6 +2082,13 @@ function filaTarea(t, owner){
     chip.style.background = TIPOS_TIEMPO[t.tipoTiempo].color;
     chip.textContent = TIPOS_TIEMPO[t.tipoTiempo].icon+" "+TIPOS_TIEMPO[t.tipoTiempo].label;
     li.appendChild(chip);
+  }
+
+  if (owner==="propia" && t.destino && DESTINOS_TAREA[t.destino]){
+    const chipDestino = document.createElement("span");
+    chipDestino.className = "chip-destino"+(t.destino==="supervision" ? " chip-destino-supervision" : "");
+    chipDestino.textContent = DESTINOS_TAREA[t.destino].icon+" "+DESTINOS_TAREA[t.destino].label;
+    li.appendChild(chipDestino);
   }
 
   if (t.fecha){
@@ -2086,7 +2120,16 @@ function filaTarea(t, owner){
 
 // ---------- Render: Tareas propias ----------
 function tareasOrdenadas(){
-  const lista = [...estado.tareas];
+  const fEsc370 = $("#filtroTarEsc370") && $("#filtroTarEsc370").checked;
+  const fSupervision = $("#filtroTarSupervision") && $("#filtroTarSupervision").checked;
+  let lista = [...estado.tareas];
+  if (fEsc370 || fSupervision){
+    lista = lista.filter(t=>{
+      if (fEsc370 && t.destino==="esc370") return true;
+      if (fSupervision && t.destino==="supervision") return true;
+      return false;
+    });
+  }
   if (orden==="prioridad") lista.sort((a,b)=>(b.estrellas-a.estrellas)*ordenDir);
   else if (orden==="fecha") lista.sort((a,b)=>{
     const fa = a.fecha||"9999-12-31", fb = b.fecha||"9999-12-31";
@@ -2120,11 +2163,13 @@ function agregarTarea(){
     fecha: $("#nuevaFecha").value || null,
     estrellas: estrellasNueva,
     tipoTiempo: $("#nuevaTipoTiempo").value || "productivo",
+    destino: $("#nuevaDestino").value || "",
     creada: Date.now()
   });
   $("#nuevaDesc").value = "";
   $("#nuevaFecha").value = "";
   $("#nuevaTipoTiempo").value = "productivo";
+  $("#nuevaDestino").value = "";
   estrellasNueva = 0;
   refrescarEstrellasNueva();
   guardar(); renderTareas();
@@ -3108,13 +3153,13 @@ function abrirTarea(owner, id){ // id null = nueva
     $("#editDesc").value = t.texto;
     $("#editFecha").value = t.fecha || "";
     estrellasModal = t.estrellas;
-    if (esPropia) $("#editTipoTiempo").value = t.tipoTiempo || "productivo";
+    if (esPropia){ $("#editTipoTiempo").value = t.tipoTiempo || "productivo"; $("#editDestino").value = t.destino || ""; }
     else $("#editSeguimiento").value = t.fechaSeguimiento || "";
   } else {
     $("#editDesc").value = "";
     $("#editFecha").value = "";
     estrellasModal = 0;
-    if (esPropia) $("#editTipoTiempo").value = "productivo";
+    if (esPropia){ $("#editTipoTiempo").value = "productivo"; $("#editDestino").value = ""; }
     else $("#editSeguimiento").value = "";
   }
   refrescarEstrellasModal();
@@ -3132,11 +3177,11 @@ function guardarTarea(){
     t.texto = texto;
     t.fecha = $("#editFecha").value || null;
     t.estrellas = estrellasModal;
-    if (esPropia) t.tipoTiempo = $("#editTipoTiempo").value || "productivo";
+    if (esPropia){ t.tipoTiempo = $("#editTipoTiempo").value || "productivo"; t.destino = $("#editDestino").value || ""; }
     else t.fechaSeguimiento = $("#editSeguimiento").value || null;
   } else {
     const nueva = {id: uid(), texto, fecha: $("#editFecha").value || null, estrellas: estrellasModal, creada: Date.now()};
-    if (esPropia) nueva.tipoTiempo = $("#editTipoTiempo").value || "productivo";
+    if (esPropia){ nueva.tipoTiempo = $("#editTipoTiempo").value || "productivo"; nueva.destino = $("#editDestino").value || ""; }
     else nueva.fechaSeguimiento = $("#editSeguimiento").value || null;
     lista.push(nueva);
   }
@@ -5943,6 +5988,8 @@ document.querySelectorAll(".fila-orden button[data-orden]").forEach(b=>{
 // Botones
 $("#btnAgregar").onclick = agregarTarea;
 $("#nuevaDesc").addEventListener("keydown", (e)=>{ if (e.key==="Enter") agregarTarea(); });
+$("#filtroTarEsc370").addEventListener("change", renderTareas);
+$("#filtroTarSupervision").addEventListener("change", renderTareas);
 $("#btnConfirmarComp").onclick = confirmarCompletar;
 $("#btnGuardarTarea").onclick = guardarTarea;
 $("#btnGuardarPersona").onclick = guardarPersona;
