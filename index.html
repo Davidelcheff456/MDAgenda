@@ -656,16 +656,16 @@
     </div>
     <div id="vistaAlAlumnos">
       <button class="btn-agregar-doc" id="btnAgregarAlumno">➕ Agregar alumno</button>
-      <div style="display:flex; gap:10px; flex-wrap:wrap; margin:10px 0;">
-        <button type="button" class="btn-mini-tarea btn-excel-par" id="btnImportarExcelAlumnos" style="margin-top:0;">📥 Importar Excel</button>
-        <button type="button" class="btn-mini-tarea btn-excel-par" id="btnEjemploExcelAlumnos" style="margin-top:0;">📄 Descargar Excel de ejemplo</button>
-        <input type="file" id="inputExcelAlumnos" accept=".xlsx,.xls" style="display:none;">
-      </div>
       <p class="mini-dato" id="resumenCupo" style="margin-bottom:12px;"></p>
-      <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:center; margin-bottom:14px;">
+      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:12px;">
         <input type="text" id="buscarAlumnosInput" class="input-buscador" placeholder="🔎 Buscar por apellido o nombre..." autocomplete="off" style="flex:0 1 220px; min-width:160px; margin-bottom:0;">
         <label class="chk" style="display:flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" id="filtroAlumnosPot"> Atendido por POT</label>
         <label class="chk" style="display:flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" id="filtroAlumnosNoPot"> No atendido por POT</label>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
+        <button type="button" class="btn-mini-tarea btn-excel-par" id="btnImportarExcelAlumnos" style="margin-top:0;">📥 Importar Excel</button>
+        <button type="button" class="btn-mini-tarea btn-excel-par" id="btnEjemploExcelAlumnos" style="margin-top:0;">📄 Descargar Excel de ejemplo</button>
+        <input type="file" id="inputExcelAlumnos" accept=".xlsx,.xls" style="display:none;">
       </div>
       <div class="espera-dos-col">
         <div class="espera-col">
