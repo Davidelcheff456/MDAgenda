@@ -1298,19 +1298,6 @@
   </div>
 </div>
 
-<!-- Modal: preguntar zona al importar la lista de espera -->
-<div class="overlay" id="ovZonaEspera">
-  <div class="modal">
-    <h3>¿A qué zona corresponde este archivo?</h3>
-    <p style="font-size:.85rem; color:var(--gris);" id="zonaEsperaArchivo"></p>
-    <div class="pie" style="flex-wrap:wrap;">
-      <button class="b-cancelar" id="btnZonaEsperaCancelar">Cancelar</button>
-      <button class="b-guardar" id="btnZonaEsperaNorte">🔵 Zona norte</button>
-      <button class="b-guardar" id="btnZonaEsperaSur">🟢 Zona sur</button>
-    </div>
-  </div>
-</div>
-
 <!-- Modal: preguntar zona al importar alumnos atendidos -->
 <div class="overlay" id="ovZonaAlumnos">
   <div class="modal">
@@ -2787,9 +2774,11 @@ function manejarExcelEscuelas(e){
   reader.readAsArrayBuffer(file);
 }
 
-// Importación de la lista de espera (una por zona). El encabezado real debe tener a la vez
-// una celda de "orden" y otra de "estudiante"/"apellido", para no confundirse con títulos.
-function importarFilasEspera(filas, zona){
+// Importación de la lista de espera. No pregunta zona: se carga en blanco y el
+// director la define después, alumno por alumno, desde la ficha. El encabezado real
+// debe tener a la vez una celda de "orden" y otra de "estudiante"/"apellido", para
+// no confundirse con títulos.
+function importarFilasEspera(filas){
   let filaHeader = -1, cOrden = -1, cEst = -1, cEsc = -1, cAnio = -1, cEsp = -1, cDiag = -1;
   for (let r=0; r<filas.length; r++){
     const fila = filas[r] || [];
@@ -2834,16 +2823,18 @@ function importarFilasEspera(filas, zona){
     const espaciosTxt = cEsp>=0 ? String(fila[cEsp]==null?"":fila[cEsp]).trim() : "";
     const diagTxt = cDiag>=0 ? String(fila[cDiag]==null?"":fila[cDiag]).trim() : "";
 
-    // Se busca solo entre los que ya están en espera en esta misma zona, para no
-    // tocar por error a un alumno activo o dado de baja que tenga el mismo nombre.
-    let a = estado.alumnos.find(x=>x.estado==="espera" && x.zona===zona &&
+    // Se busca solo entre los que ya están en espera (sin importar la zona, que acá
+    // no se pregunta), para no tocar por error a un alumno activo o dado de baja
+    // que tenga el mismo nombre.
+    let a = estado.alumnos.find(x=>x.estado==="espera" &&
       x.nombre.trim().toLowerCase()===nombre.toLowerCase() &&
       x.apellido.trim().toLowerCase()===apellido.toLowerCase());
     const esNuevo = !a;
     if (!a){ a = alumnoBase(); estado.alumnos.push(a); }
     a.nombre = nombre; a.apellido = apellido;
     a.estado = "espera";
-    a.zona = zona;
+    // La zona no se toca acá: si el alumno es nuevo queda en blanco (a definir por
+    // el director desde la ficha); si ya existía, se conserva la que tenía cargada.
     a.ordenEspera = ordenTxt;
     if (anioTxt) a.cursoOrigen = anioTxt;
     if (espaciosTxt) a.espaciosCurriculares = espaciosTxt;
@@ -2865,32 +2856,17 @@ function importarFilasEspera(filas, zona){
   }
   return {agregados, actualizados};
 }
-// Un solo botón de importar: primero se elige el archivo, después se pregunta a qué
-// zona corresponde (así no depende de acordarse en qué columna hacer clic).
-let archivoEsperaPendiente = null;
+// Un solo botón de importar: se elige el archivo y se procesa directo, sin preguntar
+// zona (eso lo define el director después, alumno por alumno, desde la ficha).
 function manejarSeleccionExcelEspera(e){
   const file = e.target.files && e.target.files[0];
   if (!file) return;
-  archivoEsperaPendiente = file;
-  $("#zonaEsperaArchivo").textContent = "Archivo: "+file.name;
-  $("#ovZonaEspera").classList.add("visible");
+  procesarExcelEspera(file);
 }
-function cancelarZonaEspera(){
-  archivoEsperaPendiente = null;
-  $("#inputExcelEspera").value = "";
-  $("#ovZonaEspera").classList.remove("visible");
-}
-function confirmarZonaEspera(zona){
-  const file = archivoEsperaPendiente;
-  $("#ovZonaEspera").classList.remove("visible");
-  $("#inputExcelEspera").value = "";
-  archivoEsperaPendiente = null;
-  if (!file) return;
-  procesarExcelEspera(file, zona);
-}
-function procesarExcelEspera(file, zona){
+function procesarExcelEspera(file){
   if (typeof XLSX === "undefined"){
     toast("No se pudo cargar el lector de Excel. Revisá tu conexión a internet e intentá de nuevo.");
+    $("#inputExcelEspera").value = "";
     return;
   }
   const reader = new FileReader();
@@ -2900,7 +2876,7 @@ function procesarExcelEspera(file, zona){
       const wb = XLSX.read(data, {type:"array"});
       const hoja = wb.Sheets[wb.SheetNames[0]];
       const filas = XLSX.utils.sheet_to_json(hoja, {header:1, raw:true, defval:""});
-      const {agregados, actualizados} = importarFilasEspera(filas, zona);
+      const {agregados, actualizados} = importarFilasEspera(filas);
       guardar(); renderAlumnos(); renderAlumnosEspera();
       const total = agregados+actualizados;
       toast(total ? agregados+" alumno(s) nuevo(s), "+actualizados+" actualizado(s) ✔"
@@ -2909,6 +2885,7 @@ function procesarExcelEspera(file, zona){
       console.error(err);
       toast("No se pudo leer el archivo. Verificá que sea un Excel válido.");
     }
+    $("#inputExcelEspera").value = "";
   };
   reader.readAsArrayBuffer(file);
 }
@@ -5873,10 +5850,6 @@ function cerrar(id){
     $("#formNuevoFondo").style.display = "none";
     aplicarTema();
   }
-  if (id === "ovZonaEspera"){
-    archivoEsperaPendiente = null;
-    $("#inputExcelEspera").value = "";
-  }
   if (id === "ovZonaAlumnos"){
     archivoAlumnosPendiente = null;
     $("#inputExcelAlumnos").value = "";
@@ -6062,9 +6035,6 @@ $("#filtroEsperaSinCert").addEventListener("change", renderAlumnosEspera);
 $("#filtroEsperaAlDia").addEventListener("change", renderAlumnosEspera);
 $("#btnImportarExcelEspera").onclick = ()=>$("#inputExcelEspera").click();
 $("#inputExcelEspera").addEventListener("change", manejarSeleccionExcelEspera);
-$("#btnZonaEsperaCancelar").onclick = cancelarZonaEspera;
-$("#btnZonaEsperaNorte").onclick = ()=>confirmarZonaEspera("norte");
-$("#btnZonaEsperaSur").onclick = ()=>confirmarZonaEspera("sur");
 $("#btnDescargarEsperaNorte").onclick = ()=>descargarListaEspera("norte");
 $("#btnDescargarEsperaSur").onclick = ()=>descargarListaEspera("sur");
 $("#btnEjemploExcelEspera").onclick = descargarEjemploExcelEspera;
