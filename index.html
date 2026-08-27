@@ -42,15 +42,15 @@
      al abrir una categoría, solo se despliega el panel de opciones a su derecha. */
   .nav-tabs-col{display:flex; flex-direction:column; gap:10px; flex-shrink:0;}
   .nav-grupo-tab{
-    flex-shrink:0; width:38px; min-height:92px; border:none; border-radius:14px 0 0 14px;
-    background:var(--grupo-color); color:#fff; cursor:pointer; font-weight:800; font-size:.82rem;
-    letter-spacing:.5px; writing-mode:vertical-rl; text-orientation:mixed;
-    display:flex; align-items:center; justify-content:center; padding:10px 6px;
-    box-shadow:2px 2px 5px rgba(0,0,0,.15); opacity:.8; transform:translateX(-10px);
-    transition:transform .15s ease, opacity .15s ease;
+    flex-shrink:0; width:38px; min-height:112px; border:none; border-radius:14px 0 0 14px;
+    background:var(--grupo-color); color:#fff; cursor:pointer; font-weight:800; font-size:.95rem;
+    letter-spacing:.6px; writing-mode:vertical-rl; text-orientation:mixed;
+    display:flex; align-items:center; justify-content:center; padding:14px 6px;
+    box-shadow:2px 2px 5px rgba(0,0,0,.18); opacity:.82;
+    transition:opacity .15s ease, box-shadow .15s ease, filter .15s ease;
   }
-  .nav-grupo-tab:hover{opacity:1; transform:translateX(-3px);}
-  .nav-grupo-tab.activo{transform:translateX(0); opacity:1; box-shadow:none;}
+  .nav-grupo-tab:hover{opacity:1;}
+  .nav-grupo-tab.activo{opacity:1; box-shadow:none;}
   .nav-items-panel{flex:1; min-width:0; padding:0 6px 0 0; align-self:flex-start; box-sizing:border-box;}
   .nav-grupo-items{display:none; flex-direction:column; gap:2px;}
   .nav-grupo-items.abierto{
@@ -408,6 +408,34 @@
   body.tema-sepia .stats-bloque{background:#f6efdd;}
   .stats-subtitulo{font-size:.95rem; color:var(--azul-osc); margin-bottom:12px;}
   body.tema-oscuro .stats-subtitulo{color:#a8c6e8;}
+  .stats-bloque-matricula{margin-top:20px;}
+  .matricula-filas{display:flex; flex-direction:column; gap:10px;}
+  .matricula-fila{display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap; padding:8px 0;
+    border-bottom:1px dashed var(--borde);}
+  .matricula-fila:last-child{border-bottom:none;}
+  .matricula-etq{font-weight:600; min-width:130px; padding-bottom:7px;}
+  .matricula-campo{display:flex; flex-direction:column; gap:4px; font-size:.78rem; color:var(--gris);}
+  .matricula-campo input{padding:6px 8px; border:1px solid var(--borde); border-radius:6px; font-size:.9rem; width:130px;}
+  .matricula-sugerido{flex-basis:100%; margin:2px 0 0; font-size:.8rem; color:var(--gris); font-style:italic;}
+  .dias-clase-hero{display:flex; flex-direction:column; gap:14px; margin-bottom:20px;
+    padding:16px 20px; border-radius:12px; background:var(--azul); color:#fff;}
+  .dias-clase-hero-principal{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;}
+  .dias-clase-hero-label{font-size:1rem; font-weight:600;}
+  .dias-clase-hero-num{font-size:3rem; font-weight:800; line-height:1;}
+  .dias-clase-hero-fecha{font-size:.85rem; opacity:.85;}
+  .dias-clase-hero .btn-mini-tarea{background:rgba(255,255,255,.15); border-color:rgba(255,255,255,.4); color:#fff;}
+  .dias-clase-hero .btn-mini-tarea:hover{background:rgba(255,255,255,.28);}
+  .dias-clase-hero-edit{display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap; background:rgba(255,255,255,.12);
+    border-radius:8px; padding:10px 12px;}
+  .dias-clase-hero-edit .matricula-campo{color:#fff;}
+  .dias-clase-hero-edit .matricula-campo input{color:#222; width:110px;}
+  .dias-clase-historial{border-top:1px solid rgba(255,255,255,.3); padding-top:10px;}
+  .dias-clase-historial-titulo{display:block; font-size:.78rem; font-weight:700; text-transform:uppercase;
+    letter-spacing:.03em; opacity:.85; margin-bottom:4px;}
+  .dias-clase-historial-item{font-size:.83rem; margin:2px 0;}
+  .dias-clase-susp-item{display:flex; align-items:center; justify-content:space-between; gap:10px;
+    font-size:.85rem; padding:4px 0;}
+  .dias-clase-susp-item .btn-mini-tarea{padding:3px 9px; font-size:.78rem;}
   .stats-fila{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
   .stats-etq{font-size:.85rem; width:120px; flex-shrink:0;}
   .stats-barra{flex:1; min-width:60px;}
@@ -1490,7 +1518,142 @@ function estadoInicial(){
   return { tareas: [], bitacora: [], equipo: equipoInicial(), docentes: [],
            licencias: [], paros: [], papelera: [], metas: [], opciones: {...OPCIONES_BASE},
            escuelasOrigen: [], alumnos: [], memoria: memoriaBase(), contactosExtra: [],
-           fechasProvincia: [], feriados: [] };
+           fechasProvincia: [], feriados: [], matricula: matriculaBase() };
+}
+// Matrícula y días de clase: 3 cortes manuales (el director carga los números, no se calculan
+// solos) para poder comparar cómo evolucionó la cantidad de estudiantes atendidos y los días
+// de clase dados a lo largo del ciclo lectivo.
+function matriculaBase(){
+  return {
+    inicio:     { fecha: "2026-07-01", matricula: 12, dias: "" },
+    intermedio: { fecha: "2026-10-15", matricula: "", dias: "" },
+    fin:        { fecha: "2026-12-17", matricula: "", dias: "" },
+    tareaIntermediaCreada: false,
+    // Período activo de días de clase de la Escuela N° 370: solo desde/hasta. Los paros no
+    // hay que cargarlos de nuevo acá — se toman de la pestaña Paro, que ya existe — y las
+    // suspensiones (recesos, cierres, etc.) se cargan como una lista de fechas abajo, igual
+    // que los feriados. Así el número no depende de que alguien haga la cuenta a mano cada
+    // vez: se arma solo a partir de datos que ya están (o quedan) cargados en la agenda.
+    periodoActual: { desde: "2026-07-01", hasta: "2026-12-17" },
+    // Suspensiones de clase de Escuela N° 370 (recesos, cierres puntuales, etc.), como una
+    // lista de rangos de fechas — mismo esquema que Feriados, pero con fecha de inicio y fin.
+    suspensiones: [],
+    // Cortes guardados: cada vez que el director guarda una cuenta parcial (o el cierre del
+    // período), queda un registro acá y el período activo vuelve a blanco para arrancar de
+    // nuevo (por ejemplo, para el ciclo lectivo del año siguiente).
+    historialDiasClase: []
+  };
+}
+function suspensionBase(){ return {id: uid(), nombre:"", fechaInicio:"", fechaFin:""}; }
+function normalizarSuspension(s){
+  if (!s || typeof s !== "object") s = {};
+  if (!s.id) s.id = uid();
+  if (typeof s.nombre !== "string") s.nombre = "";
+  if (typeof s.fechaInicio !== "string") s.fechaInicio = "";
+  if (typeof s.fechaFin !== "string" || !s.fechaFin) s.fechaFin = s.fechaInicio;
+  return s;
+}
+function normalizarMatricula(m){
+  const base = matriculaBase();
+  if (!m || typeof m !== "object") m = {};
+  for (const k of ["inicio","intermedio","fin"]){
+    if (!m[k] || typeof m[k] !== "object") m[k] = {};
+    if (typeof m[k].fecha !== "string" || !m[k].fecha) m[k].fecha = base[k].fecha;
+    if (typeof m[k].matricula !== "string" && typeof m[k].matricula !== "number") m[k].matricula = base[k].matricula;
+    if (typeof m[k].dias !== "string" && typeof m[k].dias !== "number") m[k].dias = "";
+  }
+  if (!m.periodoActual || typeof m.periodoActual !== "object") m.periodoActual = {...base.periodoActual};
+  if (typeof m.periodoActual.desde !== "string") m.periodoActual.desde = "";
+  if (typeof m.periodoActual.hasta !== "string") m.periodoActual.hasta = "";
+  m.suspensiones = Array.isArray(m.suspensiones) ? m.suspensiones.map(normalizarSuspension) : [];
+  if (!Array.isArray(m.historialDiasClase)) m.historialDiasClase = [];
+  m.tareaIntermediaCreada = !!m.tareaIntermediaCreada;
+  return m;
+}
+// Cuenta los días hábiles (lunes a viernes) en un rango de fechas ISO, ambas puntas incluidas,
+// sin restar nada todavía.
+function diasHabilesEnRango(fechaIni, fechaFin){
+  if (!fechaIni || !fechaFin || fechaFin < fechaIni) return 0;
+  return diasEntre(fechaIni, fechaFin).filter(f=>{
+    const d = parseISO(f).getDay();
+    return d >= 1 && d <= 5;
+  }).length;
+}
+// Junta, sin repetir fechas, todos los días hábiles no lectivos dentro de un rango: feriados
+// cargados + fechas de paro ya cargadas en la pestaña Paro (una por fecha, sin importar
+// cuánta gente adhirió) + suspensiones de Escuela 370 cargadas más abajo. Que no se repitan
+// evita restar de más si, por ejemplo, un paro cae justo un día que también es feriado.
+function fechasNoLectivasEnRango(fechaIni, fechaFin){
+  const set = new Set();
+  const agregar = (fecha)=>{
+    if (!fecha || fecha < fechaIni || fecha > fechaFin) return;
+    const d = parseISO(fecha).getDay();
+    if (d >= 1 && d <= 5) set.add(fecha);
+  };
+  for (const f of estado.feriados) agregar(f.fecha);
+  for (const p of estado.paros) agregar(p.fecha);
+  for (const s of estado.matricula.suspensiones){
+    if (!s.fechaInicio) continue;
+    for (const fecha of diasEntre(s.fechaInicio, s.fechaFin || s.fechaInicio)) agregar(fecha);
+  }
+  return set;
+}
+// Días de clase del período activo de la Escuela N° 370, contados hasta hoy (o hasta el
+// final del período, si ya se cumplió): días hábiles del rango, menos feriados, paros y
+// suspensiones que ya están cargados en la agenda — no hace falta escribir ningún número a mano.
+function diasClasePeriodoActual(){
+  const p = estado.matricula && estado.matricula.periodoActual;
+  if (!p || !p.desde) return null;
+  const hoy = hoyISO();
+  const corte = (p.hasta && p.hasta < hoy) ? p.hasta : hoy;
+  if (corte < p.desde) return 0;
+  const habiles = diasHabilesEnRango(p.desde, corte);
+  const noLectivos = fechasNoLectivasEnRango(p.desde, corte).size;
+  return Math.max(0, habiles - noLectivos);
+}
+// Guarda un corte (parcial o de cierre) del período activo en el historial, con la fecha de
+// hoy (o la fecha "hasta" si el período ya terminó) como punto final, y reinicia el período
+// activo en blanco para que el director lo vuelva a definir cuando quiera (por ejemplo, el
+// ciclo lectivo siguiente). Las suspensiones cargadas quedan como están (no se borran solas).
+function guardarCorteDiasClase(){
+  const p = estado.matricula.periodoActual;
+  if (!p.desde){ toast("Falta la fecha desde"); return; }
+  const hoy = hoyISO();
+  const hastaCorte = (p.hasta && p.hasta < hoy) ? p.hasta : hoy;
+  const dias = diasClasePeriodoActual();
+  const paros = new Set(estado.paros.filter(x=>x.fecha>=p.desde && x.fecha<=hastaCorte).map(x=>x.fecha)).size;
+  let suspensiones = 0;
+  for (const s of estado.matricula.suspensiones){
+    if (!s.fechaInicio) continue;
+    for (const fecha of diasEntre(s.fechaInicio, s.fechaFin || s.fechaInicio)){
+      if (fecha>=p.desde && fecha<=hastaCorte && parseISO(fecha).getDay()>=1 && parseISO(fecha).getDay()<=5) suspensiones++;
+    }
+  }
+  estado.matricula.historialDiasClase.unshift({
+    id: uid(), desde: p.desde, hasta: hastaCorte, dias: dias||0, paros, suspensiones, guardadoEl: hoy
+  });
+  estado.matricula.periodoActual = { desde:"", hasta:"" };
+  guardar();
+  renderEstadisticas();
+  toast("Corte guardado ✔ — el contador arrancó de nuevo en blanco");
+}
+// Crea, una única vez, una tarea recordatorio con la fecha del corte intermedio (por defecto
+// 15/10/2026) para que el director cargue matrícula y días de clase a mitad de año y la
+// actualización de fin de año sea más fácil. Si la borra a mano, no se vuelve a crear sola
+// (queda marcado en matricula.tareaIntermediaCreada).
+function asegurarTareaCorteIntermedio(){
+  if (!estado.matricula || estado.matricula.tareaIntermediaCreada) return false;
+  estado.tareas.push({
+    id: uid(),
+    texto: "📊 Cargar corte intermedio de matrícula y días de clase (ver Estadísticas)",
+    fecha: estado.matricula.intermedio.fecha || "2026-10-15",
+    estrellas: 2,
+    tipoTiempo: "informacion",
+    destino: "",
+    creada: Date.now()
+  });
+  estado.matricula.tareaIntermediaCreada = true;
+  return true;
 }
 function fechaEtiquetadaBase(){ return {id: uid(), nombre:"", fecha:""}; }
 function normalizarFechaEtiquetada(x){
@@ -1845,6 +2008,7 @@ function actualizarEstadoCarpeta(estadoTxt){
 }
 async function iniciarAlmacenLocal(){
   cargarLocal();
+  if (asegurarTareaCorteIntermedio()) guardar();
   aplicarTema();
   aplicarPermisos();
   renderTodo();
@@ -1854,6 +2018,7 @@ async function iniciarAlmacenLocal(){
     const datosCarpeta = await leerDesdeCarpeta();
     if (datosCarpeta){
       aplicarEstado(datosCarpeta);
+      if (asegurarTareaCorteIntermedio()) guardar();
       aplicarTema();
       renderTodo();
     }
@@ -1901,6 +2066,7 @@ function aplicarEstado(nuevo){
   estado.contactosExtra = Array.isArray(nuevo.contactosExtra) ? nuevo.contactosExtra.map(normalizarContactoExtra) : [];
   estado.fechasProvincia = Array.isArray(nuevo.fechasProvincia) ? nuevo.fechasProvincia.map(normalizarFechaEtiquetada) : [];
   estado.feriados = Array.isArray(nuevo.feriados) ? nuevo.feriados.map(normalizarFechaEtiquetada) : [];
+  estado.matricula = normalizarMatricula(nuevo.matricula);
   aplicarTema();
   renderTodo();
 }
@@ -5857,6 +6023,8 @@ function renderEstadisticas(){
   const cont = $("#contEstadisticas");
   cont.innerHTML = "";
 
+  cont.appendChild(bloqueDiasClaseHero());
+
   const nav = document.createElement("div");
   nav.className = "fila-orden";
   const bAnt = document.createElement("button"); bAnt.textContent = "◀ Anterior";
@@ -5935,6 +6103,185 @@ function renderEstadisticas(){
   grid.appendChild(bloqueTorta);
 
   cont.appendChild(grid);
+
+  const bloqueMatricula = document.createElement("div");
+  bloqueMatricula.className = "stats-bloque stats-bloque-matricula";
+  bloqueMatricula.innerHTML = '<h3 class="stats-subtitulo">🎓 Matrícula y días de clase</h3>'+
+    '<p class="sin-datos" style="padding:0 0 10px;">Datos manuales — los cargás vos en cada corte del ciclo lectivo.</p>';
+  const filasMat = document.createElement("div");
+  filasMat.className = "matricula-filas";
+  filasMat.appendChild(filaCorteMatricula("inicio", "Inicio", null));
+  filasMat.appendChild(filaCorteMatricula("intermedio", "Corte intermedio", estado.matricula.inicio.fecha));
+  filasMat.appendChild(filaCorteMatricula("fin", "Fin de año", estado.matricula.intermedio.fecha));
+  bloqueMatricula.appendChild(filasMat);
+  filasMat.querySelectorAll("[data-mat-fecha]").forEach(inp=>{
+    // Re-renderiza porque la fecha de un corte cambia la sugerencia calculada del corte
+    // siguiente (que se apoya en la fecha del anterior).
+    inp.onchange = ()=>{ estado.matricula[inp.dataset.matFecha].fecha = inp.value; guardar(); renderEstadisticas(); };
+  });
+  filasMat.querySelectorAll("[data-mat-matricula]").forEach(inp=>{
+    inp.onchange = ()=>{ estado.matricula[inp.dataset.matMatricula].matricula = inp.value===""?"":Number(inp.value); guardar(); };
+  });
+  filasMat.querySelectorAll("[data-mat-dias]").forEach(inp=>{
+    inp.onchange = ()=>{ estado.matricula[inp.dataset.matDias].dias = inp.value===""?"":Number(inp.value); guardar(); };
+  });
+  cont.appendChild(bloqueMatricula);
+}
+// Cuenta los días hábiles (lunes a viernes) entre dos fechas ISO, ambas puntas incluidas,
+// menos los feriados cargados que caigan en ese rango. Es solo una referencia calculada con
+// el calendario: no sabe de recesos, paros ni suspensiones — eso lo resta el director a mano
+// al escribir el número final en "Días de clase".
+function diasHabilesMenosFeriados(fechaIni, fechaFin){
+  if (!fechaIni || !fechaFin || fechaFin < fechaIni) return null;
+  let habiles = 0;
+  let cur = parseISO(fechaIni);
+  const fin = parseISO(fechaFin);
+  while (cur <= fin){
+    const dia = cur.getDay(); // 0=domingo … 6=sábado
+    if (dia >= 1 && dia <= 5) habiles++;
+    cur = new Date(cur.getFullYear(), cur.getMonth(), cur.getDate()+1);
+  }
+  let feriadosHabiles = 0;
+  for (const f of estado.feriados){
+    if (!f.fecha || f.fecha < fechaIni || f.fecha > fechaFin) continue;
+    const d = parseISO(f.fecha).getDay();
+    if (d >= 1 && d <= 5) feriadosHabiles++;
+  }
+  return habiles - feriadosHabiles;
+}
+// Bloque grande y destacado arriba de Estadísticas con los días de clase "en vivo" de la
+// Escuela N° 370: un período (desde/hasta) que el director define. Los paros se toman solos
+// de la pestaña Paro y las suspensiones de la lista de fechas de acá abajo — nada de números
+// sueltos para calcular a mano. El número grande muestra los días de clase hasta hoy (o hasta
+// el final del período, si ya se cumplió). "Guardar corte" archiva una cuenta parcial o de
+// cierre en el historial y deja el período en blanco para empezar de nuevo (por ejemplo, para
+// el ciclo lectivo del año siguiente).
+function bloqueDiasClaseHero(){
+  const bloque = document.createElement("div");
+  bloque.className = "dias-clase-hero";
+  const p = estado.matricula.periodoActual;
+  const dias = diasClasePeriodoActual();
+  const hist = estado.matricula.historialDiasClase;
+  const susp = estado.matricula.suspensiones;
+
+  const hoy = hoyISO();
+  const corte = p.desde ? ((p.hasta && p.hasta<hoy) ? p.hasta : hoy) : null;
+  const rangoTxt = p.desde
+    ? "Desde "+fmtCorto(p.desde)+" hasta "+fmtCorto(corte)+(p.hasta ? " (objetivo: "+fmtCorto(p.hasta)+")" : "")
+    : "Definí desde cuándo contar más abajo";
+  const descontadosTxt = p.desde
+    ? "Ya descontados en ese rango: "+new Set(estado.paros.filter(x=>x.fecha>=p.desde && x.fecha<=corte).map(x=>x.fecha)).size+" día(s) de paro y "+
+      diasEntre(p.desde, corte).filter(f=>susp.some(s=>s.fechaInicio && f>=s.fechaInicio && f<=(s.fechaFin||s.fechaInicio))).length+
+      " día(s) de suspensión (además de los feriados cargados)."
+    : "";
+
+  bloque.innerHTML =
+    '<div class="dias-clase-hero-principal">'+
+      '<span class="dias-clase-hero-label">📅 Días de clases — Escuela N° 370</span>'+
+      '<span class="dias-clase-hero-num">'+(dias===null?"—":dias)+'</span>'+
+      '<span class="dias-clase-hero-fecha">'+rangoTxt+'</span>'+
+    '</div>'+
+    (descontadosTxt ? '<p class="matricula-sugerido" style="margin:-8px 0 0;">'+descontadosTxt+'</p>' : '')+
+    '<div class="dias-clase-hero-edit">'+
+      '<label class="matricula-campo">Desde<input type="date" id="periodoDesde" value="'+(p.desde||"")+'"></label>'+
+      '<label class="matricula-campo">Hasta (objetivo)<input type="date" id="periodoHasta" value="'+(p.hasta||"")+'"></label>'+
+      '<button type="button" class="btn-mini-tarea" id="btnGuardarCorteDiasClase" style="margin-top:0;">💾 Guardar corte</button>'+
+    '</div>';
+  bloque.querySelector("#periodoDesde").onchange = (e)=>{ p.desde = e.target.value; guardar(); renderEstadisticas(); };
+  bloque.querySelector("#periodoHasta").onchange = (e)=>{ p.hasta = e.target.value; guardar(); renderEstadisticas(); };
+  bloque.querySelector("#btnGuardarCorteDiasClase").onclick = guardarCorteDiasClase;
+
+  bloque.appendChild(bloqueSuspensionesClase());
+
+  if (hist.length){
+    const lista = document.createElement("div");
+    lista.className = "dias-clase-historial";
+    lista.innerHTML = '<span class="dias-clase-historial-titulo">Cortes guardados</span>';
+    for (const h of hist){
+      const item = document.createElement("p");
+      item.className = "dias-clase-historial-item";
+      item.textContent = "Desde "+fmtCorto(h.desde)+" hasta "+fmtCorto(h.hasta)+": "+h.dias+" días de clase"+
+        " ("+h.paros+" paro(s), "+h.suspensiones+" día(s) de suspensión) — guardado el "+fmtCorto(h.guardadoEl);
+      lista.appendChild(item);
+    }
+    bloque.appendChild(lista);
+  }
+  return bloque;
+}
+// Lista editable de "Suspensiones de clase" (recesos, cierres puntuales, etc.) de Escuela
+// N° 370: mismo esquema que Feriados, pero con rango de fechas en vez de un solo día.
+function bloqueSuspensionesClase(){
+  const cont = document.createElement("div");
+  cont.className = "dias-clase-historial";
+  const titulo = document.createElement("span");
+  titulo.className = "dias-clase-historial-titulo";
+  titulo.textContent = "Suspensiones de clase (recesos, cierres, etc.)";
+  cont.appendChild(titulo);
+
+  const susp = estado.matricula.suspensiones;
+  if (!susp.length){
+    const p = document.createElement("p");
+    p.className = "dias-clase-historial-item";
+    p.style.opacity = ".8";
+    p.textContent = "Sin suspensiones cargadas todavía (por ejemplo, el receso invernal).";
+    cont.appendChild(p);
+  }
+  for (const s of susp){
+    const fila = document.createElement("div");
+    fila.className = "dias-clase-susp-item";
+    const rango = s.fechaFin && s.fechaFin!==s.fechaInicio
+      ? fmtCorto(s.fechaInicio)+" al "+fmtCorto(s.fechaFin) : fmtCorto(s.fechaInicio);
+    fila.innerHTML = '<span>'+(s.nombre||"(sin nombre)")+" — "+rango+'</span>'+
+      '<button type="button" class="btn-mini-tarea" data-borrar-susp="'+s.id+'" style="margin-top:0;">🗑</button>';
+    fila.querySelector("[data-borrar-susp]").onclick = ()=>{
+      estado.matricula.suspensiones = estado.matricula.suspensiones.filter(x=>x.id!==s.id);
+      guardar(); renderEstadisticas();
+    };
+    cont.appendChild(fila);
+  }
+
+  const form = document.createElement("div");
+  form.className = "dias-clase-hero-edit";
+  form.innerHTML =
+    '<label class="matricula-campo">Nombre<input type="text" id="suspNombre" placeholder="Ej: Receso invernal" style="width:170px;"></label>'+
+    '<label class="matricula-campo">Desde<input type="date" id="suspDesde"></label>'+
+    '<label class="matricula-campo">Hasta (opcional)<input type="date" id="suspHasta"></label>'+
+    '<button type="button" class="btn-mini-tarea" id="btnAgregarSusp" style="margin-top:0;">+ Agregar</button>';
+  form.querySelector("#btnAgregarSusp").onclick = ()=>{
+    const nombre = form.querySelector("#suspNombre").value.trim();
+    const desde = form.querySelector("#suspDesde").value;
+    const hasta = form.querySelector("#suspHasta").value;
+    if (!nombre || !desde){ toast("Completá nombre y fecha desde"); return; }
+    estado.matricula.suspensiones.push(normalizarSuspension({nombre, fechaInicio: desde, fechaFin: hasta}));
+    guardar(); renderEstadisticas();
+  };
+  cont.appendChild(form);
+  return cont;
+}
+// Fila editable de un corte de matrícula/días de clase (inicio, intermedio o fin de año).
+// fechaDesde: fecha del corte anterior, para mostrar una sugerencia calculada del calendario
+// (días hábiles menos feriados) entre ese corte y este. En "Inicio" no hay corte anterior,
+// así que no se muestra ninguna sugerencia — el número lo pone el director directamente.
+function filaCorteMatricula(clave, etiqueta, fechaDesde){
+  const c = estado.matricula[clave];
+  const fila = document.createElement("div");
+  fila.className = "matricula-fila";
+  fila.innerHTML =
+    '<span class="matricula-etq">'+etiqueta+'</span>'+
+    '<label class="matricula-campo">Fecha<input type="date" data-mat-fecha="'+clave+'" value="'+(c.fecha||"")+'"></label>'+
+    '<label class="matricula-campo">Matrícula<input type="number" min="0" data-mat-matricula="'+clave+'" value="'+(c.matricula===""?"":c.matricula)+'" placeholder="—"></label>'+
+    '<label class="matricula-campo">Días de clase<input type="number" min="0" data-mat-dias="'+clave+'" value="'+(c.dias===""?"":c.dias)+'" placeholder="—"></label>';
+  if (fechaDesde && c.fecha){
+    const sugerido = diasHabilesMenosFeriados(fechaDesde, c.fecha);
+    if (sugerido !== null){
+      const nota = document.createElement("p");
+      nota.className = "matricula-sugerido";
+      nota.textContent = "📐 Sugerido según el calendario: "+sugerido+" días hábiles (feriados cargados) entre "+
+        fmtCorto(fechaDesde)+" y "+fmtCorto(c.fecha)+". Restale recesos, paros o suspensiones que falten.";
+      fila.appendChild(nota);
+    }
+  }
+  return fila;
 }
 
 // ---------- Generales ----------
