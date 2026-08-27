@@ -96,13 +96,15 @@
 
   ul.lista-tareas{list-style:none;}
   .fila-tar-cab{display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:14px;}
-  .caja-links-chubut{border:1px solid var(--borde); border-radius:10px; background:#fbfaf6; padding:8px 12px; min-width:220px;}
-  body.tema-sepia .caja-links-chubut{background:#f4ecd8;}
-  body.tema-oscuro .caja-links-chubut{background:#232a32;}
-  .caja-links-chubut-titulo{display:block; font-size:.78rem; font-weight:700; color:var(--gris); text-transform:uppercase; letter-spacing:.03em; margin-bottom:6px;}
+  .caja-links-chubut{border:1px solid #5b93c2; border-radius:10px; background:#aed4f2; padding:8px 12px; min-width:220px;}
+  body.tema-sepia .caja-links-chubut{background:#e0c27a; border-color:#b8912e;}
+  body.tema-oscuro .caja-links-chubut{background:#1c4a70; border-color:#3f8fc4;}
+  .caja-links-chubut-titulo{display:block; font-size:.78rem; font-weight:700; color:#1e4260; text-transform:uppercase; letter-spacing:.03em; margin-bottom:6px;}
+  body.tema-oscuro .caja-links-chubut-titulo{color:#dceefb;}
   .caja-links-chubut-botones{display:flex; gap:6px; flex-wrap:wrap;}
   .btn-link-chubut{padding:5px 11px; border:1px solid var(--borde); background:#f4f2ec; border-radius:6px;
-    font-size:.83rem; text-decoration:none; color:inherit; white-space:nowrap;}
+    font-size:.83rem; text-decoration:none; color:inherit; white-space:nowrap; display:inline-flex; align-items:center; gap:5px;}
+  .icono-link-chubut{font-size:1.35rem; line-height:1;}
   .btn-link-chubut:hover{border-color:var(--azul); background:#eaf3fb;}
   body.tema-oscuro .btn-link-chubut{background:#2f3944;}
   body.tema-oscuro .btn-link-chubut:hover{background:#33424f;}
@@ -516,11 +518,11 @@
       <div class="caja-links-chubut">
         <span class="caja-links-chubut-titulo">🔗 LINKS chubut</span>
         <div class="caja-links-chubut-botones">
-          <a class="btn-link-chubut" href="https://docs.google.com/spreadsheets/d/1qWnrQrNoPKLsHw6gHf-GwWGKqUq3g6s-BPIBuE3wvFU/edit?gid=61236958#gid=61236958" target="_blank" rel="noopener noreferrer">📊 POF</a>
-          <a class="btn-link-chubut" href="https://sistemas2.chubut.edu.ar/soft/ddjj/admin/login" target="_blank" rel="noopener noreferrer">🧾 DDJJ</a>
-          <a class="btn-link-chubut" href="https://sistemas2.chubut.edu.ar/soft/snpe/" target="_blank" rel="noopener noreferrer">📰 M. Novedades</a>
-          <a class="btn-link-chubut" href="http://sistemas.chubut.edu.ar/planta/consulage.php?tipo=buscar" target="_blank" rel="noopener noreferrer">🏫 MEC</a>
-          <a class="btn-link-chubut" href="http://sistemas.chubut.edu.ar/juntamed/jindex.php" target="_blank" rel="noopener noreferrer">⚕ Inscripción junta</a>
+          <a class="btn-link-chubut" href="https://docs.google.com/spreadsheets/d/1qWnrQrNoPKLsHw6gHf-GwWGKqUq3g6s-BPIBuE3wvFU/edit?gid=61236958#gid=61236958" target="_blank" rel="noopener noreferrer"><span class="icono-link-chubut">📊</span> POF</a>
+          <a class="btn-link-chubut" href="https://sistemas2.chubut.edu.ar/soft/ddjj/admin/login" target="_blank" rel="noopener noreferrer"><span class="icono-link-chubut">🧾</span> DDJJ</a>
+          <a class="btn-link-chubut" href="https://sistemas2.chubut.edu.ar/soft/snpe/" target="_blank" rel="noopener noreferrer"><span class="icono-link-chubut">📰</span> M. Novedades</a>
+          <a class="btn-link-chubut" href="http://sistemas.chubut.edu.ar/planta/consulage.php?tipo=buscar" target="_blank" rel="noopener noreferrer"><span class="icono-link-chubut">🏫</span> MEC</a>
+          <a class="btn-link-chubut" href="http://sistemas.chubut.edu.ar/juntamed/jindex.php" target="_blank" rel="noopener noreferrer"><span class="icono-link-chubut">⚕</span> Inscripción junta</a>
         </div>
       </div>
     </div>
