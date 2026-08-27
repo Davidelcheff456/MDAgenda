@@ -95,7 +95,12 @@
   .estrellas .e.on{color:var(--amarillo);}
 
   ul.lista-tareas{list-style:none;}
-  .fila-tar-cab{display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:14px;}
+  .fila-tar-cab{display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:18px;}
+  .toolbar-tareas{background:#f4f2ec; border:1px solid var(--borde); border-radius:8px; padding:9px 14px; margin-bottom:18px;}
+  body.tema-sepia .toolbar-tareas{background:#f0e6cc;}
+  body.tema-oscuro .toolbar-tareas{background:#2a323b;}
+  .separador-toolbar{width:1px; height:20px; background:var(--borde); margin:0 2px;}
+  .fila-herramientas-tareas{display:flex; gap:10px; flex-wrap:wrap; margin:0 0 18px; padding-top:2px;}
   .caja-links-chubut{border:1px solid #5b93c2; border-radius:10px; background:#aed4f2; padding:8px 12px; min-width:220px;}
   body.tema-sepia .caja-links-chubut{background:#e0c27a; border-color:#b8912e;}
   body.tema-oscuro .caja-links-chubut{background:#1c4a70; border-color:#3f8fc4;}
@@ -529,13 +534,12 @@
 
     <div id="vistaTarTareas">
       <div id="contSeguimientos"></div>
-      <div class="fila-orden">
+      <div class="fila-orden toolbar-tareas">
         <span>Ordenar por:</span>
         <button data-orden="carga">Orden de carga</button>
         <button data-orden="prioridad">Prioridad</button>
         <button data-orden="fecha">Fecha límite</button>
-      </div>
-      <div class="fila-orden">
+        <span class="separador-toolbar"></span>
         <span>Mostrar:</span>
         <label class="chk" style="display:flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" id="filtroTarEsc370"> 🏫 Escuela 370</label>
         <label class="chk" style="display:flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" id="filtroTarSupervision"> 🏛 Supervisión</label>
@@ -557,7 +561,7 @@
         </select>
         <button class="btn-mas" id="btnAgregar" title="Agregar tarea">+</button>
       </div>
-      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
+      <div class="fila-herramientas-tareas">
         <button type="button" class="btn-mini-tarea btn-excel-par" id="btnImportarExcelTareas" style="margin-top:0;">📥 Importar cronograma (Excel)</button>
         <button type="button" class="btn-mini-tarea btn-excel-par" id="btnEjemploExcelTareas" style="margin-top:0;">📄 Descargar Excel de ejemplo</button>
         <input type="file" id="inputExcelTareas" accept=".xlsx,.xls" style="display:none;">
