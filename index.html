@@ -2778,11 +2778,16 @@ function manejarExcelEscuelas(e){
 // director la define después, alumno por alumno, desde la ficha. El encabezado real
 // debe tener a la vez una celda de "orden" y otra de "estudiante"/"apellido", para
 // no confundirse con títulos.
-function importarFilasEspera(filas){
-  let filaHeader = -1, cOrden = -1, cEst = -1, cEsc = -1, cAnio = -1, cEsp = -1, cDiag = -1;
+//
+// Sirve para las 3 hojas típicas de la planilla real (Lista de espera / En atención /
+// De alta): mismas columnas de encabezado, pero cada hoja carga alumnos con un
+// "estadoDestino" distinto ("espera" / "activo" / "baja"). El N° de orden solo se
+// guarda cuando estadoDestino es "espera" (es el único listado donde importa el orden).
+function importarFilaListado(filas, estadoDestino){
+  let filaHeader = -1, cOrden = -1, cEst = -1, cEsc = -1, cAnio = -1, cEsp = -1, cDiag = -1, cObs = -1;
   for (let r=0; r<filas.length; r++){
     const fila = filas[r] || [];
-    let orden=-1, est=-1, esc=-1, anio=-1, esp=-1, diag=-1;
+    let orden=-1, est=-1, esc=-1, anio=-1, esp=-1, diag=-1, obs=-1;
     for (let c=0; c<fila.length; c++){
       const txt = String(fila[c]==null?"":fila[c]).toLowerCase();
       if (!txt) continue;
@@ -2792,13 +2797,15 @@ function importarFilasEspera(filas){
       else if (/a[nñ]o/.test(txt) || /curso/.test(txt)) anio = c;
       else if (/espacios|curricular/.test(txt)) esp = c;
       else if (/diagn/.test(txt)) diag = c;
+      else if (/observ/.test(txt)) obs = c;
     }
     if (orden!==-1 && est!==-1){
-      filaHeader = r; cOrden = orden; cEst = est; cEsc = esc; cAnio = anio; cEsp = esp; cDiag = diag;
+      filaHeader = r; cOrden = orden; cEst = est; cEsc = esc; cAnio = anio; cEsp = esp; cDiag = diag; cObs = obs;
       break;
     }
   }
   const inicio = filaHeader>=0 ? filaHeader+1 : 0;
+  const grupoBusqueda = estadoDestino==="activo" ? ESTADOS_ATENDIDO : [estadoDestino];
   let agregados = 0, actualizados = 0;
   for (let r=inicio; r<filas.length; r++){
     const fila = filas[r];
@@ -2822,23 +2829,24 @@ function importarFilasEspera(filas){
     const anioTxt = cAnio>=0 ? String(fila[cAnio]==null?"":fila[cAnio]).trim() : "";
     const espaciosTxt = cEsp>=0 ? String(fila[cEsp]==null?"":fila[cEsp]).trim() : "";
     const diagTxt = cDiag>=0 ? String(fila[cDiag]==null?"":fila[cDiag]).trim() : "";
+    const obsTxt = cObs>=0 ? String(fila[cObs]==null?"":fila[cObs]).trim() : "";
 
-    // Se busca solo entre los que ya están en espera (sin importar la zona, que acá
-    // no se pregunta), para no tocar por error a un alumno activo o dado de baja
-    // que tenga el mismo nombre.
-    let a = estado.alumnos.find(x=>x.estado==="espera" &&
+    // Se busca solo entre los que ya están en el mismo grupo de estado (sin importar
+    // la zona, que acá no se pregunta), para no tocar por error a un alumno que está
+    // en otra etapa (espera/atención/baja) y tiene el mismo nombre.
+    let a = estado.alumnos.find(x=>grupoBusqueda.includes(x.estado) &&
       x.nombre.trim().toLowerCase()===nombre.toLowerCase() &&
       x.apellido.trim().toLowerCase()===apellido.toLowerCase());
     const esNuevo = !a;
-    if (!a){ a = alumnoBase(); estado.alumnos.push(a); }
+    if (!a){ a = alumnoBase(); estado.alumnos.push(a); a.estado = estadoDestino; }
     a.nombre = nombre; a.apellido = apellido;
-    a.estado = "espera";
     // La zona no se toca acá: si el alumno es nuevo queda en blanco (a definir por
     // el director desde la ficha); si ya existía, se conserva la que tenía cargada.
-    a.ordenEspera = ordenTxt;
+    if (estadoDestino==="espera") a.ordenEspera = ordenTxt;
     if (anioTxt) a.cursoOrigen = anioTxt;
     if (espaciosTxt) a.espaciosCurriculares = espaciosTxt;
     if (diagTxt) a.diagnostico = diagTxt;
+    if (obsTxt) extraerBloqueObservaciones(obsTxt, a);
     if (escuelaTxt){
       // Primero se busca por número de escuela (lo más común en estas planillas: "749", "718"...),
       // y si no hay coincidencia, por nombre exacto (para escuelas cargadas fuera del sistema
@@ -2856,8 +2864,40 @@ function importarFilasEspera(filas){
   }
   return {agregados, actualizados};
 }
+// La columna "Observaciones" de la hoja "En atención" suele traer, en un solo texto
+// separado por ";", cosas como "Inicio DYH: 10/8/2026; Vence Cert.: 30/12/2026;
+// Dirección (Barrio) - Tel: 1234567". Esto separa esos tres datos reconocibles (fecha
+// de inicio, vencimiento de certificado, dirección/teléfono) y deja el resto del texto
+// tal cual en Observaciones, sin inventar nada de lo que no matchea ese formato.
+function extraerBloqueObservaciones(obsTxt, a){
+  const partes = obsTxt.split(";").map(p=>p.trim()).filter(Boolean);
+  const restantes = [];
+  for (const parte of partes){
+    let m;
+    if ((m = parte.match(/^inicio\s*dyh\s*:\s*(.+)$/i))){
+      const iso = parsearFechaDDMMYYYY(m[1].trim());
+      if (iso) a.fechaIngreso = iso; else restantes.push(parte);
+    } else if ((m = parte.match(/^vence\s*cert\.?\s*:\s*(.+)$/i))){
+      const iso = parsearFechaDDMMYYYY(m[1].trim());
+      if (iso) a.certificadoHasta = iso; else restantes.push(parte);
+    } else if (/-\s*tel\s*:/i.test(parte)){
+      a.direccion = a.direccion ? a.direccion+" / "+parte : parte;
+    } else {
+      restantes.push(parte);
+    }
+  }
+  if (restantes.length){
+    const texto = restantes.join("; ");
+    if (!a.observaciones || !a.observaciones.includes(texto)){
+      a.observaciones = (a.observaciones ? a.observaciones+"\n" : "")+texto;
+    }
+  }
+}
 // Un solo botón de importar: se elige el archivo y se procesa directo, sin preguntar
-// zona (eso lo define el director después, alumno por alumno, desde la ficha).
+// zona (eso lo define el director después, alumno por alumno, desde la ficha). Si el
+// archivo tiene, además de la lista de espera, hojas "En atención" y/o "De alta" (como
+// la planilla real de la escuela), también se importan esos alumnos con su estado
+// correspondiente, todo con el mismo botón.
 function manejarSeleccionExcelEspera(e){
   const file = e.target.files && e.target.files[0];
   if (!file) return;
@@ -2874,10 +2914,35 @@ function procesarExcelEspera(file){
     try{
       const data = new Uint8Array(ev.target.result);
       const wb = XLSX.read(data, {type:"array"});
-      const hoja = wb.Sheets[wb.SheetNames[0]];
-      const filas = XLSX.utils.sheet_to_json(hoja, {header:1, raw:true, defval:""});
-      const {agregados, actualizados} = importarFilasEspera(filas);
-      guardar(); renderAlumnos(); renderAlumnosEspera();
+      const filasDeHoja = (nombreHoja)=>{
+        const hoja = wb.Sheets[nombreHoja];
+        return hoja ? XLSX.utils.sheet_to_json(hoja, {header:1, raw:true, defval:""}) : null;
+      };
+      const nombreEspera = wb.SheetNames.find(n=>/espera/i.test(n)) || wb.SheetNames[0];
+      const nombreAtencion = wb.SheetNames.find(n=>/atenci[oó]n/i.test(n));
+      const nombreAlta = wb.SheetNames.find(n=>n!==nombreEspera && /\balta\b/i.test(n));
+
+      let agregados = 0, actualizados = 0;
+      const filasEspera = filasDeHoja(nombreEspera);
+      if (filasEspera){
+        const r = importarFilaListado(filasEspera, "espera");
+        agregados += r.agregados; actualizados += r.actualizados;
+      }
+      if (nombreAtencion){
+        const filasAtencion = filasDeHoja(nombreAtencion);
+        if (filasAtencion){
+          const r = importarFilaListado(filasAtencion, "activo");
+          agregados += r.agregados; actualizados += r.actualizados;
+        }
+      }
+      if (nombreAlta){
+        const filasAlta = filasDeHoja(nombreAlta);
+        if (filasAlta){
+          const r = importarFilaListado(filasAlta, "baja");
+          agregados += r.agregados; actualizados += r.actualizados;
+        }
+      }
+      guardar(); renderAlumnos(); renderAlumnosEspera(); renderAlumnosBaja();
       const total = agregados+actualizados;
       toast(total ? agregados+" alumno(s) nuevo(s), "+actualizados+" actualizado(s) ✔"
         : "No se encontraron filas válidas (revisá que tenga las columnas N° de orden y Estudiante)");
