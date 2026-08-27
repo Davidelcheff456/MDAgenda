@@ -433,9 +433,6 @@
   .dias-clase-historial-titulo{display:block; font-size:.78rem; font-weight:700; text-transform:uppercase;
     letter-spacing:.03em; opacity:.85; margin-bottom:4px;}
   .dias-clase-historial-item{font-size:.83rem; margin:2px 0;}
-  .dias-clase-susp-item{display:flex; align-items:center; justify-content:space-between; gap:10px;
-    font-size:.85rem; padding:4px 0;}
-  .dias-clase-susp-item .btn-mini-tarea{padding:3px 9px; font-size:.78rem;}
   .stats-fila{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
   .stats-etq{font-size:.85rem; width:120px; flex-shrink:0;}
   .stats-barra{flex:1; min-width:60px;}
@@ -1529,29 +1526,18 @@ function matriculaBase(){
     intermedio: { fecha: "2026-10-15", matricula: "", dias: "" },
     fin:        { fecha: "2026-12-17", matricula: "", dias: "" },
     tareaIntermediaCreada: false,
-    // Período activo de días de clase de la Escuela N° 370: solo desde/hasta. Los paros no
-    // hay que cargarlos de nuevo acá — se toman de la pestaña Paro, que ya existe — y las
-    // suspensiones (recesos, cierres, etc.) se cargan como una lista de fechas abajo, igual
-    // que los feriados. Así el número no depende de que alguien haga la cuenta a mano cada
-    // vez: se arma solo a partir de datos que ya están (o quedan) cargados en la agenda.
-    periodoActual: { desde: "2026-07-01", hasta: "2026-12-17" },
-    // Suspensiones de clase de Escuela N° 370 (recesos, cierres puntuales, etc.), como una
-    // lista de rangos de fechas — mismo esquema que Feriados, pero con fecha de inicio y fin.
-    suspensiones: [],
-    // Cortes guardados: cada vez que el director guarda una cuenta parcial (o el cierre del
-    // período), queda un registro acá y el período activo vuelve a blanco para arrancar de
-    // nuevo (por ejemplo, para el ciclo lectivo del año siguiente).
+    // Contador de días de clase de Escuela N° 370: un punto de referencia (fecha + días de
+    // clase a esa fecha) que el director carga directamente — es la forma más simple, así no
+    // hace falta reconstruir paros ni recesos para llegar al número real. De ahí en más se
+    // suman los días hábiles (lunes a viernes, menos feriados cargados) que van pasando.
+    // Cuando la realidad se desvía (otro paro, otro receso), el director vuelve a cargar un
+    // nuevo punto de referencia con "Corregir".
+    ancla: { fecha: "2026-08-20", dias: 24 },
+    // Cortes guardados: cada vez que el director guarda una cuenta parcial (o de cierre),
+    // queda un registro acá y el contador vuelve a cero para arrancar de nuevo (por ejemplo,
+    // para el ciclo lectivo del año siguiente).
     historialDiasClase: []
   };
-}
-function suspensionBase(){ return {id: uid(), nombre:"", fechaInicio:"", fechaFin:""}; }
-function normalizarSuspension(s){
-  if (!s || typeof s !== "object") s = {};
-  if (!s.id) s.id = uid();
-  if (typeof s.nombre !== "string") s.nombre = "";
-  if (typeof s.fechaInicio !== "string") s.fechaInicio = "";
-  if (typeof s.fechaFin !== "string" || !s.fechaFin) s.fechaFin = s.fechaInicio;
-  return s;
 }
 function normalizarMatricula(m){
   const base = matriculaBase();
@@ -1562,77 +1548,37 @@ function normalizarMatricula(m){
     if (typeof m[k].matricula !== "string" && typeof m[k].matricula !== "number") m[k].matricula = base[k].matricula;
     if (typeof m[k].dias !== "string" && typeof m[k].dias !== "number") m[k].dias = "";
   }
-  if (!m.periodoActual || typeof m.periodoActual !== "object") m.periodoActual = {...base.periodoActual};
-  if (typeof m.periodoActual.desde !== "string") m.periodoActual.desde = "";
-  if (typeof m.periodoActual.hasta !== "string") m.periodoActual.hasta = "";
-  m.suspensiones = Array.isArray(m.suspensiones) ? m.suspensiones.map(normalizarSuspension) : [];
+  if (!m.ancla || typeof m.ancla !== "object") m.ancla = {...base.ancla};
+  if (typeof m.ancla.fecha !== "string" || !m.ancla.fecha) m.ancla.fecha = base.ancla.fecha;
+  if (typeof m.ancla.dias !== "string" && typeof m.ancla.dias !== "number") m.ancla.dias = base.ancla.dias;
   if (!Array.isArray(m.historialDiasClase)) m.historialDiasClase = [];
   m.tareaIntermediaCreada = !!m.tareaIntermediaCreada;
   return m;
 }
-// Cuenta los días hábiles (lunes a viernes) en un rango de fechas ISO, ambas puntas incluidas,
-// sin restar nada todavía.
-function diasHabilesEnRango(fechaIni, fechaFin){
-  if (!fechaIni || !fechaFin || fechaFin < fechaIni) return 0;
-  return diasEntre(fechaIni, fechaFin).filter(f=>{
-    const d = parseISO(f).getDay();
-    return d >= 1 && d <= 5;
-  }).length;
-}
-// Junta, sin repetir fechas, todos los días hábiles no lectivos dentro de un rango: feriados
-// cargados + fechas de paro ya cargadas en la pestaña Paro (una por fecha, sin importar
-// cuánta gente adhirió) + suspensiones de Escuela 370 cargadas más abajo. Que no se repitan
-// evita restar de más si, por ejemplo, un paro cae justo un día que también es feriado.
-function fechasNoLectivasEnRango(fechaIni, fechaFin){
-  const set = new Set();
-  const agregar = (fecha)=>{
-    if (!fecha || fecha < fechaIni || fecha > fechaFin) return;
-    const d = parseISO(fecha).getDay();
-    if (d >= 1 && d <= 5) set.add(fecha);
-  };
-  for (const f of estado.feriados) agregar(f.fecha);
-  for (const p of estado.paros) agregar(p.fecha);
-  for (const s of estado.matricula.suspensiones){
-    if (!s.fechaInicio) continue;
-    for (const fecha of diasEntre(s.fechaInicio, s.fechaFin || s.fechaInicio)) agregar(fecha);
-  }
-  return set;
-}
-// Días de clase del período activo de la Escuela N° 370, contados hasta hoy (o hasta el
-// final del período, si ya se cumplió): días hábiles del rango, menos feriados, paros y
-// suspensiones que ya están cargados en la agenda — no hace falta escribir ningún número a mano.
-function diasClasePeriodoActual(){
-  const p = estado.matricula && estado.matricula.periodoActual;
-  if (!p || !p.desde) return null;
+// Días de clase "hoy" de Escuela N° 370: parte del punto de referencia cargado (ancla) y le
+// suma los días hábiles (lunes a viernes, menos feriados cargados) que pasaron desde esa
+// fecha hasta hoy. Se recalcula solo con la fecha de hoy, así que se actualiza día a día sin
+// que haya que tocar nada — hasta que el director recalibre el punto de referencia.
+function diasClaseHoyEsc370(){
+  const a = estado.matricula && estado.matricula.ancla;
+  if (!a || !a.fecha) return null;
   const hoy = hoyISO();
-  const corte = (p.hasta && p.hasta < hoy) ? p.hasta : hoy;
-  if (corte < p.desde) return 0;
-  const habiles = diasHabilesEnRango(p.desde, corte);
-  const noLectivos = fechasNoLectivasEnRango(p.desde, corte).size;
-  return Math.max(0, habiles - noLectivos);
+  if (hoy <= a.fecha) return Number(a.dias)||0;
+  const extra = diasHabilesMenosFeriados(sumarDias(a.fecha, 1), hoy);
+  return (Number(a.dias)||0) + Math.max(0, extra||0);
 }
-// Guarda un corte (parcial o de cierre) del período activo en el historial, con la fecha de
-// hoy (o la fecha "hasta" si el período ya terminó) como punto final, y reinicia el período
-// activo en blanco para que el director lo vuelva a definir cuando quiera (por ejemplo, el
-// ciclo lectivo siguiente). Las suspensiones cargadas quedan como están (no se borran solas).
+// Guarda el número actual como un corte en el historial (con la fecha de hoy) y reinicia el
+// punto de referencia en blanco, para que el director lo vuelva a cargar cuando quiera
+// arrancar una cuenta nueva (por ejemplo, el ciclo lectivo del año siguiente).
 function guardarCorteDiasClase(){
-  const p = estado.matricula.periodoActual;
-  if (!p.desde){ toast("Falta la fecha desde"); return; }
+  const a = estado.matricula.ancla;
+  if (!a.fecha){ toast("Falta la fecha de referencia"); return; }
   const hoy = hoyISO();
-  const hastaCorte = (p.hasta && p.hasta < hoy) ? p.hasta : hoy;
-  const dias = diasClasePeriodoActual();
-  const paros = new Set(estado.paros.filter(x=>x.fecha>=p.desde && x.fecha<=hastaCorte).map(x=>x.fecha)).size;
-  let suspensiones = 0;
-  for (const s of estado.matricula.suspensiones){
-    if (!s.fechaInicio) continue;
-    for (const fecha of diasEntre(s.fechaInicio, s.fechaFin || s.fechaInicio)){
-      if (fecha>=p.desde && fecha<=hastaCorte && parseISO(fecha).getDay()>=1 && parseISO(fecha).getDay()<=5) suspensiones++;
-    }
-  }
+  const dias = diasClaseHoyEsc370();
   estado.matricula.historialDiasClase.unshift({
-    id: uid(), desde: p.desde, hasta: hastaCorte, dias: dias||0, paros, suspensiones, guardadoEl: hoy
+    id: uid(), desde: a.fecha, hasta: hoy, dias: dias||0, guardadoEl: hoy
   });
-  estado.matricula.periodoActual = { desde:"", hasta:"" };
+  estado.matricula.ancla = { fecha:"", dias:0 };
   guardar();
   renderEstadisticas();
   toast("Corte guardado ✔ — el contador arrancó de nuevo en blanco");
@@ -6150,48 +6096,38 @@ function diasHabilesMenosFeriados(fechaIni, fechaFin){
   return habiles - feriadosHabiles;
 }
 // Bloque grande y destacado arriba de Estadísticas con los días de clase "en vivo" de la
-// Escuela N° 370: un período (desde/hasta) que el director define. Los paros se toman solos
-// de la pestaña Paro y las suspensiones de la lista de fechas de acá abajo — nada de números
-// sueltos para calcular a mano. El número grande muestra los días de clase hasta hoy (o hasta
-// el final del período, si ya se cumplió). "Guardar corte" archiva una cuenta parcial o de
-// cierre en el historial y deja el período en blanco para empezar de nuevo (por ejemplo, para
-// el ciclo lectivo del año siguiente).
+// Escuela N° 370: parte de un punto de referencia (fecha + días a esa fecha) y suma los días
+// hábiles que van pasando (restando los feriados ya cargados). El botón "Corregir" recalibra
+// el punto de referencia cuando la realidad se desvía (paro, receso, etc.) — sin tener que
+// reconstruir nada, solo se escribe el número correcto y la fecha. "Guardar corte" archiva el
+// número actual en el historial y reinicia el contador para arrancar de nuevo.
 function bloqueDiasClaseHero(){
   const bloque = document.createElement("div");
   bloque.className = "dias-clase-hero";
-  const p = estado.matricula.periodoActual;
-  const dias = diasClasePeriodoActual();
+  const a = estado.matricula.ancla;
+  const dias = diasClaseHoyEsc370();
   const hist = estado.matricula.historialDiasClase;
-  const susp = estado.matricula.suspensiones;
-
-  const hoy = hoyISO();
-  const corte = p.desde ? ((p.hasta && p.hasta<hoy) ? p.hasta : hoy) : null;
-  const rangoTxt = p.desde
-    ? "Desde "+fmtCorto(p.desde)+" hasta "+fmtCorto(corte)+(p.hasta ? " (objetivo: "+fmtCorto(p.hasta)+")" : "")
-    : "Definí desde cuándo contar más abajo";
-  const descontadosTxt = p.desde
-    ? "Ya descontados en ese rango: "+new Set(estado.paros.filter(x=>x.fecha>=p.desde && x.fecha<=corte).map(x=>x.fecha)).size+" día(s) de paro y "+
-      diasEntre(p.desde, corte).filter(f=>susp.some(s=>s.fechaInicio && f>=s.fechaInicio && f<=(s.fechaFin||s.fechaInicio))).length+
-      " día(s) de suspensión (además de los feriados cargados)."
-    : "";
 
   bloque.innerHTML =
     '<div class="dias-clase-hero-principal">'+
       '<span class="dias-clase-hero-label">📅 Días de clases — Escuela N° 370</span>'+
       '<span class="dias-clase-hero-num">'+(dias===null?"—":dias)+'</span>'+
-      '<span class="dias-clase-hero-fecha">'+rangoTxt+'</span>'+
+      '<span class="dias-clase-hero-fecha">al '+fmtCorto(hoyISO())+'</span>'+
     '</div>'+
-    (descontadosTxt ? '<p class="matricula-sugerido" style="margin:-8px 0 0;">'+descontadosTxt+'</p>' : '')+
     '<div class="dias-clase-hero-edit">'+
-      '<label class="matricula-campo">Desde<input type="date" id="periodoDesde" value="'+(p.desde||"")+'"></label>'+
-      '<label class="matricula-campo">Hasta (objetivo)<input type="date" id="periodoHasta" value="'+(p.hasta||"")+'"></label>'+
+      '<label class="matricula-campo">Referencia al<input type="date" id="anclaFecha" value="'+(a.fecha||"")+'"></label>'+
+      '<label class="matricula-campo">Días de clase a esa fecha<input type="number" min="0" id="anclaDias" value="'+(a.dias===""?"":a.dias)+'"></label>'+
+      '<button type="button" class="btn-mini-tarea" id="btnCorregirAncla" style="margin-top:0;">✏ Corregir</button>'+
       '<button type="button" class="btn-mini-tarea" id="btnGuardarCorteDiasClase" style="margin-top:0;">💾 Guardar corte</button>'+
     '</div>';
-  bloque.querySelector("#periodoDesde").onchange = (e)=>{ p.desde = e.target.value; guardar(); renderEstadisticas(); };
-  bloque.querySelector("#periodoHasta").onchange = (e)=>{ p.hasta = e.target.value; guardar(); renderEstadisticas(); };
+  bloque.querySelector("#btnCorregirAncla").onclick = ()=>{
+    const f = bloque.querySelector("#anclaFecha").value;
+    const d = bloque.querySelector("#anclaDias").value;
+    if (!f){ toast("Elegí una fecha de referencia"); return; }
+    estado.matricula.ancla = { fecha: f, dias: d===""?0:Number(d) };
+    guardar(); renderEstadisticas();
+  };
   bloque.querySelector("#btnGuardarCorteDiasClase").onclick = guardarCorteDiasClase;
-
-  bloque.appendChild(bloqueSuspensionesClase());
 
   if (hist.length){
     const lista = document.createElement("div");
@@ -6201,62 +6137,12 @@ function bloqueDiasClaseHero(){
       const item = document.createElement("p");
       item.className = "dias-clase-historial-item";
       item.textContent = "Desde "+fmtCorto(h.desde)+" hasta "+fmtCorto(h.hasta)+": "+h.dias+" días de clase"+
-        " ("+h.paros+" paro(s), "+h.suspensiones+" día(s) de suspensión) — guardado el "+fmtCorto(h.guardadoEl);
+        " — guardado el "+fmtCorto(h.guardadoEl);
       lista.appendChild(item);
     }
     bloque.appendChild(lista);
   }
   return bloque;
-}
-// Lista editable de "Suspensiones de clase" (recesos, cierres puntuales, etc.) de Escuela
-// N° 370: mismo esquema que Feriados, pero con rango de fechas en vez de un solo día.
-function bloqueSuspensionesClase(){
-  const cont = document.createElement("div");
-  cont.className = "dias-clase-historial";
-  const titulo = document.createElement("span");
-  titulo.className = "dias-clase-historial-titulo";
-  titulo.textContent = "Suspensiones de clase (recesos, cierres, etc.)";
-  cont.appendChild(titulo);
-
-  const susp = estado.matricula.suspensiones;
-  if (!susp.length){
-    const p = document.createElement("p");
-    p.className = "dias-clase-historial-item";
-    p.style.opacity = ".8";
-    p.textContent = "Sin suspensiones cargadas todavía (por ejemplo, el receso invernal).";
-    cont.appendChild(p);
-  }
-  for (const s of susp){
-    const fila = document.createElement("div");
-    fila.className = "dias-clase-susp-item";
-    const rango = s.fechaFin && s.fechaFin!==s.fechaInicio
-      ? fmtCorto(s.fechaInicio)+" al "+fmtCorto(s.fechaFin) : fmtCorto(s.fechaInicio);
-    fila.innerHTML = '<span>'+(s.nombre||"(sin nombre)")+" — "+rango+'</span>'+
-      '<button type="button" class="btn-mini-tarea" data-borrar-susp="'+s.id+'" style="margin-top:0;">🗑</button>';
-    fila.querySelector("[data-borrar-susp]").onclick = ()=>{
-      estado.matricula.suspensiones = estado.matricula.suspensiones.filter(x=>x.id!==s.id);
-      guardar(); renderEstadisticas();
-    };
-    cont.appendChild(fila);
-  }
-
-  const form = document.createElement("div");
-  form.className = "dias-clase-hero-edit";
-  form.innerHTML =
-    '<label class="matricula-campo">Nombre<input type="text" id="suspNombre" placeholder="Ej: Receso invernal" style="width:170px;"></label>'+
-    '<label class="matricula-campo">Desde<input type="date" id="suspDesde"></label>'+
-    '<label class="matricula-campo">Hasta (opcional)<input type="date" id="suspHasta"></label>'+
-    '<button type="button" class="btn-mini-tarea" id="btnAgregarSusp" style="margin-top:0;">+ Agregar</button>';
-  form.querySelector("#btnAgregarSusp").onclick = ()=>{
-    const nombre = form.querySelector("#suspNombre").value.trim();
-    const desde = form.querySelector("#suspDesde").value;
-    const hasta = form.querySelector("#suspHasta").value;
-    if (!nombre || !desde){ toast("Completá nombre y fecha desde"); return; }
-    estado.matricula.suspensiones.push(normalizarSuspension({nombre, fechaInicio: desde, fechaFin: hasta}));
-    guardar(); renderEstadisticas();
-  };
-  cont.appendChild(form);
-  return cont;
 }
 // Fila editable de un corte de matrícula/días de clase (inicio, intermedio o fin de año).
 // fechaDesde: fecha del corte anterior, para mostrar una sugerencia calculada del calendario

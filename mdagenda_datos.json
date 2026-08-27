@@ -13,6 +13,15 @@
       "fecha": null,
       "estrellas": 0,
       "creada": 1784597638554
+    },
+    {
+      "id": "mtc6aoxsq6lz5",
+      "texto": "📊 Cargar corte intermedio de matrícula y días de clase (ver Estadísticas)",
+      "fecha": "2026-10-15",
+      "estrellas": 2,
+      "tipoTiempo": "informacion",
+      "destino": "",
+      "creada": 1787874468544
     }
   ],
   "bitacora": [],
@@ -929,5 +938,29 @@
       "nombre": "Feriado inamovible — Navidad",
       "fecha": "2026-12-25"
     }
-  ]
+  ],
+  "matricula": {
+    "inicio": {
+      "fecha": "2026-07-01",
+      "matricula": 12,
+      "dias": ""
+    },
+    "intermedio": {
+      "fecha": "2026-10-15",
+      "matricula": "",
+      "dias": ""
+    },
+    "fin": {
+      "fecha": "2026-12-17",
+      "matricula": "",
+      "dias": ""
+    },
+    "periodoActual": {
+      "desde": "2026-07-01",
+      "hasta": "2026-12-17"
+    },
+    "suspensiones": [],
+    "historialDiasClase": [],
+    "tareaIntermediaCreada": true
+  }
 }
