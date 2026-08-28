@@ -948,12 +948,12 @@
     "intermedio": {
       "fecha": "2026-10-15",
       "matricula": "",
-      "dias": ""
+      "dias": 75
     },
     "fin": {
       "fecha": "2026-12-17",
       "matricula": "",
-      "dias": ""
+      "dias": 43
     },
     "periodoActual": {
       "desde": "2026-07-01",
@@ -961,6 +961,10 @@
     },
     "suspensiones": [],
     "historialDiasClase": [],
-    "tareaIntermediaCreada": true
+    "tareaIntermediaCreada": true,
+    "ancla": {
+      "fecha": "2026-08-20",
+      "dias": 24
+    }
   }
 }
