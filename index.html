@@ -425,8 +425,8 @@
   .dias-clase-hero-fecha{font-size:.85rem; opacity:.85;}
   .dias-clase-hero .btn-mini-tarea{background:rgba(255,255,255,.15); border-color:rgba(255,255,255,.4); color:#fff;}
   .dias-clase-hero .btn-mini-tarea:hover{background:rgba(255,255,255,.28);}
-  .dias-clase-hero-edit{display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap; background:rgba(255,255,255,.12);
-    border-radius:8px; padding:10px 12px;}
+  .dias-clase-hero-edit{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    background:rgba(255,255,255,.12); border-radius:8px; padding:10px 12px;}
   .dias-clase-hero-edit .matricula-campo{color:#fff;}
   .dias-clase-hero-edit .matricula-campo input{color:#222; width:110px;}
   .dias-clase-historial{border-top:1px solid rgba(255,255,255,.3); padding-top:10px;}
@@ -1055,6 +1055,15 @@
       </div>
     </div>
 
+    <div class="seccion-admin" id="zonaDiasClase">
+      <label>📅 Días de clase — Escuela N° 370</label>
+      <p style="font-size:.8rem; color:var(--gris);">Punto de referencia del contador que se ve en Estadísticas: una fecha y los días de clase que había hasta esa fecha. Corregilo cuando la realidad se desvíe (paro, receso, etc.).</p>
+      <div style="display:flex; gap:14px; flex-wrap:wrap; margin-top:6px;">
+        <div><label style="font-size:.78rem; margin-top:0;">Referencia al</label><input type="date" id="optAnclaFecha" style="width:150px;"></div>
+        <div><label style="font-size:.78rem; margin-top:0;">Días de clase a esa fecha</label><input type="number" id="optAnclaDias" min="0" style="width:110px;"></div>
+      </div>
+    </div>
+
     <div class="seccion-admin" id="zonaPapelera">
       <label>🗑 Papelera de la bitácora</label>
       <div id="contPapelera"></div>
@@ -1582,6 +1591,19 @@ function guardarCorteDiasClase(){
   guardar();
   renderEstadisticas();
   toast("Corte guardado ✔ — el contador arrancó de nuevo en blanco");
+}
+function autocompletarDiasCorte(){
+  let cambios = false;
+  const m = estado.matricula;
+  if (m.intermedio.dias === "" && m.inicio.fecha && m.intermedio.fecha){
+    const s = diasHabilesMenosFeriados(m.inicio.fecha, m.intermedio.fecha);
+    if (s !== null){ m.intermedio.dias = Math.max(0, s); cambios = true; }
+  }
+  if (m.fin.dias === "" && m.intermedio.fecha && m.fin.fecha){
+    const s = diasHabilesMenosFeriados(m.intermedio.fecha, m.fin.fecha);
+    if (s !== null){ m.fin.dias = Math.max(0, s); cambios = true; }
+  }
+  return cambios;
 }
 // Crea, una única vez, una tarea recordatorio con la fecha del corte intermedio (por defecto
 // 15/10/2026) para que el director cargue matrícula y días de clase a mitad de año y la
@@ -5969,6 +5991,7 @@ function renderEstadisticas(){
   const cont = $("#contEstadisticas");
   cont.innerHTML = "";
 
+  if (autocompletarDiasCorte()) guardar();
   cont.appendChild(bloqueDiasClaseHero());
 
   const nav = document.createElement("div");
@@ -6096,15 +6119,13 @@ function diasHabilesMenosFeriados(fechaIni, fechaFin){
   return habiles - feriadosHabiles;
 }
 // Bloque grande y destacado arriba de Estadísticas con los días de clase "en vivo" de la
-// Escuela N° 370: parte de un punto de referencia (fecha + días a esa fecha) y suma los días
-// hábiles que van pasando (restando los feriados ya cargados). El botón "Corregir" recalibra
-// el punto de referencia cuando la realidad se desvía (paro, receso, etc.) — sin tener que
-// reconstruir nada, solo se escribe el número correcto y la fecha. "Guardar corte" archiva el
-// número actual en el historial y reinicia el contador para arrancar de nuevo.
+// Escuela N° 370: parte de un punto de referencia (fecha + días a esa fecha, cargado en
+// ⚙ Opciones) y suma los días hábiles que van pasando (restando los feriados ya cargados).
+// Acá solo se ve el número y se puede archivar un corte — el punto de referencia se corrige
+// desde Opciones, para no ensuciar esta pantalla con controles que se usan de vez en cuando.
 function bloqueDiasClaseHero(){
   const bloque = document.createElement("div");
   bloque.className = "dias-clase-hero";
-  const a = estado.matricula.ancla;
   const dias = diasClaseHoyEsc370();
   const hist = estado.matricula.historialDiasClase;
 
@@ -6115,18 +6136,9 @@ function bloqueDiasClaseHero(){
       '<span class="dias-clase-hero-fecha">al '+fmtCorto(hoyISO())+'</span>'+
     '</div>'+
     '<div class="dias-clase-hero-edit">'+
-      '<label class="matricula-campo">Referencia al<input type="date" id="anclaFecha" value="'+(a.fecha||"")+'"></label>'+
-      '<label class="matricula-campo">Días de clase a esa fecha<input type="number" min="0" id="anclaDias" value="'+(a.dias===""?"":a.dias)+'"></label>'+
-      '<button type="button" class="btn-mini-tarea" id="btnCorregirAncla" style="margin-top:0;">✏ Corregir</button>'+
+      '<span style="font-size:.82rem; opacity:.9;">Para corregir el punto de referencia (después de un paro, un receso, etc.), andá a ⚙ Opciones.</span>'+
       '<button type="button" class="btn-mini-tarea" id="btnGuardarCorteDiasClase" style="margin-top:0;">💾 Guardar corte</button>'+
     '</div>';
-  bloque.querySelector("#btnCorregirAncla").onclick = ()=>{
-    const f = bloque.querySelector("#anclaFecha").value;
-    const d = bloque.querySelector("#anclaDias").value;
-    if (!f){ toast("Elegí una fecha de referencia"); return; }
-    estado.matricula.ancla = { fecha: f, dias: d===""?0:Number(d) };
-    guardar(); renderEstadisticas();
-  };
   bloque.querySelector("#btnGuardarCorteDiasClase").onclick = guardarCorteDiasClase;
 
   if (hist.length){
@@ -6162,8 +6174,8 @@ function filaCorteMatricula(clave, etiqueta, fechaDesde){
     if (sugerido !== null){
       const nota = document.createElement("p");
       nota.className = "matricula-sugerido";
-      nota.textContent = "📐 Sugerido según el calendario: "+sugerido+" días hábiles (feriados cargados) entre "+
-        fmtCorto(fechaDesde)+" y "+fmtCorto(c.fecha)+". Restale recesos, paros o suspensiones que falten.";
+      nota.textContent = "📐 Calculado según el calendario ("+sugerido+" días hábiles entre "+
+        fmtCorto(fechaDesde)+" y "+fmtCorto(c.fecha)+", feriados cargados descontados). Se completa solo si el campo está vacío — restale a mano recesos, paros o suspensiones que falten, o corregilo si hace falta.";
       fila.appendChild(nota);
     }
   }
@@ -6315,6 +6327,8 @@ $("#btnOpciones").onclick = ()=>{
   $("#optReset").checked = !!estado.opciones.resetFunciones;
   $("#optCupoNorte").value = estado.opciones.cupos.norte;
   $("#optCupoSur").value = estado.opciones.cupos.sur;
+  $("#optAnclaFecha").value = estado.matricula.ancla.fecha || "";
+  $("#optAnclaDias").value = estado.matricula.ancla.dias===""?"":estado.matricula.ancla.dias;
   renderPapelera();
   $("#ovOpciones").classList.add("visible");
 };
@@ -6324,6 +6338,10 @@ $("#btnGuardarOpciones").onclick = ()=>{
   estado.opciones.cupos = {
     norte: Math.max(0, parseInt($("#optCupoNorte").value,10) || 0),
     sur: Math.max(0, parseInt($("#optCupoSur").value,10) || 0)
+  };
+  estado.matricula.ancla = {
+    fecha: $("#optAnclaFecha").value || "",
+    dias: $("#optAnclaDias").value===""?0:Math.max(0, parseInt($("#optAnclaDias").value,10)||0)
   };
   aplicarTema();
   cerrar("ovOpciones");
