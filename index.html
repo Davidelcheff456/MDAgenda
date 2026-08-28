@@ -1595,25 +1595,32 @@ function guardarCorteDiasClase(){
 // Desglosa los días hábiles del ciclo lectivo (desde matricula.inicio.fecha
 // hasta hoy) en clase / paro / feriado, para el gráfico de torta de Estadísticas.
 function desgloseDiasCicloLectivo(){
-  const desde = estado.matricula.inicio.fecha;
-  const hasta = hoyISO();
-  if (!desde || hasta < desde) return null;
-  const feriadosSet = new Set(estado.feriados.map(f=>f.fecha));
-  const parosSet = new Set(estado.paros.map(p=>p.fecha));
-  let clase = 0, paro = 0, feriado = 0;
-  let cur = parseISO(desde);
-  const fin = parseISO(hasta);
-  while (cur <= fin){
-    const dia = cur.getDay(); // 0=domingo … 6=sábado
-    if (dia >= 1 && dia <= 5){
-      const iso = isoDe(cur);
-      if (feriadosSet.has(iso)) feriado++;
-      else if (parosSet.has(iso)) paro++;
-      else clase++;
+  // La torta usa exactamente el mismo número que el contador grande de arriba
+  // (diasClaseHoyEsc370), para que las dos cifras coincidan siempre.
+  const clase = diasClaseHoyEsc370();
+  if (clase === null) return null;
+  const a = estado.matricula.ancla;
+  const hoy = hoyISO();
+  let feriado = 0, paro = 0;
+  if (a && a.fecha && hoy > a.fecha){
+    const desde = sumarDias(a.fecha, 1);
+    const feriadosSet = new Set(estado.feriados.map(f=>f.fecha));
+    const parosSet = new Set(estado.paros.map(p=>p.fecha));
+    let cur = parseISO(desde);
+    const fin = parseISO(hoy);
+    while (cur <= fin){
+      const dia = cur.getDay(); // 0=domingo … 6=sábado
+      if (dia >= 1 && dia <= 5){
+        const iso = isoDe(cur);
+        if (feriadosSet.has(iso)) feriado++;
+        else if (parosSet.has(iso)) paro++;
+      }
+      cur = new Date(cur.getFullYear(), cur.getMonth(), cur.getDate()+1);
     }
-    cur = new Date(cur.getFullYear(), cur.getMonth(), cur.getDate()+1);
   }
-  return { desde, hasta, clase, paro, feriado, total: clase+paro+feriado };
+  // Los paros no se descuentan del contador (eso se corrige a mano en Opciones),
+  // así que no forman parte de la torta — se muestran aparte, como aviso.
+  return { clase, feriado, paro, total: clase+feriado, anclaFecha: a?a.fecha:"" };
 }
 function autocompletarDiasCorte(){
   let cambios = false;
@@ -6061,18 +6068,17 @@ function renderEstadisticas(){
 
   const bloqueTorta = document.createElement("div");
   bloqueTorta.className = "stats-bloque";
-  bloqueTorta.innerHTML = '<h3 class="stats-subtitulo">Gráfico de torta — Ciclo lectivo</h3>';
+  bloqueTorta.innerHTML = '<h3 class="stats-subtitulo">Gráfico de torta — Días de clases</h3>';
   const desg = desgloseDiasCicloLectivo();
   if (!desg || !desg.total){
-    bloqueTorta.innerHTML += '<p class="sin-datos">Cargá la fecha de "Inicio" en Matrícula y días de clase, más abajo, para ver este gráfico.</p>';
+    bloqueTorta.innerHTML += '<p class="sin-datos">Cargá la "Referencia" de días de clase en ⚙ Opciones para ver este gráfico.</p>';
   } else {
     const TIPOS_CICLO = {
       clase:   {label:"Días de clase", color:"#2e8b57"},
-      paro:    {label:"Días de paro",  color:"#c0392b"},
       feriado: {label:"Feriados",      color:"#8a8f98"}
     };
-    const ORDEN_CICLO = ["clase","paro","feriado"];
-    bloqueTorta.innerHTML += '<p class="sin-datos" style="padding:0 0 8px;">Días hábiles desde '+fmtCorto(desg.desde)+' hasta '+fmtCorto(desg.hasta)+'.</p>';
+    const ORDEN_CICLO = ["clase","feriado"];
+    bloqueTorta.innerHTML += '<p class="sin-datos" style="padding:0 0 8px;">Misma cuenta que el contador de arriba: '+desg.clase+' días de clase'+(desg.feriado?' + '+desg.feriado+' feriado'+(desg.feriado===1?"":"s")+' descontado'+(desg.feriado===1?"":"s"):"")+'.</p>';
     let acumulado = 0;
     const partes = [];
     for (const k of ORDEN_CICLO){
@@ -6099,6 +6105,13 @@ function renderEstadisticas(){
       leyenda.appendChild(item);
     }
     bloqueTorta.appendChild(leyenda);
+    if (desg.paro){
+      const avisoParo = document.createElement("p");
+      avisoParo.className = "sin-datos";
+      avisoParo.style.cssText = "padding:8px 0 0; font-style:italic;";
+      avisoParo.textContent = "⚠ Hay "+desg.paro+" fecha"+(desg.paro===1?"":"s")+" de paro cargada"+(desg.paro===1?"":"s")+" desde la referencia ("+fmtCorto(desg.anclaFecha)+") que todavía no se restaron del contador — corregilo en ⚙ Opciones si corresponde.";
+      bloqueTorta.appendChild(avisoParo);
+    }
   }
   grid.appendChild(bloqueTorta);
 
