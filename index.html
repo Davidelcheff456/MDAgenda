@@ -548,11 +548,12 @@
       <div class="caja-links-chubut">
         <span class="caja-links-chubut-titulo">🔗 LINKS chubut</span>
         <div class="caja-links-chubut-botones">
-          <a class="btn-link-chubut" href="https://docs.google.com/spreadsheets/d/1qWnrQrNoPKLsHw6gHf-GwWGKqUq3g6s-BPIBuE3wvFU/edit?gid=61236958#gid=61236958" target="_blank" rel="noopener noreferrer"><span class="icono-link-chubut">📊</span> POF</a>
-          <a class="btn-link-chubut" href="https://sistemas2.chubut.edu.ar/soft/ddjj/admin/login" target="_blank" rel="noopener noreferrer"><span class="icono-link-chubut">🧾</span> DDJJ</a>
-          <a class="btn-link-chubut" href="https://sistemas2.chubut.edu.ar/soft/snpe/" target="_blank" rel="noopener noreferrer"><span class="icono-link-chubut">📰</span> M. Novedades</a>
-          <a class="btn-link-chubut" href="http://sistemas.chubut.edu.ar/planta/consulage.php?tipo=buscar" target="_blank" rel="noopener noreferrer"><span class="icono-link-chubut">🏫</span> MEC</a>
-          <a class="btn-link-chubut" href="http://sistemas.chubut.edu.ar/juntamed/jindex.php" target="_blank" rel="noopener noreferrer"><span class="icono-link-chubut">⚕</span> Inscripción junta</a>
+          <a class="btn-link-chubut" data-link-chubut="pof" href="https://docs.google.com/spreadsheets/d/1qWnrQrNoPKLsHw6gHf-GwWGKqUq3g6s-BPIBuE3wvFU/edit?gid=61236958#gid=61236958" target="_blank" rel="noopener noreferrer"><span class="icono-link-chubut">📊</span> POF</a>
+          <a class="btn-link-chubut" data-link-chubut="ddjj" href="https://sistemas2.chubut.edu.ar/soft/ddjj/admin/login" target="_blank" rel="noopener noreferrer"><span class="icono-link-chubut">🧾</span> DDJJ</a>
+          <a class="btn-link-chubut" data-link-chubut="mnovedades" href="https://sistemas2.chubut.edu.ar/soft/snpe/" target="_blank" rel="noopener noreferrer"><span class="icono-link-chubut">📰</span> M. Novedades</a>
+          <a class="btn-link-chubut" data-link-chubut="mec" href="http://sistemas.chubut.edu.ar/planta/consulage.php?tipo=buscar" target="_blank" rel="noopener noreferrer"><span class="icono-link-chubut">🏫</span> MEC</a>
+          <a class="btn-link-chubut" data-link-chubut="junta" href="http://sistemas.chubut.edu.ar/juntamed/jindex.php" target="_blank" rel="noopener noreferrer"><span class="icono-link-chubut">⚕</span> Inscripción junta</a>
+          <a class="btn-link-chubut" data-link-chubut="ra" href="https://chubut.die.educacion.gob.ar/ra2026/" target="_blank" rel="noopener noreferrer"><span class="icono-link-chubut">📈</span> RA</a>
         </div>
       </div>
     </div>
@@ -1064,6 +1065,19 @@
       </div>
     </div>
 
+    <div class="seccion-admin" id="zonaLinksChubut">
+      <label>🔗 Links chubut</label>
+      <p style="font-size:.8rem; color:var(--gris);">URLs de los botones "LINKS chubut" en Tareas. Si algún sistema cambia de dirección (por ejemplo, cada año nuevo para el RA), actualizala acá — el botón y todo lo demás queda igual.</p>
+      <div style="display:flex; flex-direction:column; gap:8px; margin-top:6px;">
+        <div><label style="font-size:.78rem; margin-top:0;">POF</label><input type="url" id="optLinkPof" style="width:100%;"></div>
+        <div><label style="font-size:.78rem; margin-top:0;">DDJJ</label><input type="url" id="optLinkDdjj" style="width:100%;"></div>
+        <div><label style="font-size:.78rem; margin-top:0;">M. Novedades</label><input type="url" id="optLinkMnovedades" style="width:100%;"></div>
+        <div><label style="font-size:.78rem; margin-top:0;">MEC</label><input type="url" id="optLinkMec" style="width:100%;"></div>
+        <div><label style="font-size:.78rem; margin-top:0;">Inscripción junta</label><input type="url" id="optLinkJunta" style="width:100%;"></div>
+        <div><label style="font-size:.78rem; margin-top:0;">RA</label><input type="url" id="optLinkRa" style="width:100%;"></div>
+      </div>
+    </div>
+
     <div class="seccion-admin" id="zonaPapelera">
       <label>🗑 Papelera de la bitácora</label>
       <div id="contPapelera"></div>
@@ -1488,7 +1502,23 @@ function migrarEquipo(arr){
   if (!eq.some(p=>p.rol==="Director")) eq.unshift(personaBase("dir1","Director"));
   return eq;
 }
-const OPCIONES_BASE = {tema:"claro", resetFunciones:true, cupos:{norte:6, sur:6}};
+const LINKS_CHUBUT_DEFAULT = {
+  pof: "https://docs.google.com/spreadsheets/d/1qWnrQrNoPKLsHw6gHf-GwWGKqUq3g6s-BPIBuE3wvFU/edit?gid=61236958#gid=61236958",
+  ddjj: "https://sistemas2.chubut.edu.ar/soft/ddjj/admin/login",
+  mnovedades: "https://sistemas2.chubut.edu.ar/soft/snpe/",
+  mec: "http://sistemas.chubut.edu.ar/planta/consulage.php?tipo=buscar",
+  junta: "http://sistemas.chubut.edu.ar/juntamed/jindex.php",
+  ra: "https://chubut.die.educacion.gob.ar/ra2026/"
+};
+const OPCIONES_BASE = {tema:"claro", resetFunciones:true, cupos:{norte:6, sur:6}, linksChubut:{...LINKS_CHUBUT_DEFAULT}};
+// Aplica las URLs guardadas (o las de fábrica) a los botones LINKS chubut de Tareas.
+function aplicarLinksChubut(){
+  document.querySelectorAll("[data-link-chubut]").forEach(a=>{
+    const clave = a.dataset.linkChubut;
+    const url = (estado.opciones.linksChubut && estado.opciones.linksChubut[clave]) || LINKS_CHUBUT_DEFAULT[clave];
+    if (url) a.href = url;
+  });
+}
 const PREGUNTAS_MEMORIA = [
   {clave:"admConciliaciones", dimension:"Dimensión administrativa", pregunta:"Conciliaciones bancarias y rendiciones: ¿cómo están, qué quedó pendiente?"},
   {clave:"admObs", dimension:"Dimensión administrativa", pregunta:"Observaciones generales de la gestión administrativa"},
@@ -2008,6 +2038,7 @@ async function iniciarAlmacenLocal(){
   cargarLocal();
   if (asegurarTareaCorteIntermedio()) guardar();
   aplicarTema();
+  aplicarLinksChubut();
   aplicarPermisos();
   renderTodo();
   restaurarUltimaVista();
@@ -2018,6 +2049,7 @@ async function iniciarAlmacenLocal(){
       aplicarEstado(datosCarpeta);
       if (asegurarTareaCorteIntermedio()) guardar();
       aplicarTema();
+      aplicarLinksChubut();
       renderTodo();
     }
   } else {
@@ -2057,6 +2089,12 @@ function aplicarEstado(nuevo){
   if (!estado.opciones.cupos || typeof estado.opciones.cupos !== "object") estado.opciones.cupos = {norte:6, sur:6};
   if (typeof estado.opciones.cupos.norte !== "number" || isNaN(estado.opciones.cupos.norte)) estado.opciones.cupos.norte = 6;
   if (typeof estado.opciones.cupos.sur !== "number" || isNaN(estado.opciones.cupos.sur)) estado.opciones.cupos.sur = 6;
+  if (!estado.opciones.linksChubut || typeof estado.opciones.linksChubut !== "object") estado.opciones.linksChubut = {};
+  for (const k of Object.keys(LINKS_CHUBUT_DEFAULT)){
+    if (typeof estado.opciones.linksChubut[k] !== "string" || !estado.opciones.linksChubut[k].trim()){
+      estado.opciones.linksChubut[k] = LINKS_CHUBUT_DEFAULT[k];
+    }
+  }
   estado.escuelasOrigen = Array.isArray(nuevo.escuelasOrigen) ? nuevo.escuelasOrigen.map(normalizarEscuela) : [];
   estado.alumnos = Array.isArray(nuevo.alumnos) ? nuevo.alumnos.map(normalizarAlumno) : [];
   if (asignarOrdenesEsperaFaltantes()) guardar();
@@ -6373,6 +6411,12 @@ $("#btnOpciones").onclick = ()=>{
   $("#optCupoSur").value = estado.opciones.cupos.sur;
   $("#optAnclaFecha").value = estado.matricula.ancla.fecha || "";
   $("#optAnclaDias").value = estado.matricula.ancla.dias===""?"":estado.matricula.ancla.dias;
+  $("#optLinkPof").value = estado.opciones.linksChubut.pof;
+  $("#optLinkDdjj").value = estado.opciones.linksChubut.ddjj;
+  $("#optLinkMnovedades").value = estado.opciones.linksChubut.mnovedades;
+  $("#optLinkMec").value = estado.opciones.linksChubut.mec;
+  $("#optLinkJunta").value = estado.opciones.linksChubut.junta;
+  $("#optLinkRa").value = estado.opciones.linksChubut.ra;
   renderPapelera();
   $("#ovOpciones").classList.add("visible");
 };
@@ -6387,6 +6431,15 @@ $("#btnGuardarOpciones").onclick = ()=>{
     fecha: $("#optAnclaFecha").value || "",
     dias: $("#optAnclaDias").value===""?0:Math.max(0, parseInt($("#optAnclaDias").value,10)||0)
   };
+  estado.opciones.linksChubut = {
+    pof: $("#optLinkPof").value.trim() || LINKS_CHUBUT_DEFAULT.pof,
+    ddjj: $("#optLinkDdjj").value.trim() || LINKS_CHUBUT_DEFAULT.ddjj,
+    mnovedades: $("#optLinkMnovedades").value.trim() || LINKS_CHUBUT_DEFAULT.mnovedades,
+    mec: $("#optLinkMec").value.trim() || LINKS_CHUBUT_DEFAULT.mec,
+    junta: $("#optLinkJunta").value.trim() || LINKS_CHUBUT_DEFAULT.junta,
+    ra: $("#optLinkRa").value.trim() || LINKS_CHUBUT_DEFAULT.ra
+  };
+  aplicarLinksChubut();
   aplicarTema();
   cerrar("ovOpciones");
   guardar(); renderTodo();
