@@ -1592,6 +1592,29 @@ function guardarCorteDiasClase(){
   renderEstadisticas();
   toast("Corte guardado ✔ — el contador arrancó de nuevo en blanco");
 }
+// Desglosa los días hábiles del ciclo lectivo (desde matricula.inicio.fecha
+// hasta hoy) en clase / paro / feriado, para el gráfico de torta de Estadísticas.
+function desgloseDiasCicloLectivo(){
+  const desde = estado.matricula.inicio.fecha;
+  const hasta = hoyISO();
+  if (!desde || hasta < desde) return null;
+  const feriadosSet = new Set(estado.feriados.map(f=>f.fecha));
+  const parosSet = new Set(estado.paros.map(p=>p.fecha));
+  let clase = 0, paro = 0, feriado = 0;
+  let cur = parseISO(desde);
+  const fin = parseISO(hasta);
+  while (cur <= fin){
+    const dia = cur.getDay(); // 0=domingo … 6=sábado
+    if (dia >= 1 && dia <= 5){
+      const iso = isoDe(cur);
+      if (feriadosSet.has(iso)) feriado++;
+      else if (parosSet.has(iso)) paro++;
+      else clase++;
+    }
+    cur = new Date(cur.getFullYear(), cur.getMonth(), cur.getDate()+1);
+  }
+  return { desde, hasta, clase, paro, feriado, total: clase+paro+feriado };
+}
 function autocompletarDiasCorte(){
   let cambios = false;
   const m = estado.matricula;
@@ -6038,19 +6061,27 @@ function renderEstadisticas(){
 
   const bloqueTorta = document.createElement("div");
   bloqueTorta.className = "stats-bloque";
-  bloqueTorta.innerHTML = '<h3 class="stats-subtitulo">Gráfico de torta</h3>';
-  if (!total){
-    bloqueTorta.innerHTML += '<p class="sin-datos">Sin datos esta semana.</p>';
+  bloqueTorta.innerHTML = '<h3 class="stats-subtitulo">Gráfico de torta — Ciclo lectivo</h3>';
+  const desg = desgloseDiasCicloLectivo();
+  if (!desg || !desg.total){
+    bloqueTorta.innerHTML += '<p class="sin-datos">Cargá la fecha de "Inicio" en Matrícula y días de clase, más abajo, para ver este gráfico.</p>';
   } else {
+    const TIPOS_CICLO = {
+      clase:   {label:"Días de clase", color:"#2e8b57"},
+      paro:    {label:"Días de paro",  color:"#c0392b"},
+      feriado: {label:"Feriados",      color:"#8a8f98"}
+    };
+    const ORDEN_CICLO = ["clase","paro","feriado"];
+    bloqueTorta.innerHTML += '<p class="sin-datos" style="padding:0 0 8px;">Días hábiles desde '+fmtCorto(desg.desde)+' hasta '+fmtCorto(desg.hasta)+'.</p>';
     let acumulado = 0;
     const partes = [];
-    for (const k of ORDEN_TIEMPO){
-      const n = conteo[k];
+    for (const k of ORDEN_CICLO){
+      const n = desg[k];
       if (!n) continue;
-      const pctIni = acumulado/total*360;
+      const pctIni = acumulado/desg.total*360;
       acumulado += n;
-      const pctFin = acumulado/total*360;
-      partes.push(TIPOS_TIEMPO[k].color+" "+pctIni.toFixed(2)+"deg "+pctFin.toFixed(2)+"deg");
+      const pctFin = acumulado/desg.total*360;
+      partes.push(TIPOS_CICLO[k].color+" "+pctIni.toFixed(2)+"deg "+pctFin.toFixed(2)+"deg");
     }
     const torta = document.createElement("div");
     torta.className = "torta";
@@ -6058,13 +6089,13 @@ function renderEstadisticas(){
     bloqueTorta.appendChild(torta);
     const leyenda = document.createElement("div");
     leyenda.className = "torta-leyenda";
-    for (const k of ORDEN_TIEMPO){
-      const n = conteo[k];
+    for (const k of ORDEN_CICLO){
+      const n = desg[k];
       if (!n) continue;
-      const pct = Math.round(n/total*100);
+      const pct = Math.round(n/desg.total*100);
       const item = document.createElement("span");
       item.className = "torta-item";
-      item.innerHTML = '<i style="background:'+TIPOS_TIEMPO[k].color+';"></i>'+TIPOS_TIEMPO[k].label+' — '+pct+'%';
+      item.innerHTML = '<i style="background:'+TIPOS_CICLO[k].color+';"></i>'+TIPOS_CICLO[k].label+' — '+n+' ('+pct+'%)';
       leyenda.appendChild(item);
     }
     bloqueTorta.appendChild(leyenda);
