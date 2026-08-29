@@ -130,6 +130,14 @@
     "cupos": {
       "norte": 6,
       "sur": 6
+    },
+    "linksChubut": {
+      "pof": "https://docs.google.com/spreadsheets/d/1qWnrQrNoPKLsHw6gHf-GwWGKqUq3g6s-BPIBuE3wvFU/edit?gid=61236958#gid=61236958",
+      "ddjj": "https://sistemas2.chubut.edu.ar/soft/ddjj/admin/login",
+      "mnovedades": "https://sistemas2.chubut.edu.ar/soft/snpe/",
+      "mec": "http://sistemas.chubut.edu.ar/planta/consulage.php?tipo=buscar",
+      "junta": "http://sistemas.chubut.edu.ar/juntamed/jindex.php",
+      "ra": "https://chubut.die.educacion.gob.ar/ra2026/"
     }
   },
   "escuelasOrigen": [],
@@ -750,31 +758,6 @@
       "id": "mtadp0wgjwkfb",
       "nombre": "Feriado trasladable — Paso a la Inmortalidad del Gral. José de San Martín",
       "fecha": "2026-08-17"
-    },
-    {
-      "id": "mtadp0wg0tbrt",
-      "nombre": "Feriado trasladable — Día de la Raza",
-      "fecha": "2026-10-12"
-    },
-    {
-      "id": "mtadp0wgvuvaz",
-      "nombre": "Feriado trasladable — Día de la Soberanía Nacional (20/11)",
-      "fecha": "2026-11-23"
-    },
-    {
-      "id": "mtadp0wg3cdq7",
-      "nombre": "Feriado turístico — Día no laborable con fines turísticos",
-      "fecha": "2026-12-07"
-    },
-    {
-      "id": "mtadp0wgx6emc",
-      "nombre": "Feriado inamovible — Inmaculada Concepción de María",
-      "fecha": "2026-12-08"
-    },
-    {
-      "id": "mtadp0wgqi5bb",
-      "nombre": "Feriado inamovible — Navidad",
-      "fecha": "2026-12-25"
     },
     {
       "id": "mtadphs3bp52o",
