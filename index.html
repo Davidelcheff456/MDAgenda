@@ -233,7 +233,10 @@
   .dia-card{border:1px solid var(--borde); border-radius:10px; background:#fbfaf6; padding:12px; cursor:pointer;}
   .dia-card:hover{box-shadow:0 3px 10px rgba(0,0,0,.1);}
   .dia-card h4{color:var(--azul-osc); margin-bottom:8px; font-size:.95rem;}
-  .dia-card .pers{font-size:.85rem; padding:3px 0; border-bottom:1px dotted #e5e0d4;}
+  .dia-card .grupo-horario{margin-top:8px;}
+  .dia-card .grupo-horario:first-of-type{margin-top:0;}
+  .dia-card .grupo-horario-hora{font-size:.78rem; font-weight:700; color:var(--azul-osc); text-transform:uppercase; letter-spacing:.02em; margin-bottom:2px;}
+  .dia-card .pers{font-size:.85rem; padding:3px 0 3px 8px; border-bottom:1px dotted #e5e0d4;}
   .dia-card .pers b{color:#333;}
   .dia-card .rol-tag{font-size:.72rem; color:var(--azul); font-weight:700;}
   .dia-card .nadie{color:var(--gris); font-style:italic; font-size:.85rem;}
@@ -4333,11 +4336,21 @@ function renderDisponible(){
     if (!pres.length){
       card.innerHTML += '<div class="nadie">Sin personal cargado</div>';
     } else {
+      // Agrupa por horario (en vez de repetir la hora en cada persona), así queda un
+      // encabezado por franja y debajo la lista de quiénes están en ese horario.
+      let grupoCont = null, grupoDesde = null, grupoHasta = null;
       for (const pr of pres){
+        if (!grupoCont || grupoDesde!==pr.desde || grupoHasta!==pr.hasta){
+          grupoDesde = pr.desde; grupoHasta = pr.hasta;
+          grupoCont = document.createElement("div");
+          grupoCont.className = "grupo-horario";
+          grupoCont.innerHTML = '<div class="grupo-horario-hora">'+aHHMM(pr.desde)+"–"+aHHMM(pr.hasta)+'</div>';
+          card.appendChild(grupoCont);
+        }
         const fila = document.createElement("div");
         fila.className = "pers"+(pr.paro ? " en-paro" : (pr.ausente ? " en-ausente" : (pr.lic ? " en-lic" : "")));
-        fila.innerHTML = aHHMM(pr.desde)+"–"+aHHMM(pr.hasta)+" · <b class='"+pr.zona+"'>"+escapar(pr.nombre)+"</b> <span class='rol-tag'>"+escapar(pr.rol)+"</span>"+etiquetasPr(pr);
-        card.appendChild(fila);
+        fila.innerHTML = "<b class='"+pr.zona+"'>"+escapar(pr.nombre)+"</b> <span class='rol-tag'>"+escapar(pr.rol)+"</span>"+etiquetasPr(pr);
+        grupoCont.appendChild(fila);
       }
     }
     card.onclick = ()=>{ diaDetalle = i; renderDisponible(); };
