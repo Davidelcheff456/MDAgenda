@@ -3907,17 +3907,24 @@ function tituloCase(s){
 }
 // Lee la grilla "HORARIOS PROFES" (una fila con docente/espacio/Total horas, seguida de filas de
 // horario con X en los días que da clase, en franjas de DUR_MODULO minutos) y carga/actualiza los
-// horarios en estado.docentes. Agrupa las X consecutivas de cada día en tramos (máx. 2 por día,
-// como ya soporta la ficha) y, si el mismo docente aparece en más de un bloque (por ejemplo, da
-// una materia y además es coordinador), combina ambos horarios en una sola ficha.
-// Antes de guardar cada docente, valida que la suma de horas que se pudo armar coincida con el
-// "Total horas" declarado en el Excel — si no coincide, no lo carga y lo deja en los avisos, para
-// no inventar un horario que capaz no es el real (esto pasa cuando el Excel tiene alguna celda
-// combinada o corrida que hace que la hora no coincida con la columna del día).
+// horarios. Agrupa las X consecutivas de cada día en tramos (máx. 2 por día, mañana/tarde).
+// Los espacios "POT" o "Coordinador/a" no son una materia: van a la pestaña Equipo (con horario
+// de entrada/salida, como ya usa esa pestaña), no a Docentes. Si la misma persona da una materia
+// Y además es POT/coordinador, queda con una ficha en cada pestaña, sin mezclar los horarios.
+// Antes de guardar, valida que la suma de horas que se pudo armar coincida con el "Total horas"
+// declarado en el Excel — si no coincide, no lo carga y lo deja en los avisos, para no inventar
+// un horario que capaz no es el real (esto pasa cuando el Excel tiene alguna celda combinada o
+// corrida que hace que la hora no coincida con la columna del día).
 function importarHorariosDocentes(filas){
   const DIAS_COLS = ["lun","mar","mie","jue","vie"]; // columnas D a H de la grilla
   const reHora = /^(\d{1,2})[:.](\d{2})\s*-\s*(\d{1,2})[:.](\d{2})/;
   const val = (row,i)=> (row[i]!==undefined && row[i]!==null) ? String(row[i]).trim() : "";
+  const rolEquipoDe = (espacio)=>{
+    const e = espacio.toUpperCase();
+    if (e.indexOf("POT")>=0) return "POT";
+    if (e.indexOf("COORDINADOR")>=0) return "Coordinador/a";
+    return null;
+  };
 
   const bloques = [];
   let cur = null;
@@ -3926,7 +3933,8 @@ function importarHorariosDocentes(filas){
     const esFilaTotalHs = val(row,7).toUpperCase().indexOf("TOTAL")===0;
     const totalNum = Number(totalTxt.replace(",","."));
     if (!esFilaTotalHs && totalTxt!=="" && !isNaN(totalNum) && totalNum>0){
-      cur = { fila: idx+1, nombre: val(row,0), espacio: val(row,1).replace(/\s+/g," ").trim(), total: totalNum,
+      const espacio = val(row,1).replace(/\s+/g," ").trim();
+      cur = { fila: idx+1, nombre: val(row,0), espacio, total: totalNum, rolEquipo: rolEquipoDe(espacio),
         dias: {lun:[], mar:[], mie:[], jue:[], vie:[]} };
       bloques.push(cur);
     }
@@ -3941,25 +3949,29 @@ function importarHorariosDocentes(filas){
     });
   });
 
-  // Agrupa los bloques por nombre de docente (combina materias/roles y horarios de uno mismo).
-  const porNombre = new Map();
+  // Agrupa por (destino, nombre): si alguien da una materia y también es POT/coordinador, son
+  // dos grupos separados (uno para Docentes, otro para Equipo), no se mezclan los horarios.
+  const grupos = new Map();
   const sinNombre = [];
   for (const b of bloques){
     if (!b.nombre){ sinNombre.push(b); continue; }
-    const clave = b.nombre.toUpperCase().replace(/\s+/g," ");
-    if (!porNombre.has(clave)){
-      porNombre.set(clave, {nombre:b.nombre, espacios:[], total:0, dias:{lun:[],mar:[],mie:[],jue:[],vie:[]}});
+    const destino = b.rolEquipo ? "equipo" : "docente";
+    const clave = destino+"|"+b.nombre.toUpperCase().replace(/\s+/g," ");
+    if (!grupos.has(clave)){
+      grupos.set(clave, {destino, nombre:b.nombre, rolEquipo:b.rolEquipo, espacios:[], total:0,
+        dias:{lun:[],mar:[],mie:[],jue:[],vie:[]}});
     }
-    const g = porNombre.get(clave);
+    const g = grupos.get(clave);
     if (b.espacio) g.espacios.push(b.espacio);
     g.total += b.total;
     for (const d of DIAS_COLS) g.dias[d].push(...b.dias[d]);
   }
 
   const avisos = [];
-  let nuevos = 0, actualizados = 0;
-  for (const [, g] of porNombre){
-    const horarios = {};
+  let nuevosDoc=0, actualizadosDoc=0, nuevosEq=0, actualizadosEq=0;
+  for (const [, g] of grupos){
+    // Arma los tramos (máx. 2 por día) a partir de las franjas X consecutivas de cada día.
+    const tramosDia = {};
     let totalCalculado = 0;
     let masDeDosTramos = false;
     for (const d of DIAS_COLS){
@@ -3970,46 +3982,78 @@ function importarHorariosDocentes(filas){
         else runs.push([desde,hasta]);
       }
       if (runs.length > 2){ masDeDosTramos = true; runs.length = 2; }
-      if (!runs.length) continue;
-      const h = {};
-      runs.forEach((r,i)=>{
-        const suf = i===0 ? "" : "2";
-        h["desde"+suf] = r[0];
-        h["modulos"+suf] = Math.round((aMin(r[1])-aMin(r[0]))/DUR_MODULO);
-        totalCalculado += h["modulos"+suf];
-      });
-      horarios[d] = h;
+      if (runs.length){
+        tramosDia[d] = runs;
+        runs.forEach(r=> totalCalculado += Math.round((aMin(r[1])-aMin(r[0]))/DUR_MODULO));
+      }
     }
     if (masDeDosTramos){
       avisos.push(g.nombre+": algún día tiene más de 2 franjas horarias — se cargaron solo las 2 primeras, conviene revisar la ficha.");
     }
     if (totalCalculado !== g.total){
-      avisos.push(g.nombre+": el total calculado ("+totalCalculado+" hs) no coincide con el total del Excel ("+g.total+" hs) — no se cargó, revisalo a mano en el Excel y volvé a intentar.");
+      avisos.push(g.nombre+" ("+g.espacios.join(", ")+"): el total calculado ("+totalCalculado+" hs) no coincide con el total del Excel ("+g.total+" hs) — no se cargó, revisalo a mano en el Excel y volvé a intentar.");
       continue;
     }
     const clave = g.nombre.toUpperCase().replace(/\s+/g," ");
-    let p = estado.docentes.find(x=> nombreDe(x).toUpperCase().replace(/\s+/g," ")===clave);
-    const materia = tituloCase(g.espacios[0]||"");
-    const materiasSec = g.espacios.slice(1).map(tituloCase).join(" / ");
-    if (p){
-      if (materia) p.materia = materia;
-      if (materiasSec) p.materiasSec = materiasSec;
-      p.horarios = horarios;
-      actualizados++;
+    if (g.destino==="equipo"){
+      const horarios = {};
+      for (const d of DIAS_COLS){
+        if (!tramosDia[d]) continue;
+        const h = {};
+        tramosDia[d].forEach((r,i)=>{ const suf = i===0?"":"2"; h["desde"+suf]=r[0]; h["hasta"+suf]=r[1]; });
+        horarios[d] = h;
+      }
+      let p = estado.equipo.find(x=> nombreDe(x).toUpperCase().replace(/\s+/g," ")===clave);
+      if (!p) p = estado.equipo.find(x=> !nombreDe(x).trim() && x.rol===g.rolEquipo);
+      const detalle = tituloCase(g.espacios.join(" / "));
+      if (p){
+        if (!nombreDe(p).trim()) p.nombre = tituloCase(g.nombre);
+        if (detalle && detalle.toUpperCase()!==g.rolEquipo.toUpperCase() && !p.notas) p.notas = detalle;
+        p.horarios = horarios;
+        actualizadosEq++;
+      } else {
+        p = personaBase(uid(), g.rolEquipo);
+        p.nombre = tituloCase(g.nombre);
+        if (detalle && detalle.toUpperCase()!==g.rolEquipo.toUpperCase()) p.notas = detalle;
+        p.horarios = horarios;
+        estado.equipo.push(p);
+        nuevosEq++;
+      }
     } else {
-      p = personaBase(uid(), "Docente");
-      p.nombre = tituloCase(g.nombre);
-      p.materia = materia;
-      p.materiasSec = materiasSec;
-      p.horarios = horarios;
-      estado.docentes.push(p);
-      nuevos++;
+      const horarios = {};
+      for (const d of DIAS_COLS){
+        if (!tramosDia[d]) continue;
+        const h = {};
+        tramosDia[d].forEach((r,i)=>{
+          const suf = i===0?"":"2";
+          h["desde"+suf] = r[0];
+          h["modulos"+suf] = Math.round((aMin(r[1])-aMin(r[0]))/DUR_MODULO);
+        });
+        horarios[d] = h;
+      }
+      let p = estado.docentes.find(x=> nombreDe(x).toUpperCase().replace(/\s+/g," ")===clave);
+      const materia = tituloCase(g.espacios[0]||"");
+      const materiasSec = g.espacios.slice(1).map(tituloCase).join(" / ");
+      if (p){
+        if (materia) p.materia = materia;
+        p.materiasSec = materiasSec;
+        p.horarios = horarios;
+        actualizadosDoc++;
+      } else {
+        p = personaBase(uid(), "Docente");
+        p.nombre = tituloCase(g.nombre);
+        p.materia = materia;
+        p.materiasSec = materiasSec;
+        p.horarios = horarios;
+        estado.docentes.push(p);
+        nuevosDoc++;
+      }
     }
   }
   for (const b of sinNombre){
     avisos.push("Fila "+b.fila+" del Excel: hay un bloque de horario ("+b.espacio+", "+b.total+" hs) sin nombre de docente — no se pudo cargar, hay que completarlo a mano.");
   }
-  return {nuevos, actualizados, avisos};
+  return {nuevosDoc, actualizadosDoc, nuevosEq, actualizadosEq, avisos};
 }
 function procesarExcelHorariosDocentes(file){
   if (typeof XLSX === "undefined"){
@@ -4023,11 +4067,11 @@ function procesarExcelHorariosDocentes(file){
       const wb = XLSX.read(data, {type:"array"});
       const hoja = wb.Sheets[wb.SheetNames[0]];
       const filas = XLSX.utils.sheet_to_json(hoja, {header:1, raw:true, defval:""});
-      const {nuevos, actualizados, avisos} = importarHorariosDocentes(filas);
-      guardar(); renderDocentes();
-      const total = nuevos+actualizados;
-      toast(total ? nuevos+" docente(s) nuevo(s), "+actualizados+" actualizado(s) ✔"
-        : "No se pudo cargar ningún docente — revisá que el Excel tenga el formato esperado");
+      const {nuevosDoc, actualizadosDoc, nuevosEq, actualizadosEq, avisos} = importarHorariosDocentes(filas);
+      guardar(); renderDocentes(); renderEquipo();
+      const total = nuevosDoc+actualizadosDoc+nuevosEq+actualizadosEq;
+      toast(total ? nuevosDoc+" docente(s) nuevo(s), "+actualizadosDoc+" actualizado(s); "+nuevosEq+" en Equipo nuevo(s), "+actualizadosEq+" actualizado(s) ✔"
+        : "No se pudo cargar a nadie — revisá que el Excel tenga el formato esperado");
       if (avisos.length) alert("Avisos al importar horarios:\n\n"+avisos.join("\n\n"));
     } catch(err){
       console.error(err);

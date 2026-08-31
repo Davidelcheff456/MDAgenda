@@ -45,14 +45,35 @@
     {
       "id": "pot1",
       "rol": "POT",
-      "nombre": "",
+      "nombre": "Ricardo Venter",
       "apellido": "",
       "telefono": "",
       "correo": "",
       "notas": "",
       "direccion": "",
       "zona": "",
-      "horarios": {},
+      "horarios": {
+        "lun": {
+          "desde": "13:20",
+          "hasta": "17:20"
+        },
+        "mar": {
+          "desde": "13:20",
+          "hasta": "17:20"
+        },
+        "mie": {
+          "desde": "13:20",
+          "hasta": "17:20"
+        },
+        "jue": {
+          "desde": "13:20",
+          "hasta": "17:20"
+        },
+        "vie": {
+          "desde": "13:20",
+          "hasta": "17:20"
+        }
+      },
       "tareas": [],
       "funciones": []
     },
@@ -73,33 +94,389 @@
     {
       "id": "coord1",
       "rol": "Coordinador/a",
-      "nombre": "",
+      "nombre": "Aybar Sebastian Dario",
       "apellido": "",
       "telefono": "",
       "correo": "",
-      "notas": "",
+      "notas": "Coordinador",
       "direccion": "",
       "zona": "",
-      "horarios": {},
+      "horarios": {
+        "lun": {
+          "desde": "13:20",
+          "hasta": "17:20"
+        },
+        "vie": {
+          "desde": "13:20",
+          "hasta": "17:20"
+        }
+      },
       "tareas": [],
       "funciones": []
     },
     {
       "id": "coord2",
       "rol": "Coordinador/a",
-      "nombre": "",
+      "nombre": "Mancilla Diego Martin",
+      "apellido": "",
+      "telefono": "",
+      "correo": "",
+      "notas": "Coordinador Dyh",
+      "direccion": "",
+      "zona": "",
+      "horarios": {
+        "lun": {
+          "desde": "08:00",
+          "hasta": "08:40"
+        },
+        "mar": {
+          "desde": "08:00",
+          "hasta": "11:20"
+        },
+        "mie": {
+          "desde": "08:00",
+          "hasta": "11:20"
+        },
+        "jue": {
+          "desde": "08:00",
+          "hasta": "08:40"
+        }
+      },
+      "tareas": [],
+      "funciones": []
+    }
+  ],
+  "docentes": [
+    {
+      "id": "mthjum3e4v0vt",
+      "rol": "Docente",
+      "nombre": "Lagos Silvia",
       "apellido": "",
       "telefono": "",
       "correo": "",
       "notas": "",
       "direccion": "",
       "zona": "",
-      "horarios": {},
+      "horarios": {
+        "mar": {
+          "desde": "14:40",
+          "modulos": 5
+        },
+        "mie": {
+          "desde": "14:40",
+          "modulos": 5
+        },
+        "jue": {
+          "desde": "14:40",
+          "modulos": 5
+        }
+      },
       "tareas": [],
-      "funciones": []
+      "funciones": [],
+      "materia": "Lengua Y Literatura",
+      "materiasSec": ""
+    },
+    {
+      "id": "mthjum3edm3wc",
+      "rol": "Docente",
+      "nombre": "Toranzo Pablo",
+      "apellido": "",
+      "telefono": "",
+      "correo": "",
+      "notas": "",
+      "direccion": "",
+      "zona": "",
+      "horarios": {
+        "lun": {
+          "desde": "14:00",
+          "modulos": 5
+        },
+        "mar": {
+          "desde": "14:00",
+          "modulos": 5
+        },
+        "mie": {
+          "desde": "14:00",
+          "modulos": 5
+        }
+      },
+      "tareas": [],
+      "funciones": [],
+      "materia": "Matemática",
+      "materiasSec": ""
+    },
+    {
+      "id": "mthjum3eabgns",
+      "rol": "Docente",
+      "nombre": "Cuenca Ana Kalinka",
+      "apellido": "",
+      "telefono": "",
+      "correo": "",
+      "notas": "",
+      "direccion": "",
+      "zona": "",
+      "horarios": {
+        "lun": {
+          "desde": "13:20",
+          "modulos": 6
+        },
+        "mie": {
+          "desde": "13:20",
+          "modulos": 3
+        },
+        "vie": {
+          "desde": "13:20",
+          "modulos": 6
+        }
+      },
+      "tareas": [],
+      "funciones": [],
+      "materia": "Cs. Sociales: Historia-geografia",
+      "materiasSec": ""
+    },
+    {
+      "id": "mthjum3eorx9o",
+      "rol": "Docente",
+      "nombre": "Galvan Estrella Maxi",
+      "apellido": "",
+      "telefono": "",
+      "correo": "",
+      "notas": "",
+      "direccion": "",
+      "zona": "",
+      "horarios": {
+        "mie": {
+          "desde": "14:00",
+          "modulos": 4
+        },
+        "jue": {
+          "desde": "14:00",
+          "modulos": 4
+        },
+        "vie": {
+          "desde": "14:00",
+          "modulos": 4
+        }
+      },
+      "tareas": [],
+      "funciones": [],
+      "materia": "Lengua Extranjera",
+      "materiasSec": ""
+    },
+    {
+      "id": "mthjum3ezdc6r",
+      "rol": "Docente",
+      "nombre": "Gonzalez Karina",
+      "apellido": "",
+      "telefono": "",
+      "correo": "",
+      "notas": "",
+      "direccion": "",
+      "zona": "",
+      "horarios": {
+        "jue": {
+          "desde": "13:20",
+          "modulos": 6
+        },
+        "vie": {
+          "desde": "13:20",
+          "modulos": 6
+        }
+      },
+      "tareas": [],
+      "funciones": [],
+      "materia": "Educación Tecnologica",
+      "materiasSec": ""
+    },
+    {
+      "id": "mthjum3eng981",
+      "rol": "Docente",
+      "nombre": "Bulacios Vanina",
+      "apellido": "",
+      "telefono": "",
+      "correo": "",
+      "notas": "",
+      "direccion": "",
+      "zona": "",
+      "horarios": {
+        "lun": {
+          "desde": "15:20",
+          "modulos": 3
+        },
+        "mie": {
+          "desde": "14:00",
+          "modulos": 5
+        },
+        "jue": {
+          "desde": "14:00",
+          "modulos": 2
+        },
+        "vie": {
+          "desde": "14:00",
+          "modulos": 2
+        }
+      },
+      "tareas": [],
+      "funciones": [],
+      "materia": "Biologia",
+      "materiasSec": ""
+    },
+    {
+      "id": "mthjum3e3spmh",
+      "rol": "Docente",
+      "nombre": "Fort Maria Mercedes",
+      "apellido": "",
+      "telefono": "",
+      "correo": "",
+      "notas": "",
+      "direccion": "",
+      "zona": "",
+      "horarios": {
+        "lun": {
+          "desde": "10:40",
+          "modulos": 2
+        },
+        "mar": {
+          "desde": "08:40",
+          "modulos": 5
+        },
+        "mie": {
+          "desde": "08:40",
+          "modulos": 5
+        }
+      },
+      "tareas": [],
+      "funciones": [],
+      "materia": "Educación Tecnologica",
+      "materiasSec": ""
+    },
+    {
+      "id": "mthjum3eiu8va",
+      "rol": "Docente",
+      "nombre": "Gareca Lidia Ester",
+      "apellido": "",
+      "telefono": "",
+      "correo": "",
+      "notas": "",
+      "direccion": "",
+      "zona": "",
+      "horarios": {
+        "mar": {
+          "desde": "09:40",
+          "modulos": 4,
+          "desde2": "13:20",
+          "modulos2": 4
+        },
+        "mie": {
+          "desde": "09:00",
+          "modulos": 5,
+          "desde2": "13:20",
+          "modulos2": 4
+        },
+        "vie": {
+          "desde": "11:00",
+          "modulos": 2,
+          "desde2": "13:20",
+          "modulos2": 4
+        }
+      },
+      "tareas": [],
+      "funciones": [],
+      "materia": "Cs. Sociales",
+      "materiasSec": ""
+    },
+    {
+      "id": "mthjum3e4ipzb",
+      "rol": "Docente",
+      "nombre": "Mancilla Diego Martin",
+      "apellido": "",
+      "telefono": "",
+      "correo": "",
+      "notas": "",
+      "direccion": "",
+      "zona": "",
+      "horarios": {
+        "lun": {
+          "desde": "13:20",
+          "modulos": 5
+        },
+        "mar": {
+          "desde": "14:00",
+          "modulos": 2
+        },
+        "mie": {
+          "desde": "13:20",
+          "modulos": 4
+        },
+        "jue": {
+          "desde": "13:20",
+          "modulos": 4
+        }
+      },
+      "tareas": [],
+      "funciones": [],
+      "materia": "Lengua Y Literatura",
+      "materiasSec": ""
+    },
+    {
+      "id": "mthjum3eyyuwg",
+      "rol": "Docente",
+      "nombre": "Parolín Jorge Leonardo",
+      "apellido": "",
+      "telefono": "",
+      "correo": "",
+      "notas": "",
+      "direccion": "",
+      "zona": "",
+      "horarios": {
+        "lun": {
+          "desde": "13:20",
+          "modulos": 5
+        },
+        "mar": {
+          "desde": "14:00",
+          "modulos": 2
+        },
+        "jue": {
+          "desde": "13:20",
+          "modulos": 5
+        }
+      },
+      "tareas": [],
+      "funciones": [],
+      "materia": "Inglés",
+      "materiasSec": ""
+    },
+    {
+      "id": "mthjum3elcwbk",
+      "rol": "Docente",
+      "nombre": "Saravia Marcelo",
+      "apellido": "",
+      "telefono": "",
+      "correo": "",
+      "notas": "",
+      "direccion": "",
+      "zona": "",
+      "horarios": {
+        "mar": {
+          "desde": "08:40",
+          "modulos": 5
+        },
+        "jue": {
+          "desde": "13:20",
+          "modulos": 5
+        },
+        "vie": {
+          "desde": "08:40",
+          "modulos": 5
+        }
+      },
+      "tareas": [],
+      "funciones": [],
+      "materia": "Biologia",
+      "materiasSec": ""
     }
   ],
-  "docentes": [],
   "licencias": [],
   "paros": [],
   "papelera": [],
