@@ -417,6 +417,10 @@
   .matricula-campo{display:flex; flex-direction:column; gap:4px; font-size:.78rem; color:var(--gris);}
   .matricula-campo input{padding:6px 8px; border:1px solid var(--borde); border-radius:6px; font-size:.9rem; width:130px;}
   .matricula-sugerido{flex-basis:100%; margin:2px 0 0; font-size:.8rem; color:var(--gris); font-style:italic;}
+  .tabla-censo{width:100%; border-collapse:collapse; font-size:.85rem;}
+  .tabla-censo th, .tabla-censo td{padding:6px 8px; border-bottom:1px solid var(--borde); text-align:left;}
+  .tabla-censo th:not(:first-child), .tabla-censo td:not(:first-child){text-align:center; width:70px;}
+  .tabla-censo th{font-weight:700; color:var(--gris);}
   .dias-clase-hero{display:flex; flex-direction:column; gap:14px; margin-bottom:20px;
     padding:16px 20px; border-radius:12px; background:var(--azul); color:#fff;}
   .dias-clase-hero-principal{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;}
@@ -1078,6 +1082,16 @@
       </div>
     </div>
 
+    <div class="seccion-admin" id="zonaCensoAnual">
+      <label>📋 Movimiento y promoción (censo anual)</label>
+      <p style="font-size:.8rem; color:var(--gris);">Punto de referencia para el informe de movimiento del bloque "Movimiento y promoción" en Estadísticas: la matrícula (total y varones) a una fecha de corte (por ejemplo, al 30/4). A partir de ahí, entrados y salidos se calculan solos según la fecha de ingreso y la fecha de baja que cargues en cada ficha de alumno.</p>
+      <div style="display:flex; gap:14px; flex-wrap:wrap; margin-top:6px;">
+        <div><label style="font-size:.78rem; margin-top:0;">Matrícula al</label><input type="date" id="optCensoFecha" style="width:150px;"></div>
+        <div><label style="font-size:.78rem; margin-top:0;">Total</label><input type="number" id="optCensoTotal" min="0" style="width:90px;"></div>
+        <div><label style="font-size:.78rem; margin-top:0;">Varones</label><input type="number" id="optCensoVarones" min="0" style="width:90px;"></div>
+      </div>
+    </div>
+
     <div class="seccion-admin" id="zonaPapelera">
       <label>🗑 Papelera de la bitácora</label>
       <div id="contPapelera"></div>
@@ -1256,6 +1270,12 @@
     <input type="number" id="alEdad" min="0" max="30" style="max-width:100px;">
     <label>DNI</label>
     <input type="text" id="alDni" inputmode="numeric" placeholder="Sin puntos">
+    <label>Sexo</label>
+    <select id="alSexo">
+      <option value="">Sin definir</option>
+      <option value="V">Varón</option>
+      <option value="M">Mujer</option>
+    </select>
     <label>Dirección</label>
     <input type="text" id="alDireccion" placeholder="Calle y número, localidad">
     <p style="margin-top:4px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
@@ -1298,6 +1318,18 @@
       <label>N° de orden en la lista de espera</label>
       <input type="number" id="alOrdenEspera" min="1" style="max-width:120px;">
     </div>
+    <div id="alFechaBajaWrap" style="display:none;">
+      <label>Fecha de baja</label>
+      <input type="date" id="alFechaBaja">
+    </div>
+    <label>Resultado de promoción <span class="mini-dato" style="font-weight:400;">(se completa cerca de fin de año)</span></label>
+    <select id="alResultadoPromocion">
+      <option value="">Pendiente</option>
+      <option value="promovido">Promovido</option>
+      <option value="promovido_examen">Promovido con examen y/o acompañamiento</option>
+      <option value="no_promovido">No promovido</option>
+      <option value="otro">Otro (libre, reválida, otro régimen)</option>
+    </select>
     <label class="chk" style="display:flex; align-items:center; gap:8px; margin-top:10px;"><input type="checkbox" id="alAtendidoPot" style="width:16px; height:16px;"> Atendido únicamente por el POT</label>
     <label>Espacios curriculares cubiertos</label>
     <textarea id="alEspaciosCurriculares" placeholder="Espacios/materias que ya tiene cubiertos, si corresponde..."></textarea>
@@ -1554,7 +1586,7 @@ function estadoInicial(){
   return { tareas: [], bitacora: [], equipo: equipoInicial(), docentes: [],
            licencias: [], paros: [], papelera: [], metas: [], opciones: {...OPCIONES_BASE},
            escuelasOrigen: [], alumnos: [], memoria: memoriaBase(), contactosExtra: [],
-           fechasProvincia: [], feriados: [], matricula: matriculaBase() };
+           fechasProvincia: [], feriados: [], matricula: matriculaBase(), censoAnual: censoAnualBase() };
 }
 // Matrícula y días de clase: 3 cortes manuales (el director carga los números, no se calculan
 // solos) para poder comparar cómo evolucionó la cantidad de estudiantes atendidos y los días
@@ -1593,6 +1625,49 @@ function normalizarMatricula(m){
   if (!Array.isArray(m.historialDiasClase)) m.historialDiasClase = [];
   m.tareaIntermediaCreada = !!m.tareaIntermediaCreada;
   return m;
+}
+// Censo anual (movimiento y promoción): mismo patrón que "ancla" de días de clase — un punto
+// de referencia (fecha + matrícula total/varones a esa fecha, ej. al 30/4) cargado a mano una
+// vez. De ahí en más, entrados/salidos se calculan solos a partir de fechaIngreso/fechaBaja de
+// cada alumno, y promovidos/no promovidos a partir de resultadoPromocion.
+function censoAnualBase(){
+  return { ancla: { fecha:"", total:0, varones:0 } };
+}
+function normalizarCensoAnual(c){
+  if (!c || typeof c !== "object") c = {};
+  if (!c.ancla || typeof c.ancla !== "object") c.ancla = {};
+  if (typeof c.ancla.fecha !== "string") c.ancla.fecha = "";
+  if (typeof c.ancla.total !== "number" || isNaN(c.ancla.total)) c.ancla.total = 0;
+  if (typeof c.ancla.varones !== "number" || isNaN(c.ancla.varones)) c.ancla.varones = 0;
+  return c;
+}
+// Calcula el resumen de movimiento y promoción desde la referencia cargada hasta hoy.
+// Devuelve null si todavía no se cargó la fecha de referencia en Opciones.
+function resumenCensoAnual(){
+  const a = estado.censoAnual && estado.censoAnual.ancla;
+  if (!a || !a.fecha) return null;
+  const hoy = hoyISO();
+  const entrados = estado.alumnos.filter(x=>x.fechaIngreso && x.fechaIngreso > a.fecha && x.fechaIngreso <= hoy);
+  const salidos = estado.alumnos.filter(x=>x.fechaBaja && x.fechaBaja > a.fecha && x.fechaBaja <= hoy);
+  const contar = (lista, soloVarones)=> soloVarones ? lista.filter(x=>x.sexo==="V").length : lista.length;
+  const entradosTotal = contar(entrados), entradosVarones = contar(entrados,true);
+  const salidosTotal = contar(salidos), salidosVarones = contar(salidos,true);
+  const matriculaTotal = Math.max(0, (a.total||0) + entradosTotal - salidosTotal);
+  const matriculaVarones = Math.max(0, (a.varones||0) + entradosVarones - salidosVarones);
+  const porResultado = (clave)=>{
+    const lista = estado.alumnos.filter(x=>x.resultadoPromocion===clave);
+    return { total: contar(lista), varones: contar(lista,true) };
+  };
+  return {
+    anclaFecha: a.fecha, anclaTotal: a.total||0, anclaVarones: a.varones||0,
+    entrados: {total:entradosTotal, varones:entradosVarones},
+    salidos: {total:salidosTotal, varones:salidosVarones},
+    matriculaActual: {total:matriculaTotal, varones:matriculaVarones},
+    promovido: porResultado("promovido"),
+    promovido_examen: porResultado("promovido_examen"),
+    no_promovido: porResultado("no_promovido"),
+    otro: porResultado("otro")
+  };
 }
 // Días de clase "hoy" de Escuela N° 370: parte del punto de referencia cargado (ancla) y le
 // suma los días hábiles (lunes a viernes, menos feriados cargados) que pasaron desde esa
@@ -1731,12 +1806,20 @@ function normalizarEscuela(e){
 }
 function condicionBase(){ return {tiene:false, detalle:""}; }
 function alumnoBase(){
-  return {id: uid(), nombre:"", apellido:"", edad:"", dni:"", escuelaOrigenId:"", cursoOrigen:"", modalidad:"", zona:"", cupoZona:"",
+  return {id: uid(), nombre:"", apellido:"", edad:"", dni:"", sexo:"", escuelaOrigenId:"", cursoOrigen:"", modalidad:"", zona:"", cupoZona:"",
     padre1: contactoBase(), padre2: contactoBase(), correo:"", direccion:"", lat:null, lng:null,
-    fechaIngreso: hoyISO(), docentes: [], estado:"activo", ordenEspera:"", certificadoDesde:"", certificadoDias:"", certificadoHasta:"",
+    fechaIngreso: hoyISO(), docentes: [], estado:"activo", ordenEspera:"", fechaBaja:"", resultadoPromocion:"",
+    certificadoDesde:"", certificadoDias:"", certificadoHasta:"",
     cud: condicionBase(), ppi: condicionBase(), adecuacion: condicionBase(), espaciosCurriculares:"",
     diagnostico:"", observaciones:"", documentacion:"", notas:"", atendidoPot:false, actas: []};
 }
+const RESULTADOS_PROMOCION = {
+  "":               {label:"Pendiente"},
+  promovido:        {label:"Promovido"},
+  promovido_examen: {label:"Promovido con examen y/o acompañamiento"},
+  no_promovido:     {label:"No promovido"},
+  otro:             {label:"Otro (libre, reválida, otro régimen)"}
+};
 function certificadoVencido(a){
   return !!(a.certificadoHasta && a.certificadoHasta < hoyISO());
 }
@@ -1763,6 +1846,9 @@ function normalizarAlumno(a){
   if (typeof a.certificadoHasta !== "string") a.certificadoHasta = "";
   if (typeof a.edad !== "string" && typeof a.edad !== "number") a.edad = "";
   if (typeof a.dni !== "string") a.dni = "";
+  if (a.sexo !== "V" && a.sexo !== "M") a.sexo = "";
+  if (typeof a.fechaBaja !== "string") a.fechaBaja = "";
+  if (!RESULTADOS_PROMOCION[a.resultadoPromocion]) a.resultadoPromocion = "";
   if (typeof a.ordenEspera !== "string" && typeof a.ordenEspera !== "number") a.ordenEspera = "";
   if (typeof a.espaciosCurriculares !== "string") a.espaciosCurriculares = "";
   if (typeof a.diagnostico !== "string") a.diagnostico = "";
@@ -2103,6 +2189,7 @@ function aplicarEstado(nuevo){
   estado.fechasProvincia = Array.isArray(nuevo.fechasProvincia) ? nuevo.fechasProvincia.map(normalizarFechaEtiquetada) : [];
   estado.feriados = Array.isArray(nuevo.feriados) ? nuevo.feriados.map(normalizarFechaEtiquetada) : [];
   estado.matricula = normalizarMatricula(nuevo.matricula);
+  estado.censoAnual = normalizarCensoAnual(nuevo.censoAnual);
   aplicarTema();
   renderTodo();
 }
@@ -5186,6 +5273,7 @@ function abrirAlumno(id){
   $("#alApellido").value = a.apellido || "";
   $("#alEdad").value = a.edad || "";
   $("#alDni").value = a.dni || "";
+  $("#alSexo").value = a.sexo || "";
   poblarSelectEscuelas(a.escuelaOrigenId);
   $("#alCurso").value = a.cursoOrigen || "";
   $("#alModalidad").value = a.modalidad || "";
@@ -5196,6 +5284,9 @@ function abrirAlumno(id){
   $("#alEstado").value = a.estado || "activo";
   $("#alOrdenEspera").value = a.ordenEspera || "";
   actualizarVisibilidadOrdenEspera();
+  $("#alFechaBaja").value = a.fechaBaja || "";
+  actualizarVisibilidadFechaBaja();
+  $("#alResultadoPromocion").value = a.resultadoPromocion || "";
   $("#alAtendidoPot").checked = !!a.atendidoPot;
   $("#alEspaciosCurriculares").value = a.espaciosCurriculares || "";
   $("#alCertDesde").value = a.certificadoDesde || "";
@@ -5263,6 +5354,13 @@ function actualizarVisibilidadOrdenEspera(){
     if (zona) $("#alOrdenEspera").value = siguienteOrdenEspera(zona, alumnoEnCurso);
   }
 }
+function actualizarVisibilidadFechaBaja(){
+  const wrap = $("#alFechaBajaWrap");
+  if (!wrap) return;
+  const esBaja = $("#alEstado").value==="baja";
+  wrap.style.display = esBaja ? "" : "none";
+  if (esBaja && !$("#alFechaBaja").value) $("#alFechaBaja").value = hoyISO();
+}
 function actualizarAvisoCertificado(){
   const hasta = $("#alCertHasta").value;
   $("#alCertAviso").style.display = (hasta && hasta < hoyISO()) ? "" : "none";
@@ -5292,6 +5390,7 @@ function guardarAlumno(){
     nombre, apellido: $("#alApellido").value.trim(),
     edad: $("#alEdad").value.trim(),
     dni: $("#alDni").value.trim(),
+    sexo: $("#alSexo").value,
     escuelaOrigenId: $("#alEscuela").value,
     cursoOrigen: $("#alCurso").value.trim(),
     modalidad: $("#alModalidad").value.trim(),
@@ -5300,6 +5399,8 @@ function guardarAlumno(){
     fechaIngreso: $("#alFechaIngreso").value || hoyISO(),
     estado: $("#alEstado").value,
     ordenEspera: $("#alOrdenEspera").value.trim(),
+    fechaBaja: $("#alEstado").value==="baja" ? ($("#alFechaBaja").value || hoyISO()) : "",
+    resultadoPromocion: $("#alResultadoPromocion").value,
     atendidoPot: $("#alAtendidoPot").checked,
     espaciosCurriculares: $("#alEspaciosCurriculares").value.trim(),
     certificadoDesde: $("#alCertDesde").value,
@@ -6177,6 +6278,33 @@ function renderEstadisticas(){
     inp.onchange = ()=>{ estado.matricula[inp.dataset.matDias].dias = inp.value===""?"":Number(inp.value); guardar(); };
   });
   cont.appendChild(bloqueMatricula);
+
+  const bloqueCenso = document.createElement("div");
+  bloqueCenso.className = "stats-bloque stats-bloque-matricula";
+  bloqueCenso.innerHTML = '<h3 class="stats-subtitulo">📋 Movimiento y promoción</h3>';
+  const censo = resumenCensoAnual();
+  if (!censo){
+    bloqueCenso.innerHTML += '<p class="sin-datos" style="padding:0;">Cargá la matrícula de referencia (por ejemplo, al 30/4) en ⚙ Opciones para ver este informe.</p>';
+  } else {
+    const filas = [
+      ["Matrícula al "+fmtCorto(censo.anclaFecha), {total:censo.anclaTotal, varones:censo.anclaVarones}],
+      ["Entrados (después, hasta hoy)", censo.entrados],
+      ["Salidos (después, hasta hoy)", censo.salidos],
+      ["Matrícula actual", censo.matriculaActual],
+      ["Promovidos", censo.promovido],
+      ["Promovidos con examen/acompañamiento", censo.promovido_examen],
+      ["No promovidos", censo.no_promovido],
+      ["Otros promovidos (libres, reválida, etc.)", censo.otro]
+    ];
+    let html = '<table class="tabla-censo"><thead><tr><th></th><th>Total</th><th>Varones</th></tr></thead><tbody>';
+    for (const [etq, val] of filas){
+      html += '<tr><td>'+etq+'</td><td>'+val.total+'</td><td>'+val.varones+'</td></tr>';
+    }
+    html += '</tbody></table>';
+    html += '<p class="sin-datos" style="padding:8px 0 0;">Entrados/salidos según fecha de ingreso y fecha de baja cargadas en cada ficha de alumno. Promovidos según el campo "Resultado de promoción" (se completa cerca de fin de año).</p>';
+    bloqueCenso.innerHTML += html;
+  }
+  cont.appendChild(bloqueCenso);
 }
 // Cuenta los días hábiles (lunes a viernes) entre dos fechas ISO, ambas puntas incluidas,
 // menos los feriados cargados que caigan en ese rango. Es solo una referencia calculada con
@@ -6417,6 +6545,9 @@ $("#btnOpciones").onclick = ()=>{
   $("#optLinkMec").value = estado.opciones.linksChubut.mec;
   $("#optLinkJunta").value = estado.opciones.linksChubut.junta;
   $("#optLinkRa").value = estado.opciones.linksChubut.ra;
+  $("#optCensoFecha").value = estado.censoAnual.ancla.fecha || "";
+  $("#optCensoTotal").value = estado.censoAnual.ancla.total || 0;
+  $("#optCensoVarones").value = estado.censoAnual.ancla.varones || 0;
   renderPapelera();
   $("#ovOpciones").classList.add("visible");
 };
@@ -6438,6 +6569,11 @@ $("#btnGuardarOpciones").onclick = ()=>{
     mec: $("#optLinkMec").value.trim() || LINKS_CHUBUT_DEFAULT.mec,
     junta: $("#optLinkJunta").value.trim() || LINKS_CHUBUT_DEFAULT.junta,
     ra: $("#optLinkRa").value.trim() || LINKS_CHUBUT_DEFAULT.ra
+  };
+  estado.censoAnual.ancla = {
+    fecha: $("#optCensoFecha").value || "",
+    total: Math.max(0, parseInt($("#optCensoTotal").value,10) || 0),
+    varones: Math.max(0, parseInt($("#optCensoVarones").value,10) || 0)
   };
   aplicarLinksChubut();
   aplicarTema();
@@ -6498,7 +6634,7 @@ $("#btnGuardarAlumno").onclick = guardarAlumno;
 $("#btnBorrarAlumno").onclick = borrarAlumno;
 $("#alZona").onchange = ()=>{ actualizarVisibilidadCupoZona(); actualizarVisibilidadOrdenEspera(); };
 $("#alCupoZona").onchange = actualizarVisibilidadOrdenEspera;
-$("#alEstado").onchange = actualizarVisibilidadOrdenEspera;
+$("#alEstado").onchange = ()=>{ actualizarVisibilidadOrdenEspera(); actualizarVisibilidadFechaBaja(); };
 $("#alCertHasta").onchange = actualizarAvisoCertificado;
 $("#alCertDesde").addEventListener("input", actualizarCertHastaPorDias);
 $("#alCertDias").addEventListener("input", actualizarCertHastaPorDias);
