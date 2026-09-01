@@ -4336,21 +4336,35 @@ function renderDisponible(){
     if (!pres.length){
       card.innerHTML += '<div class="nadie">Sin personal cargado</div>';
     } else {
-      // Agrupa por horario (en vez de repetir la hora en cada persona), así queda un
-      // encabezado por franja y debajo la lista de quiénes están en ese horario.
-      let grupoCont = null, grupoDesde = null, grupoHasta = null;
-      for (const pr of pres){
-        if (!grupoCont || grupoDesde!==pr.desde || grupoHasta!==pr.hasta){
-          grupoDesde = pr.desde; grupoHasta = pr.hasta;
-          grupoCont = document.createElement("div");
-          grupoCont.className = "grupo-horario";
-          grupoCont.innerHTML = '<div class="grupo-horario-hora">'+aHHMM(pr.desde)+"–"+aHHMM(pr.hasta)+'</div>';
-          card.appendChild(grupoCont);
+      // Arma los bloques según quién está presente en cada lapso (no según el horario exacto
+      // de cada persona): así, si dos personas se superponen aunque sus horarios no coincidan
+      // minuto a minuto, quedan listadas juntas bajo el mismo encabezado, y en cuanto cambia
+      // quién está presente arranca un encabezado nuevo.
+      const cortes = new Set();
+      for (const pr of pres){ cortes.add(pr.desde); cortes.add(pr.hasta); }
+      const puntos = [...cortes].sort((a,b)=>a-b);
+      const bloques = [];
+      for (let i=0; i<puntos.length-1; i++){
+        const t0 = puntos[i], t1 = puntos[i+1];
+        const gente = pres.filter(p=>p.desde<=t0 && p.hasta>=t1);
+        if (!gente.length) continue;
+        const anterior = bloques[bloques.length-1];
+        const mismaGente = anterior && anterior.hasta===t0 && anterior.gente.length===gente.length
+          && anterior.gente.every((g,idx)=>g===gente[idx]);
+        if (mismaGente) anterior.hasta = t1;
+        else bloques.push({desde:t0, hasta:t1, gente});
+      }
+      for (const b of bloques){
+        const grupoCont = document.createElement("div");
+        grupoCont.className = "grupo-horario";
+        grupoCont.innerHTML = '<div class="grupo-horario-hora">'+aHHMM(b.desde)+"–"+aHHMM(b.hasta)+'</div>';
+        for (const pr of b.gente){
+          const fila = document.createElement("div");
+          fila.className = "pers"+(pr.paro ? " en-paro" : (pr.ausente ? " en-ausente" : (pr.lic ? " en-lic" : "")));
+          fila.innerHTML = "<b class='"+pr.zona+"'>"+escapar(pr.nombre)+"</b> <span class='rol-tag'>"+escapar(pr.rol)+"</span>"+etiquetasPr(pr);
+          grupoCont.appendChild(fila);
         }
-        const fila = document.createElement("div");
-        fila.className = "pers"+(pr.paro ? " en-paro" : (pr.ausente ? " en-ausente" : (pr.lic ? " en-lic" : "")));
-        fila.innerHTML = "<b class='"+pr.zona+"'>"+escapar(pr.nombre)+"</b> <span class='rol-tag'>"+escapar(pr.rol)+"</span>"+etiquetasPr(pr);
-        grupoCont.appendChild(fila);
+        card.appendChild(grupoCont);
       }
     }
     card.onclick = ()=>{ diaDetalle = i; renderDisponible(); };
