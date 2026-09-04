@@ -1,5 +1,33 @@
 {
-  "tareas": [],
+  "tareas": [
+    {
+      "id": "mtj3qwskic03l",
+      "texto": "completar POF",
+      "fecha": null,
+      "estrellas": 4,
+      "tipoTiempo": "productivo",
+      "destino": "",
+      "creada": 1788293449604
+    },
+    {
+      "id": "mtj3rdseven7d",
+      "texto": "hacer pedido docentes nuevos",
+      "fecha": "2026-09-04",
+      "estrellas": 4,
+      "tipoTiempo": "productivo",
+      "destino": "",
+      "creada": 1788293471630
+    },
+    {
+      "id": "mtj3s6pxtlrj7",
+      "texto": "hacer pedido POT y COORDINADOR",
+      "fecha": "2026-09-03",
+      "estrellas": 4,
+      "tipoTiempo": "productivo",
+      "destino": "",
+      "creada": 1788293509125
+    }
+  ],
   "bitacora": [
     {
       "id": "mrtzc994yql2k",

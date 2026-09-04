@@ -424,6 +424,14 @@
   .tabla-censo th, .tabla-censo td{padding:6px 8px; border-bottom:1px solid var(--borde); text-align:left;}
   .tabla-censo th:not(:first-child), .tabla-censo td:not(:first-child){text-align:center; width:70px;}
   .tabla-censo th{font-weight:700; color:var(--gris);}
+  .tabla-agenda-directivo{width:100%; border-collapse:collapse; font-size:.82rem; table-layout:fixed;}
+  .tabla-agenda-directivo th, .tabla-agenda-directivo td{padding:8px 9px; border:1px solid var(--borde); text-align:left; vertical-align:top; word-wrap:break-word;}
+  .tabla-agenda-directivo th{background:#eef2f6; color:var(--azul-osc); font-weight:700; font-size:.78rem;}
+  .tabla-agenda-directivo tbody tr{cursor:pointer;}
+  .tabla-agenda-directivo tbody tr:hover{background:#f7f5ee;}
+  .tabla-agenda-directivo .agenda-vacio{color:var(--gris); font-style:italic;}
+  body.tema-oscuro .tabla-agenda-directivo th{background:#26313c;}
+  body.tema-oscuro .tabla-agenda-directivo tbody tr:hover{background:#20242b;}
   .dias-clase-hero{display:flex; flex-direction:column; gap:14px; margin-bottom:20px;
     padding:16px 20px; border-radius:12px; background:var(--azul); color:#fff;}
   .dias-clase-hero-principal{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;}
@@ -647,18 +655,29 @@
 
   <!-- BITÁCORA -->
   <section class="panel" id="panel-bitacora">
+    <div class="fila-orden" style="margin-bottom:10px;">
+      <button type="button" data-vista-bit="registro" class="sel">📖 Registro</button>
+      <button type="button" data-vista-bit="agenda">🗂 Agenda del directivo</button>
+    </div>
     <div class="fila-orden">
       <span>Ver día:</span>
       <input type="date" id="bitFiltro" style="padding:6px 8px; border:1px solid var(--borde); border-radius:6px;">
       <button id="btnBitTodo">Ver todo</button>
       <button class="btn-mini-tarea" id="btnAbrirBitacoraManual" style="margin-top:0;">➕ Agregar registro</button>
     </div>
-    <div class="barra-export" id="barraExport">
-      <span id="cuentaSel" style="font-size:.85rem;color:var(--gris);"></span>
-      <button class="btn-word" id="btnWord">⬇ Descargar Word</button>
-      <button class="btn-copiar" id="btnCopiar">📋 Copiar</button>
+    <div id="vistaBitRegistro">
+      <div class="barra-export" id="barraExport">
+        <span id="cuentaSel" style="font-size:.85rem;color:var(--gris);"></span>
+        <button class="btn-word" id="btnWord">⬇ Descargar Word</button>
+        <button class="btn-copiar" id="btnCopiar">📋 Copiar</button>
+      </div>
+      <div id="contBitacora"></div>
     </div>
-    <div id="contBitacora"></div>
+    <div id="vistaBitAgenda" style="display:none;">
+      <p class="sin-datos" style="padding:0 0 10px;">Formato "Agenda del Directivo" (Ministerio de Educación — Chubut). Se arma con lo que ya cargás en Registro; tocá una fila para completar los campos que falten (Ámbito, Modalidad, Seguimiento, Emergentes).</p>
+      <button type="button" class="btn-mini-tarea" id="btnWordAgenda" style="margin-top:0; margin-bottom:12px;">⬇ Descargar Word — Agenda del directivo</button>
+      <div id="contAgendaDirectivo"></div>
+    </div>
   </section>
 
   <!-- EQUIPO -->
@@ -1116,12 +1135,39 @@
 <div class="overlay" id="ovBitacora">
   <div class="modal">
     <h3>✏ Editar entrada de bitácora</h3>
-    <label>Tarea</label>
+    <label>Tarea <span class="mini-dato" style="font-weight:400;">(Motivo/propósito en la Agenda del directivo)</span></label>
     <input type="text" id="bitTexto" maxlength="300">
-    <label>Comentario</label>
+    <label>Comentario <span class="mini-dato" style="font-weight:400;">(Acciones concretadas/registro)</span></label>
     <textarea id="bitComentario"></textarea>
     <label>Fecha de finalización</label>
     <input type="date" id="bitFecha">
+
+    <label style="margin-top:14px; border-top:1px dashed var(--borde); padding-top:10px;">Para la Agenda del directivo (Ministerio)</label>
+    <label>Ámbito de gestión/dimensión</label>
+    <select id="bitAmbito">
+      <option value="">— Sin definir —</option>
+      <option value="Pedagógica">Pedagógica</option>
+      <option value="Administrativa">Administrativa</option>
+      <option value="Socio comunitaria">Socio comunitaria</option>
+      <option value="Institucional">Institucional</option>
+    </select>
+    <label>Modalidad de acción directiva</label>
+    <input type="text" id="bitModalidad" list="listaModalidades" placeholder="Ej.: Reunión de equipo, Visita al aula, Entrevista con familia...">
+    <datalist id="listaModalidades">
+      <option value="Reunión de equipo">
+      <option value="Visita al aula">
+      <option value="Análisis/relevamiento de ausentismo">
+      <option value="Entrevista con familia">
+      <option value="Mesa de trabajo con docentes">
+      <option value="Articulación institucional">
+      <option value="Gestión administrativa">
+      <option value="Supervisión/informe">
+    </datalist>
+    <label>Actividades complementarias/seguimiento</label>
+    <textarea id="bitSeguimiento" placeholder="Próximos pasos: elevar informe, citar nuevamente, controlar actas..."></textarea>
+    <label>Emergentes abordados y/o a planificar</label>
+    <textarea id="bitEmergentes" placeholder="Ej.: ausentismo docente, actas labradas, motivos por los que se pospuso..."></textarea>
+
     <div class="pie">
       <button class="b-cancelar" data-cerrar="ovBitacora">Cancelar</button>
       <button class="b-guardar" id="btnGuardarBit">Guardar</button>
@@ -3686,6 +3732,7 @@ function renderBitacora(){
       ? "No hay tareas terminadas el "+fmtCorto(bitFiltroFecha)+"."
       : "Todavía no hay tareas terminadas. Cuando marques una tarea como lista, aparecerá acá.")+'</p>';
     actualizarBarraExport();
+    renderAgendaDirectivo(entradas);
     return;
   }
   const semanas = new Map();
@@ -3755,6 +3802,7 @@ function renderBitacora(){
     cont.appendChild(divS);
   }
   actualizarBarraExport();
+  renderAgendaDirectivo(entradas);
 }
 function actualizarBarraExport(){
   const n = diasSeleccionados.size;
@@ -3814,6 +3862,93 @@ async function copiarSeleccion(){
     console.error(e);
     toast("No se pudo copiar automáticamente");
   }
+}
+
+// ---------- Sub-vista: Agenda del directivo (formato Ministerio de Educación — Chubut) ----------
+// Reutiliza las entradas de la Bitácora (texto → Motivo/propósito, comentario → Acciones
+// concretadas/registro) y suma 4 campos propios de este formato (ambito, modalidad, seguimiento,
+// emergentes) que se completan desde el mismo modal de edición de la bitácora.
+function cambiarVistaBitacora(v){
+  document.querySelectorAll("[data-vista-bit]").forEach(b=>b.classList.toggle("sel", b.dataset.vistaBit===v));
+  $("#vistaBitRegistro").style.display = v==="registro" ? "" : "none";
+  $("#vistaBitAgenda").style.display = v==="agenda" ? "" : "none";
+}
+function renderAgendaDirectivo(entradas){
+  const cont = $("#contAgendaDirectivo");
+  if (!cont) return;
+  cont.innerHTML = "";
+  if (!entradas || !entradas.length){
+    cont.innerHTML = '<p class="sin-datos">Todavía no hay registros para mostrar acá.</p>';
+    return;
+  }
+  const ordenadas = [...entradas].sort((a,b)=> a.fechaFin.localeCompare(b.fechaFin));
+  const tabla = document.createElement("table");
+  tabla.className = "tabla-agenda-directivo";
+  tabla.innerHTML = "<thead><tr>"+
+    "<th>Fecha</th><th>Ámbito de gestión</th><th>Modalidad de acción</th><th>Motivo/propósito</th>"+
+    "<th>Acciones concretadas/registro</th><th>Actividades complementarias/seguimiento</th>"+
+    "<th>Emergentes abordados y/o a planificar</th></tr></thead>";
+  const tbody = document.createElement("tbody");
+  for (const e of ordenadas){
+    const tr = document.createElement("tr");
+    tr.title = "Tocá para completar/editar";
+    tr.onclick = ()=>abrirBitEntrada(e.id);
+    const celda = (txt)=>{
+      const td = document.createElement("td");
+      if (txt){ td.textContent = txt; } else { td.textContent = "—"; td.className = "agenda-vacio"; }
+      return td;
+    };
+    tr.appendChild(celda(fmtCorto(e.fechaFin)));
+    tr.appendChild(celda(e.ambito));
+    tr.appendChild(celda(e.modalidad));
+    tr.appendChild(celda(e.texto));
+    tr.appendChild(celda(e.comentario));
+    tr.appendChild(celda(e.seguimiento));
+    tr.appendChild(celda(e.emergentes));
+    tbody.appendChild(tr);
+  }
+  tabla.appendChild(tbody);
+  cont.appendChild(tabla);
+}
+function descargarWordAgenda(){
+  const entradas = bitFiltroFecha ? estado.bitacora.filter(e=>e.fechaFin===bitFiltroFecha) : estado.bitacora;
+  if (!entradas.length){ toast("No hay registros para exportar"); return; }
+  const ordenadas = [...entradas].sort((a,b)=> a.fechaFin.localeCompare(b.fechaFin));
+  let filas = "";
+  for (const e of ordenadas){
+    const c = (t)=> escapar(t||"");
+    filas += "<tr>"+
+      "<td>"+escapar(fmtCorto(e.fechaFin))+"</td>"+
+      "<td>"+c(e.ambito)+"</td>"+
+      "<td>"+c(e.modalidad)+"</td>"+
+      "<td>"+c(e.texto)+"</td>"+
+      "<td>"+c(e.comentario)+"</td>"+
+      "<td>"+c(e.seguimiento)+"</td>"+
+      "<td>"+c(e.emergentes)+"</td>"+
+      "</tr>";
+  }
+  const html = "<html xmlns:w='urn:schemas-microsoft-com:office:word'><head><meta charset='utf-8'>"+
+    "<title>Agenda del directivo</title></head><body style=\"font-family:Calibri,Arial,sans-serif; font-size:11pt;\">"+
+    "<table style='width:100%; border:none; margin-bottom:14px;'><tr>"+
+    "<td style='width:70px; vertical-align:top;'><img src='"+LOGO_MDAGENDA_COMPLETO+"' style='height:56px;' alt=''></td>"+
+    "<td style='vertical-align:top;'><b style='font-size:15pt; color:#2c5f8a;'>Ministerio de Educación</b><br>"+
+    "<span style='font-size:11pt;'>Gobierno del Chubut</span></td></tr></table>"+
+    "<p style='font-size:10pt;'><b>Nivel/Modalidad:</b> ______________________&nbsp;&nbsp;&nbsp; "+
+    "<b>Institución:</b> ______________________&nbsp;&nbsp;&nbsp; <b>Región:</b> ______________________</p>"+
+    "<h2 style='text-align:center; background:#eef2f6; padding:6px; color:#1e4260;'>Agenda del Directivo</h2>"+
+    "<table border='1' cellspacing='0' cellpadding='5' style='border-collapse:collapse; width:100%; font-size:9.5pt;'>"+
+    "<tr style='background:#eef2f6;'><th>Fecha</th><th>Ámbito de gestión/dimensión</th><th>Modalidad de acción directiva</th>"+
+    "<th>Motivo/propósito</th><th>Acciones concretadas/registro</th><th>Actividades complementarias/seguimiento</th>"+
+    "<th>Emergentes abordados y/o a planificar</th></tr>"+filas+"</table>"+
+    "</body></html>";
+  const blob = new Blob(["﻿", html], {type:"application/msword"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "agenda_directivo_"+hoyISO()+".doc";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
 }
 
 // ---------- Render: Equipo y Docentes ----------
@@ -4877,6 +5012,10 @@ function abrirBitEntrada(id){
   $("#bitTexto").value = e.texto;
   $("#bitComentario").value = e.comentario||"";
   $("#bitFecha").value = e.fechaFin;
+  $("#bitAmbito").value = e.ambito||"";
+  $("#bitModalidad").value = e.modalidad||"";
+  $("#bitSeguimiento").value = e.seguimiento||"";
+  $("#bitEmergentes").value = e.emergentes||"";
   $("#ovBitacora").classList.add("visible");
 }
 function guardarBitEntrada(){
@@ -4888,6 +5027,10 @@ function guardarBitEntrada(){
   e.texto = texto;
   e.comentario = $("#bitComentario").value.trim();
   e.fechaFin = $("#bitFecha").value;
+  e.ambito = $("#bitAmbito").value;
+  e.modalidad = $("#bitModalidad").value.trim();
+  e.seguimiento = $("#bitSeguimiento").value.trim();
+  e.emergentes = $("#bitEmergentes").value.trim();
   cerrar("ovBitacora");
   guardar(); renderBitacora();
 }
@@ -6722,6 +6865,7 @@ $("#btnBorrarPersona").onclick = borrarPersona;
 $("#btnAgregarDoc").onclick = agregarDocente;
 $("#btnAgregarEquipo").onclick = agregarEquipo;
 $("#btnWord").onclick = descargarWord;
+$("#btnWordAgenda").onclick = descargarWordAgenda;
 $("#btnCopiar").onclick = copiarSeleccion;
 $("#calAnt").onclick = ()=>{ calRef.setMonth(calRef.getMonth()-1); renderCalendario(); };
 $("#calSig").onclick = ()=>{ calRef.setMonth(calRef.getMonth()+1); renderCalendario(); };
@@ -6860,6 +7004,7 @@ $("#btnCancelarActa").onclick = ()=>{ $("#formNuevaActa").style.display = "none"
 $("#btnGuardarActa").onclick = guardarActaNueva;
 document.querySelectorAll("[data-vista-al]").forEach(b=>{ b.onclick = ()=>cambiarVistaAlumnos(b.dataset.vistaAl); });
 document.querySelectorAll("[data-vista-tar]").forEach(b=>{ b.onclick = ()=>cambiarVistaTareas(b.dataset.vistaTar); });
+document.querySelectorAll("[data-vista-bit]").forEach(b=>{ b.onclick = ()=>cambiarVistaBitacora(b.dataset.vistaBit); });
 $("#btnAgregarProvincia").onclick = agregarFechaProvincia;
 $("#btnEjemploExcelProvincia").onclick = descargarEjemploExcelProvincia;
 $("#cancelEdicionProv").onclick = cancelarEdicionProvincia;
