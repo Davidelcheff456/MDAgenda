@@ -569,6 +569,7 @@
           <a class="btn-link-chubut" data-link-chubut="mec" href="http://sistemas.chubut.edu.ar/planta/consulage.php?tipo=buscar" target="_blank" rel="noopener noreferrer"><span class="icono-link-chubut">🏫</span> MEC</a>
           <a class="btn-link-chubut" data-link-chubut="junta" href="http://sistemas.chubut.edu.ar/juntamed/jindex.php" target="_blank" rel="noopener noreferrer"><span class="icono-link-chubut">⚕</span> Inscripción junta</a>
           <a class="btn-link-chubut" data-link-chubut="ra" href="https://chubut.die.educacion.gob.ar/ra2026/" target="_blank" rel="noopener noreferrer"><span class="icono-link-chubut">📈</span> RA</a>
+          <a class="btn-link-chubut" data-link-chubut="pedidosdd" href="https://docs.google.com/spreadsheets/d/1VkUPzuZrtC1qDDhq5kAwDJ2DVCRMZBZ5nNkbYG-JRRM/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer"><span class="icono-link-chubut">📝</span> Pedidos DD</a>
         </div>
       </div>
     </div>
@@ -1105,6 +1106,7 @@
         <div><label style="font-size:.78rem; margin-top:0;">MEC</label><input type="url" id="optLinkMec" style="width:100%;"></div>
         <div><label style="font-size:.78rem; margin-top:0;">Inscripción junta</label><input type="url" id="optLinkJunta" style="width:100%;"></div>
         <div><label style="font-size:.78rem; margin-top:0;">RA</label><input type="url" id="optLinkRa" style="width:100%;"></div>
+        <div><label style="font-size:.78rem; margin-top:0;">Pedidos DD (hs y cargos)</label><input type="url" id="optLinkPedidosdd" style="width:100%;"></div>
       </div>
     </div>
 
@@ -1593,7 +1595,8 @@ const LINKS_CHUBUT_DEFAULT = {
   mnovedades: "https://sistemas2.chubut.edu.ar/soft/snpe/",
   mec: "http://sistemas.chubut.edu.ar/planta/consulage.php?tipo=buscar",
   junta: "http://sistemas.chubut.edu.ar/juntamed/jindex.php",
-  ra: "https://chubut.die.educacion.gob.ar/ra2026/"
+  ra: "https://chubut.die.educacion.gob.ar/ra2026/",
+  pedidosdd: "https://docs.google.com/spreadsheets/d/1VkUPzuZrtC1qDDhq5kAwDJ2DVCRMZBZ5nNkbYG-JRRM/edit?gid=0#gid=0"
 };
 const OPCIONES_BASE = {tema:"claro", resetFunciones:true, cupos:{norte:6, sur:6}, linksChubut:{...LINKS_CHUBUT_DEFAULT}};
 // Aplica las URLs guardadas (o las de fábrica) a los botones LINKS chubut de Tareas.
@@ -6900,6 +6903,7 @@ $("#btnOpciones").onclick = ()=>{
   $("#optLinkMec").value = estado.opciones.linksChubut.mec;
   $("#optLinkJunta").value = estado.opciones.linksChubut.junta;
   $("#optLinkRa").value = estado.opciones.linksChubut.ra;
+  $("#optLinkPedidosdd").value = estado.opciones.linksChubut.pedidosdd;
   $("#optCensoFecha").value = estado.censoAnual.ancla.fecha || "";
   $("#optCensoTotal").value = estado.censoAnual.ancla.total || 0;
   $("#optCensoVarones").value = estado.censoAnual.ancla.varones || 0;
@@ -6923,7 +6927,8 @@ $("#btnGuardarOpciones").onclick = ()=>{
     mnovedades: $("#optLinkMnovedades").value.trim() || LINKS_CHUBUT_DEFAULT.mnovedades,
     mec: $("#optLinkMec").value.trim() || LINKS_CHUBUT_DEFAULT.mec,
     junta: $("#optLinkJunta").value.trim() || LINKS_CHUBUT_DEFAULT.junta,
-    ra: $("#optLinkRa").value.trim() || LINKS_CHUBUT_DEFAULT.ra
+    ra: $("#optLinkRa").value.trim() || LINKS_CHUBUT_DEFAULT.ra,
+    pedidosdd: $("#optLinkPedidosdd").value.trim() || LINKS_CHUBUT_DEFAULT.pedidosdd
   };
   estado.censoAnual.ancla = {
     fecha: $("#optCensoFecha").value || "",
