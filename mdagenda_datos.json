@@ -17,15 +17,6 @@
       "tipoTiempo": "productivo",
       "destino": "",
       "creada": 1788293471630
-    },
-    {
-      "id": "mtj3s6pxtlrj7",
-      "texto": "hacer pedido POT y COORDINADOR",
-      "fecha": "2026-09-03",
-      "estrellas": 4,
-      "tipoTiempo": "productivo",
-      "destino": "",
-      "creada": 1788293509125
     }
   ],
   "bitacora": [
@@ -47,6 +38,16 @@
       "persona": "",
       "rol": "",
       "tipoTiempo": "informacion"
+    },
+    {
+      "id": "mtnd33si0lfrf",
+      "texto": "hacer pedidos de hs para los dos planteles de docentes",
+      "comentario": "se hicieron los pedidos docentes correspondientes",
+      "fechaFin": "2026-09-04",
+      "estrellas": 4,
+      "persona": "",
+      "rol": "",
+      "tipoTiempo": "productivo"
     }
   ],
   "equipo": [

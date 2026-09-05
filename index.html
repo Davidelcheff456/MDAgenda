@@ -6564,7 +6564,7 @@ function renderEstadisticas(){
 
   const bloqueTorta = document.createElement("div");
   bloqueTorta.className = "stats-bloque";
-  bloqueTorta.innerHTML = '<h3 class="stats-subtitulo">Gráfico de torta — Días de clases</h3>';
+  bloqueTorta.innerHTML = '<h3 class="stats-subtitulo">Días de clases</h3>';
   const desg = desgloseDiasCicloLectivo();
   if (!desg || !desg.total){
     bloqueTorta.innerHTML += '<p class="sin-datos">Cargá la "Referencia" de días de clase en ⚙ Opciones para ver este gráfico.</p>';
