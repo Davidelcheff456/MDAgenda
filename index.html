@@ -240,6 +240,8 @@
   .dia-card .pers b{color:#333;}
   .dia-card .rol-tag{font-size:.72rem; color:var(--azul); font-weight:700;}
   .dia-card .nadie{color:var(--gris); font-style:italic; font-size:.85rem;}
+  .btn-toggle-semana{margin-bottom:16px; padding:7px 16px; border:1px solid var(--borde); background:#f4f2ec; border-radius:8px; cursor:pointer; font-size:.85rem; font-weight:600; color:#555;}
+  .btn-toggle-semana:hover{box-shadow:0 2px 6px rgba(0,0,0,.1);}
   .dia-foco-wrap{margin-top:26px;}
   .dia-foco-tabs{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;}
   .dia-foco-tab{padding:8px 16px; border:1px solid var(--borde); border-radius:20px; background:#fbfaf6; cursor:pointer; font-size:.85rem; font-weight:600; color:#555;}
@@ -337,7 +339,7 @@
   body.tema-oscuro .form-alta input, body.tema-oscuro .form-alta select,
   body.tema-oscuro .modal input, body.tema-oscuro .modal textarea, body.tema-oscuro .modal select,
   body.tema-oscuro table.horarios input{background:#20242b; color:#e4e6e9; border-color:#4a4f57;}
-  body.tema-oscuro .fila-orden button, body.tema-oscuro .btn-copiar, body.tema-oscuro .btn-volver{background:#3a414b; color:#dfe3e8; border-color:#4a4f57;}
+  body.tema-oscuro .fila-orden button, body.tema-oscuro .btn-copiar, body.tema-oscuro .btn-volver, body.tema-oscuro .btn-toggle-semana{background:#3a414b; color:#dfe3e8; border-color:#4a4f57;}
   body.tema-oscuro .bloque-persona, body.tema-oscuro .dia-card, body.tema-oscuro .calendario, body.tema-oscuro .espera-col, body.tema-oscuro ul.lista-tareas li{background:#2f353e; border-color:#4a4f57;}
   body.tema-oscuro .bp-cab{background:#343b45; border-color:#4a4f57;}
   body.tema-oscuro .bp-cab:hover{background:#3c4450;}
@@ -1970,6 +1972,7 @@ let personaEnCurso = null; // owner de la ficha abierta
 let calRef = new Date(); calRef.setDate(1);
 let diaDetalle = null;     // índice 0-6 del día abierto en Disponible
 let semanaRef = null;      // lunes (ISO) de la semana mostrada en Disponible
+let semanaExpandida = false; // si se muestra la grilla de la semana completa en Disponible
 let licSemanaRef = null;   // lunes (ISO) de la semana mostrada en Licencias
 let licMesRef = null;          // "YYYY-MM" del mes mostrado en Licencias
 let licSeleccionadas = new Set(); // ids de registros seleccionados para exportar
@@ -4507,34 +4510,43 @@ function renderDisponible(){
   titulo.className = "sub";
   titulo.textContent = etiquetaSemana(semanaRef);
   cont.appendChild(titulo);
-  const grid = document.createElement("div");
-  grid.className = "grilla-dias";
-  DIAS_SEMANA.forEach((d, i)=>{
-    const fecha = sumarDias(semanaRef, i);
-    const card = document.createElement("div");
-    card.className = "dia-card";
-    card.innerHTML = "<h4>"+NOMBRE_DIA[d]+" "+fmtCorto(fecha).slice(0,5)+"</h4>";
-    const pres = presenciasDia(d, fecha);
-    if (!pres.length){
-      card.innerHTML += '<div class="nadie">Sin personal cargado</div>';
-    } else {
-      for (const b of bloquesPresenciaDia(pres)){
-        const grupoCont = document.createElement("div");
-        grupoCont.className = "grupo-horario";
-        grupoCont.innerHTML = '<div class="grupo-horario-hora">'+aHHMM(b.desde)+"–"+aHHMM(b.hasta)+'</div>';
-        for (const pr of b.gente){
-          const fila = document.createElement("div");
-          fila.className = "pers"+(pr.paro ? " en-paro" : (pr.ausente ? " en-ausente" : (pr.lic ? " en-lic" : "")));
-          fila.innerHTML = "<b class='"+pr.zona+"'>"+escapar(pr.nombre)+"</b> <span class='rol-tag'>"+escapar(pr.rol)+"</span>"+etiquetasPr(pr);
-          grupoCont.appendChild(fila);
+
+  const btnToggleSemana = document.createElement("button");
+  btnToggleSemana.className = "btn-toggle-semana";
+  btnToggleSemana.textContent = semanaExpandida ? "▴ Ocultar semana completa" : "▾ Ver semana completa";
+  btnToggleSemana.onclick = ()=>{ semanaExpandida = !semanaExpandida; renderDisponible(); };
+  cont.appendChild(btnToggleSemana);
+
+  if (semanaExpandida){
+    const grid = document.createElement("div");
+    grid.className = "grilla-dias";
+    DIAS_SEMANA.forEach((d, i)=>{
+      const fecha = sumarDias(semanaRef, i);
+      const card = document.createElement("div");
+      card.className = "dia-card";
+      card.innerHTML = "<h4>"+NOMBRE_DIA[d]+" "+fmtCorto(fecha).slice(0,5)+"</h4>";
+      const pres = presenciasDia(d, fecha);
+      if (!pres.length){
+        card.innerHTML += '<div class="nadie">Sin personal cargado</div>';
+      } else {
+        for (const b of bloquesPresenciaDia(pres)){
+          const grupoCont = document.createElement("div");
+          grupoCont.className = "grupo-horario";
+          grupoCont.innerHTML = '<div class="grupo-horario-hora">'+aHHMM(b.desde)+"–"+aHHMM(b.hasta)+'</div>';
+          for (const pr of b.gente){
+            const fila = document.createElement("div");
+            fila.className = "pers"+(pr.paro ? " en-paro" : (pr.ausente ? " en-ausente" : (pr.lic ? " en-lic" : "")));
+            fila.innerHTML = "<b class='"+pr.zona+"'>"+escapar(pr.nombre)+"</b> <span class='rol-tag'>"+escapar(pr.rol)+"</span>"+etiquetasPr(pr);
+            grupoCont.appendChild(fila);
+          }
+          card.appendChild(grupoCont);
         }
-        card.appendChild(grupoCont);
       }
-    }
-    card.onclick = ()=>{ diaDetalle = i; renderDisponible(); document.getElementById("disponibleDiaFoco").scrollIntoView({behavior:"smooth", block:"start"}); };
-    grid.appendChild(card);
-  });
-  cont.appendChild(grid);
+      card.onclick = ()=>{ diaDetalle = i; renderDisponible(); document.getElementById("disponibleDiaFoco").scrollIntoView({behavior:"smooth", block:"start"}); };
+      grid.appendChild(card);
+    });
+    cont.appendChild(grid);
+  }
 
   // Debajo de la semana: selector por día con una vista más clara (bloques grandes,
   // sin repetir el mismo nombre fila por fila como pasaba con la grilla de 40 min).
