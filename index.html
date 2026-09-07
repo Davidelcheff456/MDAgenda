@@ -248,6 +248,7 @@
   .dia-foco-tab:hover{box-shadow:0 2px 6px rgba(0,0,0,.1);}
   .dia-foco-tab.sel{background:var(--azul); color:#fff; border-color:var(--azul);}
   .dia-foco-panel{border:1px solid var(--borde); border-radius:10px; background:#fff; overflow:hidden;}
+  .dia-foco-subtitulo{padding:10px 18px; background:#eef2f6; color:var(--azul-osc); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.02em;}
   .dia-foco-bloque{display:flex; gap:18px; padding:14px 18px; border-bottom:1px solid #eee;}
   .dia-foco-bloque:last-child{border-bottom:none;}
   .dia-foco-hora{flex:0 0 140px; font-weight:700; color:var(--azul-osc); font-size:1rem;}
@@ -356,6 +357,7 @@
   body.tema-oscuro .dia-foco-tab.sel{background:var(--azul); color:#fff;}
   body.tema-oscuro .dia-foco-panel{background:#2f353e; border-color:#4a4f57;}
   body.tema-oscuro .dia-foco-bloque{border-color:#3d434c;}
+  body.tema-oscuro .dia-foco-subtitulo{background:#374252; color:#cfe0f2;}
   body.tema-oscuro .dia-foco-persona b{color:#e4e6e9;}
   body.tema-oscuro .b-cancelar{background:#3a414b; color:#dfe3e8;}
   body.tema-oscuro .acciones button:hover{background:#3a414b;}
@@ -4448,6 +4450,8 @@ function presenciasDia(dia, fecha){
   for (const p of [...estado.equipo, ...estado.docentes]){
     for (const r of rangosDe(p, dia)){
       res.push({nombre: nombreDe(p)||p.rol, rol: p.rol + (p.materia ? " · "+p.materia : ""),
+        materia: p.materia || "",
+        esDocente: p.rol==="Docente",
         zona: claseZona(p),
         lic: fecha ? tieneLicencia(p, fecha) : false,
         ausente: fecha ? tieneAusente(p, fecha) : false,
@@ -4579,15 +4583,47 @@ function renderDisponible(){
   if (!presFoco.length){
     panel.innerHTML = '<p class="sin-datos" style="padding:14px 18px;">No hay personal cargado para el '+NOMBRE_DIA[diaClaveFoco].toLowerCase()+".</p>";
   } else {
-    for (const b of bloquesPresenciaDia(presFoco)){
-      const fila = document.createElement("div");
-      fila.className = "dia-foco-bloque";
-      let personasHtml = "";
-      for (const pr of b.gente){
-        personasHtml += "<div class='dia-foco-persona"+(pr.paro ? " en-paro" : (pr.ausente ? " en-ausente" : (pr.lic ? " en-lic" : "")))+"'><b class='"+pr.zona+"'>"+escapar(pr.nombre)+"</b> <span class='rol-tag'>"+escapar(pr.rol)+"</span>"+etiquetasPr(pr)+"</div>";
+    const filaPersona = (pr)=> "<div class='dia-foco-persona"+(pr.paro ? " en-paro" : (pr.ausente ? " en-ausente" : (pr.lic ? " en-lic" : "")))+"'><b class='"+pr.zona+"'>"+escapar(pr.nombre)+"</b> <span class='rol-tag'>"+escapar(pr.rol)+"</span>"+etiquetasPr(pr)+"</div>";
+
+    // Los cargos (Director/POT/Coordinador/etc.) tienen horario de reloj, no de módulos de
+    // 40 min, así que van agrupados aparte y primero (si se los mete en la grilla de 40 min
+    // de los docentes quedan bloques cortados sin sentido).
+    const cargosFoco = presFoco.filter(pr=>!pr.esDocente);
+    if (cargosFoco.length){
+      const tituloCargos = document.createElement("div");
+      tituloCargos.className = "dia-foco-subtitulo";
+      tituloCargos.textContent = "Cargos (Dirección / POT / Coordinación)";
+      panel.appendChild(tituloCargos);
+      for (const b of bloquesPresenciaDia(cargosFoco)){
+        const fila = document.createElement("div");
+        fila.className = "dia-foco-bloque";
+        fila.innerHTML = "<div class='dia-foco-hora'>"+aHHMM(b.desde)+"–"+aHHMM(b.hasta)+"</div><div class='dia-foco-personas'>"+b.gente.map(filaPersona).join("")+"</div>";
+        panel.appendChild(fila);
       }
-      fila.innerHTML = "<div class='dia-foco-hora'>"+aHHMM(b.desde)+"–"+aHHMM(b.hasta)+"</div><div class='dia-foco-personas'>"+personasHtml+"</div>";
-      panel.appendChild(fila);
+    }
+
+    // Los docentes sí siguen la hora cátedra (40 min): se muestra una fila por cada módulo,
+    // aunque los nombres se repitan de un módulo al siguiente — así se ve sin ambigüedad
+    // quién está en cada bloque horario.
+    const profesFoco = presFoco.filter(pr=>pr.esDocente);
+    if (profesFoco.length){
+      const tituloProfes = document.createElement("div");
+      tituloProfes.className = "dia-foco-subtitulo";
+      tituloProfes.textContent = "Docentes (por hora cátedra)";
+      panel.appendChild(tituloProfes);
+      let ini = Math.min(...profesFoco.map(p=>p.desde));
+      let fin = Math.max(...profesFoco.map(p=>p.hasta));
+      ini = MIN_ESCUELA + Math.floor((ini - MIN_ESCUELA)/DUR_MODULO)*DUR_MODULO;
+      fin = MIN_ESCUELA + Math.ceil((fin - MIN_ESCUELA)/DUR_MODULO)*DUR_MODULO;
+      for (let t0 = ini; t0 < fin; t0 += DUR_MODULO){
+        const t1 = t0 + DUR_MODULO;
+        const gente = profesFoco.filter(p=>p.desde<t1 && p.hasta>t0);
+        const fila = document.createElement("div");
+        fila.className = "dia-foco-bloque";
+        const personasHtml = gente.length ? gente.map(filaPersona).join("") : "<div class='dia-foco-persona sin-datos' style='padding:0;'>Sin docentes en este horario</div>";
+        fila.innerHTML = "<div class='dia-foco-hora'>"+aHHMM(t0)+"–"+aHHMM(t1)+"</div><div class='dia-foco-personas'>"+personasHtml+"</div>";
+        panel.appendChild(fila);
+      }
     }
   }
   focoWrap.appendChild(panel);
