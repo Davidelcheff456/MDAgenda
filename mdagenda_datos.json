@@ -8,15 +8,6 @@
       "tipoTiempo": "productivo",
       "destino": "",
       "creada": 1788293449604
-    },
-    {
-      "id": "mtj3rdseven7d",
-      "texto": "hacer pedido docentes nuevos",
-      "fecha": "2026-09-04",
-      "estrellas": 4,
-      "tipoTiempo": "productivo",
-      "destino": "",
-      "creada": 1788293471630
     }
   ],
   "bitacora": [
@@ -44,6 +35,16 @@
       "texto": "hacer pedidos de hs para los dos planteles de docentes",
       "comentario": "se hicieron los pedidos docentes correspondientes",
       "fechaFin": "2026-09-04",
+      "estrellas": 4,
+      "persona": "",
+      "rol": "",
+      "tipoTiempo": "productivo"
+    },
+    {
+      "id": "mtj3rdseven7d",
+      "texto": "hacer pedido docentes nuevos",
+      "comentario": "se realizo con exito los llamados a cobertura",
+      "fechaFin": "2026-09-07",
       "estrellas": 4,
       "persona": "",
       "rol": "",
@@ -539,7 +540,8 @@
       "mnovedades": "https://sistemas2.chubut.edu.ar/soft/snpe/",
       "mec": "http://sistemas.chubut.edu.ar/planta/consulage.php?tipo=buscar",
       "junta": "http://sistemas.chubut.edu.ar/juntamed/jindex.php",
-      "ra": "https://chubut.die.educacion.gob.ar/ra2026/"
+      "ra": "https://chubut.die.educacion.gob.ar/ra2026/",
+      "pedidosdd": "https://docs.google.com/spreadsheets/d/1VkUPzuZrtC1qDDhq5kAwDJ2DVCRMZBZ5nNkbYG-JRRM/edit?gid=0#gid=0"
     }
   },
   "escuelasOrigen": [],

@@ -240,6 +240,19 @@
   .dia-card .pers b{color:#333;}
   .dia-card .rol-tag{font-size:.72rem; color:var(--azul); font-weight:700;}
   .dia-card .nadie{color:var(--gris); font-style:italic; font-size:.85rem;}
+  .dia-foco-wrap{margin-top:26px;}
+  .dia-foco-tabs{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;}
+  .dia-foco-tab{padding:8px 16px; border:1px solid var(--borde); border-radius:20px; background:#fbfaf6; cursor:pointer; font-size:.85rem; font-weight:600; color:#555;}
+  .dia-foco-tab:hover{box-shadow:0 2px 6px rgba(0,0,0,.1);}
+  .dia-foco-tab.sel{background:var(--azul); color:#fff; border-color:var(--azul);}
+  .dia-foco-panel{border:1px solid var(--borde); border-radius:10px; background:#fff; overflow:hidden;}
+  .dia-foco-bloque{display:flex; gap:18px; padding:14px 18px; border-bottom:1px solid #eee;}
+  .dia-foco-bloque:last-child{border-bottom:none;}
+  .dia-foco-hora{flex:0 0 140px; font-weight:700; color:var(--azul-osc); font-size:1rem;}
+  .dia-foco-personas{flex:1; display:flex; flex-direction:column; gap:6px; min-width:0;}
+  .dia-foco-persona{font-size:.95rem; padding:2px 0;}
+  .dia-foco-persona b{color:#333;}
+  .dia-foco-persona .rol-tag{margin-left:4px;}
   .btn-volver{margin-bottom:14px; padding:7px 16px; border:1px solid var(--borde); background:#f4f2ec;
     border-radius:6px; cursor:pointer; font-size:.88rem;}
   table.intervalos{width:100%; border-collapse:collapse; max-width:720px;}
@@ -315,6 +328,8 @@
   body.tema-sepia .bloque-persona, body.tema-sepia .dia-card, body.tema-sepia .calendario{background:#f6efdd;}
   body.tema-sepia .bp-cab{background:#faf3e3;}
   body.tema-sepia .cal-dia{background:#faf3e3;}
+  body.tema-sepia .dia-foco-tab{background:#f6efdd;}
+  body.tema-sepia .dia-foco-panel{background:#faf3e3;}
 
   body.tema-oscuro{--papel:#2a3038; --borde:#4a4f57; --gris:#9aa4b1; background:#20242b; color:#e4e6e9; color-scheme:dark;}
   body.tema-oscuro header.top{background:#12151a;}
@@ -335,6 +350,11 @@
   body.tema-oscuro ul.lista-tareas li.vencida{background:#3d2a28; border-color:var(--rojo);}
   body.tema-oscuro table.intervalos td, body.tema-oscuro .funcion, body.tema-oscuro .dia ul li{border-color:#3d434c;}
   body.tema-oscuro .dia-cab, body.tema-oscuro .bp-cab .nombre, body.tema-oscuro .dia-card .pers b, body.tema-oscuro table.intervalos td.hora{color:#e4e6e9;}
+  body.tema-oscuro .dia-foco-tab{background:#3a414b; color:#dfe3e8; border-color:#4a4f57;}
+  body.tema-oscuro .dia-foco-tab.sel{background:var(--azul); color:#fff;}
+  body.tema-oscuro .dia-foco-panel{background:#2f353e; border-color:#4a4f57;}
+  body.tema-oscuro .dia-foco-bloque{border-color:#3d434c;}
+  body.tema-oscuro .dia-foco-persona b{color:#e4e6e9;}
   body.tema-oscuro .b-cancelar{background:#3a414b; color:#dfe3e8;}
   body.tema-oscuro .acciones button:hover{background:#3a414b;}
   body.tema-oscuro .zona-norte{color:#9db8f5 !important;}
@@ -4441,14 +4461,38 @@ function etiquetasPr(pr){
   if (pr.lic) return " <span class='tag-lic'>LICENCIA</span>";
   return "";
 }
+// Arma los bloques según quién está presente en cada lapso (no según el horario exacto
+// de cada persona): así, si dos personas se superponen aunque sus horarios no coincidan
+// minuto a minuto, quedan listadas juntas bajo el mismo encabezado, y en cuanto cambia
+// quién está presente arranca un encabezado nuevo. Se usa tanto en las tarjetas semanales
+// como en el detalle de un día.
+function bloquesPresenciaDia(pres){
+  const cortes = new Set();
+  for (const pr of pres){ cortes.add(pr.desde); cortes.add(pr.hasta); }
+  const puntos = [...cortes].sort((a,b)=>a-b);
+  const bloques = [];
+  for (let i=0; i<puntos.length-1; i++){
+    const t0 = puntos[i], t1 = puntos[i+1];
+    const gente = pres.filter(p=>p.desde<=t0 && p.hasta>=t1);
+    if (!gente.length) continue;
+    const anterior = bloques[bloques.length-1];
+    const mismaGente = anterior && anterior.hasta===t0 && anterior.gente.length===gente.length
+      && anterior.gente.every((g,idx)=>g===gente[idx]);
+    if (mismaGente) anterior.hasta = t1;
+    else bloques.push({desde:t0, hasta:t1, gente});
+  }
+  return bloques;
+}
 function renderDisponible(){
   if (!semanaRef) semanaRef = lunesDe(hoyISO());
+  if (diaDetalle===null || diaDetalle===undefined || diaDetalle<0 || diaDetalle>4){
+    const hoy = hoyISO();
+    let idx = 0;
+    for (let i=0;i<5;i++){ if (sumarDias(semanaRef,i)===hoy){ idx=i; break; } }
+    diaDetalle = idx;
+  }
   const cont = $("#contDisponible");
   cont.innerHTML = "";
-  if (diaDetalle!==null){
-    renderDiaDetalle(cont);
-    return;
-  }
   const nav = document.createElement("div");
   nav.className = "fila-orden";
   const bAnt = document.createElement("button"); bAnt.textContent = "◀ Anterior";
@@ -4461,7 +4505,7 @@ function renderDisponible(){
   cont.appendChild(nav);
   const titulo = document.createElement("h2");
   titulo.className = "sub";
-  titulo.textContent = etiquetaSemana(semanaRef)+" — tocá un día para ver la grilla por horas";
+  titulo.textContent = etiquetaSemana(semanaRef);
   cont.appendChild(titulo);
   const grid = document.createElement("div");
   grid.className = "grilla-dias";
@@ -4474,25 +4518,7 @@ function renderDisponible(){
     if (!pres.length){
       card.innerHTML += '<div class="nadie">Sin personal cargado</div>';
     } else {
-      // Arma los bloques según quién está presente en cada lapso (no según el horario exacto
-      // de cada persona): así, si dos personas se superponen aunque sus horarios no coincidan
-      // minuto a minuto, quedan listadas juntas bajo el mismo encabezado, y en cuanto cambia
-      // quién está presente arranca un encabezado nuevo.
-      const cortes = new Set();
-      for (const pr of pres){ cortes.add(pr.desde); cortes.add(pr.hasta); }
-      const puntos = [...cortes].sort((a,b)=>a-b);
-      const bloques = [];
-      for (let i=0; i<puntos.length-1; i++){
-        const t0 = puntos[i], t1 = puntos[i+1];
-        const gente = pres.filter(p=>p.desde<=t0 && p.hasta>=t1);
-        if (!gente.length) continue;
-        const anterior = bloques[bloques.length-1];
-        const mismaGente = anterior && anterior.hasta===t0 && anterior.gente.length===gente.length
-          && anterior.gente.every((g,idx)=>g===gente[idx]);
-        if (mismaGente) anterior.hasta = t1;
-        else bloques.push({desde:t0, hasta:t1, gente});
-      }
-      for (const b of bloques){
+      for (const b of bloquesPresenciaDia(pres)){
         const grupoCont = document.createElement("div");
         grupoCont.className = "grupo-horario";
         grupoCont.innerHTML = '<div class="grupo-horario-hora">'+aHHMM(b.desde)+"–"+aHHMM(b.hasta)+'</div>';
@@ -4505,60 +4531,55 @@ function renderDisponible(){
         card.appendChild(grupoCont);
       }
     }
-    card.onclick = ()=>{ diaDetalle = i; renderDisponible(); };
+    card.onclick = ()=>{ diaDetalle = i; renderDisponible(); document.getElementById("disponibleDiaFoco").scrollIntoView({behavior:"smooth", block:"start"}); };
     grid.appendChild(card);
   });
   cont.appendChild(grid);
-}
-function renderDiaDetalle(cont){
-  const btn = document.createElement("button");
-  btn.className = "btn-volver";
-  btn.textContent = "‹ Volver a la semana";
-  btn.onclick = ()=>{ diaDetalle = null; renderDisponible(); };
-  cont.appendChild(btn);
 
-  const diaClave = DIAS_SEMANA[diaDetalle];
-  const fecha = sumarDias(semanaRef, diaDetalle);
-  const titulo = document.createElement("h2");
-  titulo.className = "sub";
-  titulo.textContent = "Grilla del "+fmtLargo(fecha).toLowerCase();
-  cont.appendChild(titulo);
+  // Debajo de la semana: selector por día con una vista más clara (bloques grandes,
+  // sin repetir el mismo nombre fila por fila como pasaba con la grilla de 40 min).
+  const focoWrap = document.createElement("div");
+  focoWrap.className = "dia-foco-wrap";
+  focoWrap.id = "disponibleDiaFoco";
 
-  const pres = presenciasDia(diaClave, fecha);
-  if (!pres.length){
-    cont.innerHTML += '<p class="sin-datos">No hay personal cargado para este día.</p>';
-    return;
-  }
-  // Bloques fijos de 40 min (hora cátedra) anclados a las 8:00; el Director (por
-  // horario de reloj) aparece en los bloques que se solapan con su entrada/salida.
-  let ini = MIN_ESCUELA, fin = MAX_ESCUELA;
-  for (const p of pres){ ini = Math.min(ini, p.desde); fin = Math.max(fin, p.hasta); }
-  ini = MIN_ESCUELA + Math.floor((ini - MIN_ESCUELA)/DUR_MODULO)*DUR_MODULO;
-  fin = MIN_ESCUELA + Math.ceil((fin - MIN_ESCUELA)/DUR_MODULO)*DUR_MODULO;
+  const focoTitulo = document.createElement("h2");
+  focoTitulo.className = "sub";
+  focoTitulo.textContent = "Ver un día en detalle";
+  focoWrap.appendChild(focoTitulo);
 
-  const tabla = document.createElement("table");
-  tabla.className = "intervalos";
-  tabla.innerHTML = "<tr><th>Horario</th><th>Quiénes están</th></tr>";
-  for (let t0 = ini; t0 < fin; t0 += DUR_MODULO){
-    const t1 = t0 + DUR_MODULO;
-    const gente = pres.filter(p=>p.desde<t1 && p.hasta>t0);
-    // fuera del rango escolar solo mostrar si hay alguien
-    if ((t1<=MIN_ESCUELA || t0>=MAX_ESCUELA) && !gente.length) continue;
-    const tr = document.createElement("tr");
-    const tdH = document.createElement("td");
-    tdH.className = "hora";
-    tdH.textContent = aHHMM(t0)+" – "+aHHMM(t1);
-    tr.appendChild(tdH);
-    const tdG = document.createElement("td");
-    if (!gente.length){
-      tdG.innerHTML = '<span class="vacio">Sin personal</span>';
-    } else {
-      tdG.innerHTML = gente.map(p=>'<div class="p-item'+(p.paro ? ' en-paro' : (p.ausente ? ' en-ausente' : (p.lic ? ' en-lic' : '')))+'"><b class="'+p.zona+'">'+escapar(p.nombre)+'</b> <span class="rol-tag">'+escapar(p.rol)+'</span>'+etiquetasPr(p)+'</div>').join("");
+  const tabs = document.createElement("div");
+  tabs.className = "dia-foco-tabs";
+  DIAS_SEMANA.forEach((d, i)=>{
+    const fecha = sumarDias(semanaRef, i);
+    const tab = document.createElement("button");
+    tab.className = "dia-foco-tab"+(diaDetalle===i ? " sel" : "");
+    tab.textContent = NOMBRE_DIA[d]+" "+fmtCorto(fecha).slice(0,5);
+    tab.onclick = ()=>{ diaDetalle = i; renderDisponible(); };
+    tabs.appendChild(tab);
+  });
+  focoWrap.appendChild(tabs);
+
+  const diaClaveFoco = DIAS_SEMANA[diaDetalle];
+  const fechaFoco = sumarDias(semanaRef, diaDetalle);
+  const presFoco = presenciasDia(diaClaveFoco, fechaFoco);
+  const panel = document.createElement("div");
+  panel.className = "dia-foco-panel";
+  if (!presFoco.length){
+    panel.innerHTML = '<p class="sin-datos" style="padding:14px 18px;">No hay personal cargado para el '+NOMBRE_DIA[diaClaveFoco].toLowerCase()+".</p>";
+  } else {
+    for (const b of bloquesPresenciaDia(presFoco)){
+      const fila = document.createElement("div");
+      fila.className = "dia-foco-bloque";
+      let personasHtml = "";
+      for (const pr of b.gente){
+        personasHtml += "<div class='dia-foco-persona"+(pr.paro ? " en-paro" : (pr.ausente ? " en-ausente" : (pr.lic ? " en-lic" : "")))+"'><b class='"+pr.zona+"'>"+escapar(pr.nombre)+"</b> <span class='rol-tag'>"+escapar(pr.rol)+"</span>"+etiquetasPr(pr)+"</div>";
+      }
+      fila.innerHTML = "<div class='dia-foco-hora'>"+aHHMM(b.desde)+"–"+aHHMM(b.hasta)+"</div><div class='dia-foco-personas'>"+personasHtml+"</div>";
+      panel.appendChild(fila);
     }
-    tr.appendChild(tdG);
-    tabla.appendChild(tr);
   }
-  cont.appendChild(tabla);
+  focoWrap.appendChild(panel);
+  cont.appendChild(focoWrap);
 }
 
 // ---------- Licencias ----------
