@@ -84,6 +84,13 @@
   .fila-orden button{padding:5px 12px; border:1px solid var(--borde); background:#f4f2ec; border-radius:6px; cursor:pointer; font-size:.83rem;}
   .fila-orden button.sel{background:var(--azul); color:#fff; border-color:var(--azul);}
 
+  .caja-agregar-tarea{border:2px solid var(--verde); background:#eaf5ee; border-radius:12px; padding:14px 16px 4px 16px; margin-bottom:16px;}
+  .caja-agregar-tarea h3{margin:0 0 10px 0; font-size:1.15rem; font-weight:800; color:#1f6b45;}
+  .caja-agregar-tarea .form-alta{background:transparent; border:none; padding:0; margin-bottom:12px;}
+  .grid-tareas-calendario{display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start; margin-top:18px;}
+  @media (max-width:900px){ .grid-tareas-calendario{grid-template-columns:1fr;} }
+  .caja-filtro-tareas{border:1px solid var(--borde); border-radius:10px; background:#fbfaf6; padding:12px 14px; margin-bottom:14px;}
+  .caja-filtro-tareas .toolbar-tareas{flex-wrap:wrap;}
   .form-alta{display:flex; gap:8px; align-items:center; flex-wrap:wrap; background:#f6f4ee;
     border:1px dashed var(--borde); border-radius:8px; padding:10px 12px; margin-bottom:16px;}
   .form-alta input[type=text]{flex:1; min-width:180px; padding:8px 10px; border:1px solid var(--borde); border-radius:6px; font-size:.95rem;}
@@ -132,6 +139,14 @@
   .acciones{display:flex; gap:6px;}
   .acciones button{border:none; background:none; cursor:pointer; font-size:1.1rem; padding:4px 6px; border-radius:6px;}
   .acciones button:hover{background:#eee;}
+  ul.lista-tareas li.tarea-propia .estrellas, ul.lista-tareas li.tarea-propia .chip-tiempo,
+  ul.lista-tareas li.tarea-propia .chip-destino, ul.lista-tareas li.tarea-propia .chip-fecha,
+  ul.lista-tareas li.tarea-propia .btn-editar-tarea{display:none;}
+  ul.lista-tareas li.tarea-propia.expandida .estrellas{display:inline-flex;}
+  ul.lista-tareas li.tarea-propia.expandida .chip-tiempo,
+  ul.lista-tareas li.tarea-propia.expandida .chip-destino,
+  ul.lista-tareas li.tarea-propia.expandida .chip-fecha,
+  ul.lista-tareas li.tarea-propia.expandida .btn-editar-tarea{display:inline-block;}
   .sin-datos{color:var(--gris); font-style:italic; padding:14px 4px;}
 
   /* Calendario */
@@ -330,6 +345,8 @@
   body.tema-sepia{--papel:#faf3e3; --borde:#d8c9a8; background:#efe3cd;}
   body.tema-sepia header.top{background:#5c4326;}
   body.tema-sepia .form-alta{background:#f3ead3;}
+  body.tema-sepia .caja-agregar-tarea{background:#eef0dd;}
+  body.tema-sepia .caja-filtro-tareas{background:#f6efdd;}
   body.tema-sepia .bloque-persona, body.tema-sepia .dia-card, body.tema-sepia .calendario{background:#f6efdd;}
   body.tema-sepia .bp-cab{background:#faf3e3;}
   body.tema-sepia .cal-dia{background:#faf3e3;}
@@ -339,6 +356,9 @@
   body.tema-oscuro{--papel:#2a3038; --borde:#4a4f57; --gris:#9aa4b1; background:#20242b; color:#e4e6e9; color-scheme:dark;}
   body.tema-oscuro header.top{background:#12151a;}
   body.tema-oscuro .form-alta{background:#333a43;}
+  body.tema-oscuro .caja-agregar-tarea{background:#233327; border-color:#2e8b57;}
+  body.tema-oscuro .caja-agregar-tarea h3{color:#7fd9a4;}
+  body.tema-oscuro .caja-filtro-tareas{background:#2f353e; border-color:#4a4f57;}
   body.tema-oscuro .form-alta input, body.tema-oscuro .form-alta select,
   body.tema-oscuro .modal input, body.tema-oscuro .modal textarea, body.tema-oscuro .modal select,
   body.tema-oscuro table.horarios input{background:#20242b; color:#e4e6e9; border-color:#4a4f57;}
@@ -606,52 +626,65 @@
 
     <div id="vistaTarTareas">
       <div id="contSeguimientos"></div>
-      <div class="fila-orden toolbar-tareas">
-        <span>Ordenar por:</span>
-        <button data-orden="carga">Orden de carga</button>
-        <button data-orden="prioridad">Prioridad</button>
-        <button data-orden="fecha">Fecha límite</button>
-        <span class="separador-toolbar"></span>
-        <span>Mostrar:</span>
-        <label class="chk" style="display:flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" id="filtroTarEsc370"> 🏫 Escuela 370</label>
-        <label class="chk" style="display:flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" id="filtroTarSupervision"> 🏛 Supervisión</label>
+
+      <div class="caja-agregar-tarea">
+        <h3>➕ Agregar tarea</h3>
+        <div class="form-alta">
+          <input type="text" id="nuevaDesc" placeholder="Nueva tarea..." maxlength="300">
+          <input type="date" id="nuevaFecha" title="Fecha límite">
+          <div class="estrellas" id="nuevaEstrellas" title="Prioridad (0 a 4 estrellas)"></div>
+          <select id="nuevaTipoTiempo" title="Tipo de tiempo directivo">
+            <option value="productivo">🛠 Productivo</option>
+            <option value="informacion">📰 Información</option>
+            <option value="reflexion">🧠 Reflexión</option>
+            <option value="imponderable">⚡ Imponderable</option>
+          </select>
+          <select id="nuevaDestino" title="Para quién es (opcional)">
+            <option value="">Sin destino específico</option>
+            <option value="esc370">🏫 Escuela 370</option>
+            <option value="supervision">🏛 Supervisión</option>
+          </select>
+          <button class="btn-mas" id="btnAgregar" title="Agregar tarea">+</button>
+        </div>
       </div>
-      <div class="form-alta">
-        <input type="text" id="nuevaDesc" placeholder="Nueva tarea..." maxlength="300">
-        <input type="date" id="nuevaFecha" title="Fecha límite">
-        <div class="estrellas" id="nuevaEstrellas" title="Prioridad (0 a 4 estrellas)"></div>
-        <select id="nuevaTipoTiempo" title="Tipo de tiempo directivo">
-          <option value="productivo">🛠 Productivo</option>
-          <option value="informacion">📰 Información</option>
-          <option value="reflexion">🧠 Reflexión</option>
-          <option value="imponderable">⚡ Imponderable</option>
-        </select>
-        <select id="nuevaDestino" title="Para quién es (opcional)">
-          <option value="">Sin destino específico</option>
-          <option value="esc370">🏫 Escuela 370</option>
-          <option value="supervision">🏛 Supervisión</option>
-        </select>
-        <button class="btn-mas" id="btnAgregar" title="Agregar tarea">+</button>
-      </div>
+
       <div class="fila-herramientas-tareas">
         <button type="button" class="btn-mini-tarea btn-excel-par" id="btnImportarExcelTareas" style="margin-top:0;">📥 Importar cronograma (Excel)</button>
         <button type="button" class="btn-mini-tarea btn-excel-par" id="btnEjemploExcelTareas" style="margin-top:0;">📄 Descargar Excel de ejemplo</button>
         <input type="file" id="inputExcelTareas" accept=".xlsx,.xls" style="display:none;">
       </div>
-      <div class="caja-tareas"><ul class="lista-tareas" id="listaTareas"></ul></div>
 
-      <div class="calendario">
-        <div class="fila-orden" style="margin-bottom:10px;">
-          <label class="chk" style="display:flex; align-items:center; gap:5px;"><input type="checkbox" id="calCapaTareas" checked> 📋 Mis tareas</label>
-          <label class="chk" style="display:flex; align-items:center; gap:5px;"><input type="checkbox" id="calCapaFeriados" checked> 🎉 Feriados</label>
-          <label class="chk" style="display:flex; align-items:center; gap:5px;"><input type="checkbox" id="calCapaProvincia" checked> 🏛 Calendario de provincia</label>
+      <div class="grid-tareas-calendario">
+        <div class="col-calendario">
+          <div class="calendario">
+            <div class="fila-orden" style="margin-bottom:10px;">
+              <label class="chk" style="display:flex; align-items:center; gap:5px;"><input type="checkbox" id="calCapaTareas" checked> 📋 Mis tareas</label>
+              <label class="chk" style="display:flex; align-items:center; gap:5px;"><input type="checkbox" id="calCapaFeriados" checked> 🎉 Feriados</label>
+              <label class="chk" style="display:flex; align-items:center; gap:5px;"><input type="checkbox" id="calCapaProvincia" checked> 🏛 Calendario de provincia</label>
+            </div>
+            <div class="cal-cab">
+              <button id="calAnt">◀</button>
+              <b id="calTitulo"></b>
+              <button id="calSig">▶</button>
+            </div>
+            <div class="cal-grid" id="calGrid"></div>
+          </div>
         </div>
-        <div class="cal-cab">
-          <button id="calAnt">◀</button>
-          <b id="calTitulo"></b>
-          <button id="calSig">▶</button>
+        <div class="col-tareas">
+          <div class="caja-filtro-tareas">
+            <div class="fila-orden toolbar-tareas" style="margin-bottom:0;">
+              <span>Ordenar por:</span>
+              <button data-orden="carga">Orden de carga</button>
+              <button data-orden="prioridad">Prioridad</button>
+              <button data-orden="fecha">Fecha límite</button>
+              <span class="separador-toolbar"></span>
+              <span>Mostrar:</span>
+              <label class="chk" style="display:flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" id="filtroTarEsc370"> 🏫 Escuela 370</label>
+              <label class="chk" style="display:flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" id="filtroTarSupervision"> 🏛 Supervisión</label>
+            </div>
+          </div>
+          <div class="caja-tareas"><ul class="lista-tareas" id="listaTareas"></ul></div>
         </div>
-        <div class="cal-grid" id="calGrid"></div>
       </div>
     </div>
 
@@ -2490,8 +2523,16 @@ function filaTarea(t, owner){
   const vencida = t.fecha && t.fecha < hoyISO();
   if (t.destino==="supervision") li.classList.add("destino-supervision");
   if (vencida) li.classList.add("vencida");
-  li.title = "Tocá para modificar";
-  li.onclick = ()=>abrirTarea(owner, t.id);
+  if (owner==="propia"){
+    // En la lista propia se ve solo el texto + tildar/eliminar; el resto (prioridad,
+    // tipo, destino, fecha) queda oculto hasta que se toca la fila para expandirla.
+    li.classList.add("tarea-propia");
+    li.title = "Tocá para ver los detalles";
+    li.onclick = ()=>li.classList.toggle("expandida");
+  } else {
+    li.title = "Tocá para modificar";
+    li.onclick = ()=>abrirTarea(owner, t.id);
+  }
 
   const est = document.createElement("div");
   est.className = "estrellas";
@@ -2529,9 +2570,14 @@ function filaTarea(t, owner){
   const acc = document.createElement("div");
   acc.className = "acciones";
   acc.innerHTML =
+    (owner==="propia" ? '<button class="btn-editar-tarea" title="Modificar">✏️</button>' : '')+
     '<button title="Marcar como lista">✅</button>'+
     '<button title="Eliminar">🗑️</button>';
-  const [bOk, bDel] = acc.querySelectorAll("button");
+  const botonesAcc = acc.querySelectorAll("button");
+  const bEdit = owner==="propia" ? botonesAcc[0] : null;
+  const bOk = owner==="propia" ? botonesAcc[1] : botonesAcc[0];
+  const bDel = owner==="propia" ? botonesAcc[2] : botonesAcc[1];
+  if (bEdit) bEdit.onclick = (ev)=>{ ev.stopPropagation(); abrirTarea(owner, t.id); };
   bOk.onclick = (ev)=>{ ev.stopPropagation(); abrirCompletar(owner, t.id); };
   bDel.onclick = (ev)=>{
     ev.stopPropagation();
