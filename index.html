@@ -25,8 +25,8 @@
   .btn-links-educacion:hover{background:rgba(255,255,255,.22);}
   .btn-links-educacion.sel{background:rgba(255,255,255,.28);}
   .dropdown-links-educacion{display:none; position:absolute; top:calc(100% + 8px); right:0; z-index:90;
-    background:#aed4f2; border:1px solid #5b93c2; border-radius:10px; padding:10px 12px;
-    gap:6px; flex-wrap:wrap; width:max(260px, 100%); max-width:min(90vw,520px); box-shadow:0 6px 20px rgba(0,0,0,.25);}
+    background:#aed4f2; border:1px solid #5b93c2; border-radius:10px; padding:8px 6px;
+    gap:0; flex-direction:column; align-items:stretch; width:220px; box-shadow:0 6px 20px rgba(0,0,0,.25);}
   .dropdown-links-educacion.abierta{display:flex;}
   body.tema-sepia .dropdown-links-educacion{background:#e0c27a; border-color:#b8912e;}
   body.tema-oscuro .dropdown-links-educacion{background:#1c4a70; border-color:#3f8fc4;}
@@ -127,12 +127,12 @@
   .caja-links-chubut-titulo{display:block; font-size:.78rem; font-weight:700; color:#1e4260; text-transform:uppercase; letter-spacing:.03em; margin-bottom:6px;}
   body.tema-oscuro .caja-links-chubut-titulo{color:#dceefb;}
   .caja-links-chubut-botones{display:flex; gap:6px; flex-wrap:wrap;}
-  .btn-link-chubut{padding:5px 11px; border:1px solid var(--borde); background:#f4f2ec; border-radius:6px;
-    font-size:.83rem; text-decoration:none; color:inherit; white-space:nowrap; display:inline-flex; align-items:center; gap:5px;}
-  .icono-link-chubut{font-size:1.35rem; line-height:1;}
-  .btn-link-chubut:hover{border-color:var(--azul); background:#eaf3fb;}
-  body.tema-oscuro .btn-link-chubut{background:#2f3944;}
-  body.tema-oscuro .btn-link-chubut:hover{background:#33424f;}
+  .btn-link-chubut{padding:6px 4px; border:none; background:none; border-radius:5px;
+    font-size:.88rem; text-decoration:none; color:#1e4260; white-space:nowrap; display:flex; align-items:center; gap:7px;}
+  .icono-link-chubut{font-size:1.1rem; line-height:1;}
+  .btn-link-chubut:hover{text-decoration:underline; background:rgba(0,0,0,.05);}
+  body.tema-oscuro .btn-link-chubut{color:#dceefb;}
+  body.tema-oscuro .btn-link-chubut:hover{background:rgba(255,255,255,.08);}
   .caja-tareas{background:#dceefb; border:1px solid #b8d9f0; border-radius:14px; padding:6px 14px; margin-bottom:4px;}
   body.tema-sepia .caja-tareas{background:#e9eff3; border-color:#cdd8e0;}
   body.tema-oscuro .caja-tareas{background:#26333f; border-color:#3a4a5a;}
@@ -575,7 +575,7 @@
   </div>
   <div style="display:flex; align-items:center;">
     <div class="links-educacion-wrap" id="linksEducacionWrap">
-      <button class="btn-links-educacion" id="btnLinksEducacion" title="Links educación">🔗 Links educación</button>
+      <button class="btn-links-educacion" id="btnLinksEducacion" title="Links chubut">🔗 Links chubut</button>
       <div class="dropdown-links-educacion" id="dropdownLinksEducacion">
         <a class="btn-link-chubut" data-link-chubut="pof" href="https://docs.google.com/spreadsheets/d/1qWnrQrNoPKLsHw6gHf-GwWGKqUq3g6s-BPIBuE3wvFU/edit?gid=61236958#gid=61236958" target="_blank" rel="noopener noreferrer"><span class="icono-link-chubut">📊</span> POF</a>
         <a class="btn-link-chubut" data-link-chubut="ddjj" href="https://sistemas2.chubut.edu.ar/soft/ddjj/admin/login" target="_blank" rel="noopener noreferrer"><span class="icono-link-chubut">🧾</span> DDJJ</a>
