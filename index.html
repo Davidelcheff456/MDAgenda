@@ -19,6 +19,8 @@
   .logo:hover{opacity:.85;}
   .logo-img{height:44px; width:auto; display:block; filter:drop-shadow(0 1px 3px rgba(0,0,0,.35));}
   .auth-zone{display:flex; align-items:center; gap:10px; font-size:.85rem; color:#dbe4ee;}
+  .logo-subtitulo{margin-left:14px; padding-left:14px; border-left:1px solid rgba(255,255,255,.3);
+    color:rgba(255,255,255,.75); font-size:.78rem; font-weight:500; letter-spacing:.01em; white-space:nowrap;}
   .auth-zone button{padding:6px 14px; border:1px solid rgba(255,255,255,.35); background:rgba(255,255,255,.12); color:#fff; border-radius:6px; cursor:pointer; font-size:.85rem;}
   .auth-zone button:hover{background:rgba(255,255,255,.25);}
   .btn-opciones{border:none; background:none; font-size:1.3rem; cursor:pointer; color:#fff; padding:2px 6px; margin-left:6px;}
@@ -512,6 +514,7 @@
       padding-top:64px; overflow-y:auto; width:230px;}
     nav.tabs.sidebar.abierta{transform:translateX(0);}
     main{margin-left:12px;}
+    .logo-subtitulo{display:none;}
   }
   @media (max-width:560px){
     header.top{padding:10px 12px;}
@@ -532,6 +535,7 @@
   <div style="display:flex; align-items:center;">
     <button class="btn-hamburguesa" id="btnMenu" title="Menú">☰</button>
     <div class="logo" id="logoBtn" title="Elegir fondo"><img id="logoImg" class="logo-img" alt="MDAgenda"></div>
+    <span class="logo-subtitulo">Gestión Institucional Domiciliaria y Hospitalaria</span>
   </div>
   <div style="display:flex; align-items:center;">
     <div class="auth-zone" id="authZone"></div>
