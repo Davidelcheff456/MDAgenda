@@ -629,14 +629,6 @@
 <main>
   <!-- TAREAS -->
   <section class="panel activa" id="panel-tareas">
-    <div class="fila-tar-cab">
-      <div class="fila-orden" style="margin-bottom:0;">
-        <button data-vista-tar="tareas" class="sel">📋 Tareas</button>
-        <button data-vista-tar="provincia">🏛 Calendario de provincia</button>
-        <button data-vista-tar="feriados">🎉 Feriados</button>
-      </div>
-    </div>
-
     <div id="vistaTarTareas">
       <div id="contSeguimientos"></div>
 
@@ -701,33 +693,6 @@
       </div>
     </div>
 
-    <div id="vistaTarProvincia" style="display:none;">
-      <p style="font-size:.85rem; color:var(--gris); margin-bottom:10px;">Subí el Excel que manda provincia con las fechas importantes: primera columna la fecha, segunda columna el nombre o descripción, sin fila de encabezados. Las fechas del archivo se suman a las que ya tenías cargadas; si queda algo repetido o viejo, lo borrás a mano de la lista.</p>
-      <button type="button" class="btn-mini-tarea" id="btnEjemploExcelProvincia" style="margin-bottom:10px;">⬇ Descargar ejemplo de Excel</button>
-      <input type="file" id="inputExcelProvincia" accept=".xlsx,.xls" style="margin-bottom:14px;">
-      <div class="form-alta">
-        <input type="text" id="provNombre" placeholder="Nombre / descripción" maxlength="200">
-        <input type="date" id="provFecha" title="Fecha">
-        <button class="btn-mas" id="btnAgregarProvincia" title="Agregar fecha de provincia">+</button>
-        <span id="avisoEdicionProv" style="display:none; font-size:.8rem; color:var(--gris);">Editando — <a id="cancelEdicionProv" style="color:var(--azul); cursor:pointer;">cancelar</a></span>
-      </div>
-      <div id="listaProvincia"></div>
-    </div>
-
-    <div id="vistaTarFeriados" style="display:none;">
-      <div class="form-alta">
-        <input type="text" id="ferNombre" placeholder="Nombre del feriado" maxlength="200">
-        <input type="date" id="ferFecha" title="Fecha">
-        <button class="btn-mas" id="btnAgregarFeriado" title="Agregar feriado">+</button>
-        <span id="avisoEdicionFer" style="display:none; font-size:.8rem; color:var(--gris);">Editando — <a id="cancelEdicionFer" style="color:var(--azul); cursor:pointer;">cancelar</a></span>
-      </div>
-      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
-        <button type="button" class="btn-mini-tarea btn-excel-par" id="btnImportarExcelFeriados" style="margin-top:0;">📥 Importar Excel</button>
-        <button type="button" class="btn-mini-tarea btn-excel-par" id="btnEjemploExcelFeriados" style="margin-top:0;">📄 Descargar Excel de ejemplo</button>
-        <input type="file" id="inputExcelFeriados" accept=".xlsx,.xls" style="display:none;">
-      </div>
-      <div id="listaFeriados"></div>
-    </div>
   </section>
 
   <!-- BITÁCORA -->
@@ -1154,6 +1119,15 @@
     </label>
     <p style="font-size:.8rem; color:var(--gris); margin-top:6px;">Las funciones de los docentes nunca se reinician solas.</p>
 
+    <div class="seccion-admin" id="zonaVentanas">
+      <label>🗓 Calendario de provincia y Feriados</label>
+      <p style="font-size:.8rem; color:var(--gris);">No se usan tan seguido, así que se abren en su propia ventana en vez de ocupar una pantalla entera.</p>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:6px;">
+        <button type="button" class="btn-mini-tarea" id="btnAbrirProvincia" style="margin-top:0;">🏛 Calendario de provincia</button>
+        <button type="button" class="btn-mini-tarea" id="btnAbrirFeriados" style="margin-top:0;">🎉 Feriados</button>
+      </div>
+    </div>
+
     <div class="seccion-admin" id="zonaCupos">
       <label>🎒 Cupo de la modalidad</label>
       <p style="font-size:.8rem; color:var(--gris);">Cantidad de lugares por zona. Se puede aumentar cuando haga falta.</p>
@@ -1205,6 +1179,48 @@
     <div class="pie">
       <button class="b-cancelar" data-cerrar="ovOpciones">Cancelar</button>
       <button class="b-guardar" id="btnGuardarOpciones">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Ventana: Calendario de provincia -->
+<div class="overlay" id="ovProvincia">
+  <div class="modal">
+    <h3>🏛 Calendario de provincia</h3>
+    <p style="font-size:.85rem; color:var(--gris); margin-bottom:10px;">Subí el Excel que manda provincia con las fechas importantes: primera columna la fecha, segunda columna el nombre o descripción, sin fila de encabezados. Las fechas del archivo se suman a las que ya tenías cargadas; si queda algo repetido o viejo, lo borrás a mano de la lista.</p>
+    <button type="button" class="btn-mini-tarea" id="btnEjemploExcelProvincia" style="margin-bottom:10px;">⬇ Descargar ejemplo de Excel</button>
+    <input type="file" id="inputExcelProvincia" accept=".xlsx,.xls" style="margin-bottom:14px;">
+    <div class="form-alta">
+      <input type="text" id="provNombre" placeholder="Nombre / descripción" maxlength="200">
+      <input type="date" id="provFecha" title="Fecha">
+      <button class="btn-mas" id="btnAgregarProvincia" title="Agregar fecha de provincia">+</button>
+      <span id="avisoEdicionProv" style="display:none; font-size:.8rem; color:var(--gris);">Editando — <a id="cancelEdicionProv" style="color:var(--azul); cursor:pointer;">cancelar</a></span>
+    </div>
+    <div id="listaProvincia"></div>
+    <div class="pie">
+      <button class="b-cancelar" data-cerrar="ovProvincia">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Ventana: Feriados -->
+<div class="overlay" id="ovFeriados">
+  <div class="modal">
+    <h3>🎉 Feriados</h3>
+    <div class="form-alta">
+      <input type="text" id="ferNombre" placeholder="Nombre del feriado" maxlength="200">
+      <input type="date" id="ferFecha" title="Fecha">
+      <button class="btn-mas" id="btnAgregarFeriado" title="Agregar feriado">+</button>
+      <span id="avisoEdicionFer" style="display:none; font-size:.8rem; color:var(--gris);">Editando — <a id="cancelEdicionFer" style="color:var(--azul); cursor:pointer;">cancelar</a></span>
+    </div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
+      <button type="button" class="btn-mini-tarea btn-excel-par" id="btnImportarExcelFeriados" style="margin-top:0;">📥 Importar Excel</button>
+      <button type="button" class="btn-mini-tarea btn-excel-par" id="btnEjemploExcelFeriados" style="margin-top:0;">📄 Descargar Excel de ejemplo</button>
+      <input type="file" id="inputExcelFeriados" accept=".xlsx,.xls" style="display:none;">
+    </div>
+    <div id="listaFeriados"></div>
+    <div class="pie">
+      <button class="b-cancelar" data-cerrar="ovFeriados">Cerrar</button>
     </div>
   </div>
 </div>
@@ -2809,18 +2825,6 @@ function abrirDiaCalendario(iso){
   $("#ovDia").classList.add("visible");
 }
 
-// ---------- Sub-vistas de Tareas (Tareas / Fechas de provincia / Feriados) ----------
-function cambiarVistaTareas(v){
-  document.querySelectorAll("[data-vista-tar]").forEach(b=>b.classList.toggle("sel", b.dataset.vistaTar===v));
-  $("#vistaTarTareas").style.display = v==="tareas" ? "" : "none";
-  $("#vistaTarProvincia").style.display = v==="provincia" ? "" : "none";
-  $("#vistaTarFeriados").style.display = v==="feriados" ? "" : "none";
-  if (v!=="provincia") cancelarEdicionProvincia();
-  if (v!=="feriados") cancelarEdicionFeriado();
-  if (v==="provincia") renderProvincia();
-  else if (v==="feriados") renderFeriados();
-  guardarUltimaVista();
-}
 function renderListaFechas(cont, lista, onEditar, onBorrar){
   cont.innerHTML = "";
   if (!lista.length){
@@ -6894,6 +6898,8 @@ function cerrar(id){
     archivoAlumnosPendiente = null;
     $("#inputExcelAlumnos").value = "";
   }
+  if (id === "ovProvincia") cancelarEdicionProvincia();
+  if (id === "ovFeriados") cancelarEdicionFeriado();
 }
 function renderTodo(){ renderTareas(); renderBitacora(); renderEquipo(); renderDocentes(); renderDisponible(); renderLicencias(); renderParo(); renderProgreso(); renderEstadisticas(); renderAlumnos(); renderAlumnosEspera(); renderAlumnosBaja(); renderEscuelas(); renderMemoria(); renderContactos(); renderProvincia(); renderFeriados(); }
 
@@ -6928,10 +6934,6 @@ function guardarUltimaVista(){
     if (!tabActivo) return;
     const datos = {tab: tabActivo.dataset.tab};
     if (datos.tab==="alumnos") datos.subAlumnos = vistaAlumnos;
-    if (datos.tab==="tareas"){
-      const subTar = document.querySelector("[data-vista-tar].sel");
-      if (subTar) datos.subTareas = subTar.dataset.vistaTar;
-    }
     localStorage.setItem("mdagenda_ultimaVista", JSON.stringify(datos));
   }catch(e){}
 }
@@ -6946,10 +6948,6 @@ function restaurarUltimaVista(){
     boton.click();
     if (datos.tab==="alumnos" && datos.subAlumnos){
       const subBtn = document.querySelector('[data-vista-al="'+datos.subAlumnos+'"]');
-      if (subBtn) subBtn.click();
-    }
-    if (datos.tab==="tareas" && datos.subTareas){
-      const subBtn = document.querySelector('[data-vista-tar="'+datos.subTareas+'"]');
       if (subBtn) subBtn.click();
     }
   }catch(e){}
@@ -7157,8 +7155,9 @@ $("#btnMostrarFormActa").onclick = ()=>{ $("#formNuevaActa").style.display = "";
 $("#btnCancelarActa").onclick = ()=>{ $("#formNuevaActa").style.display = "none"; };
 $("#btnGuardarActa").onclick = guardarActaNueva;
 document.querySelectorAll("[data-vista-al]").forEach(b=>{ b.onclick = ()=>cambiarVistaAlumnos(b.dataset.vistaAl); });
-document.querySelectorAll("[data-vista-tar]").forEach(b=>{ b.onclick = ()=>cambiarVistaTareas(b.dataset.vistaTar); });
 document.querySelectorAll("[data-vista-bit]").forEach(b=>{ b.onclick = ()=>cambiarVistaBitacora(b.dataset.vistaBit); });
+$("#btnAbrirProvincia").onclick = ()=>{ $("#ovOpciones").classList.remove("visible"); renderProvincia(); $("#ovProvincia").classList.add("visible"); };
+$("#btnAbrirFeriados").onclick = ()=>{ $("#ovOpciones").classList.remove("visible"); renderFeriados(); $("#ovFeriados").classList.add("visible"); };
 $("#btnAgregarProvincia").onclick = agregarFechaProvincia;
 $("#btnEjemploExcelProvincia").onclick = descargarEjemploExcelProvincia;
 $("#cancelEdicionProv").onclick = cancelarEdicionProvincia;
