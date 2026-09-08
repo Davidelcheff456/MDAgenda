@@ -161,10 +161,12 @@
   .sin-datos{color:var(--gris); font-style:italic; padding:14px 4px;}
 
   /* Calendario */
-  .calendario{margin-top:26px; border:1px solid var(--borde); border-radius:10px; padding:14px; background:#fbfaf6; max-width:560px;}
-  .cal-cab{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
-  .cal-cab b{color:var(--azul-osc); text-transform:capitalize;}
-  .cal-cab button{border:1px solid var(--borde); background:#fff; border-radius:6px; cursor:pointer; padding:4px 12px; font-size:1rem;}
+  .calendario{margin-top:26px; border:2px solid var(--azul); border-radius:10px; padding:14px; background:#fbfaf6; max-width:560px; overflow:hidden;}
+  .cal-cab{display:flex; align-items:center; justify-content:space-between; margin:-14px -14px 14px -14px; padding:10px 14px; background:var(--azul); border-radius:7px 7px 0 0;}
+  .cal-cab b{color:#fff; text-transform:capitalize;}
+  .cal-cab button{border:1px solid rgba(255,255,255,.5); background:rgba(255,255,255,.15); color:#fff; border-radius:6px; cursor:pointer; padding:4px 12px; font-size:1rem;}
+  .cal-cab button:hover{background:rgba(255,255,255,.28);}
+  .calendario-leyenda{margin:12px 0 0 0; font-size:.78rem; color:var(--gris); font-style:italic;}
   .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:4px;}
   .cal-grid .enc{text-align:center; font-size:.72rem; color:var(--gris); font-weight:700; padding:4px 0;}
   .cal-dia{min-height:52px; border:1px solid #eee; border-radius:6px; background:#fff; padding:4px; font-size:.8rem; position:relative; cursor:default;}
@@ -374,7 +376,8 @@
   body.tema-oscuro .modal input, body.tema-oscuro .modal textarea, body.tema-oscuro .modal select,
   body.tema-oscuro table.horarios input{background:#20242b; color:#e4e6e9; border-color:#4a4f57;}
   body.tema-oscuro .fila-orden button, body.tema-oscuro .btn-copiar, body.tema-oscuro .btn-volver, body.tema-oscuro .btn-toggle-semana{background:#3a414b; color:#dfe3e8; border-color:#4a4f57;}
-  body.tema-oscuro .bloque-persona, body.tema-oscuro .dia-card, body.tema-oscuro .calendario, body.tema-oscuro .espera-col, body.tema-oscuro ul.lista-tareas li{background:#2f353e; border-color:#4a4f57;}
+  body.tema-oscuro .bloque-persona, body.tema-oscuro .dia-card, body.tema-oscuro .espera-col, body.tema-oscuro ul.lista-tareas li{background:#2f353e; border-color:#4a4f57;}
+  body.tema-oscuro .calendario{background:#2f353e;}
   body.tema-oscuro .bp-cab{background:#343b45; border-color:#4a4f57;}
   body.tema-oscuro .bp-cab:hover{background:#3c4450;}
   body.tema-oscuro .cal-dia{background:#2a3038; border-color:#3d434c;}
@@ -662,17 +665,18 @@
       <div class="grid-tareas-calendario">
         <div class="col-calendario">
           <div class="calendario">
-            <div class="fila-orden" style="margin-bottom:10px;">
-              <label class="chk" style="display:flex; align-items:center; gap:5px;"><input type="checkbox" id="calCapaTareas" checked> 📋 Mis tareas</label>
-              <label class="chk" style="display:flex; align-items:center; gap:5px;"><input type="checkbox" id="calCapaFeriados" checked> 🎉 Feriados</label>
-              <label class="chk" style="display:flex; align-items:center; gap:5px;"><input type="checkbox" id="calCapaProvincia" checked> 🏛 Calendario de provincia</label>
-            </div>
             <div class="cal-cab">
               <button id="calAnt">◀</button>
               <b id="calTitulo"></b>
               <button id="calSig">▶</button>
             </div>
+            <div class="fila-orden" style="margin-bottom:10px;">
+              <label class="chk" style="display:flex; align-items:center; gap:5px;"><input type="checkbox" id="calCapaTareas" checked> 📋 Mis tareas</label>
+              <label class="chk" style="display:flex; align-items:center; gap:5px;"><input type="checkbox" id="calCapaFeriados" checked> 🎉 Feriados</label>
+              <label class="chk" style="display:flex; align-items:center; gap:5px;"><input type="checkbox" id="calCapaProvincia" checked> 🏛 Calendario de provincia</label>
+            </div>
             <div class="cal-grid" id="calGrid"></div>
+            <p class="calendario-leyenda">📌 Las fechas de feriados o el calendario de provincia se agregan en ⚙ Opciones → "Calendario de provincia y Feriados".</p>
           </div>
         </div>
         <div class="col-tareas">
@@ -1118,6 +1122,14 @@
       Reiniciar cada lunes las funciones tildadas de POTs y coordinadores
     </label>
     <p style="font-size:.8rem; color:var(--gris); margin-top:6px;">Las funciones de los docentes nunca se reinician solas.</p>
+
+    <div class="seccion-admin" id="zonaTemas">
+      <label>🎨 Temas y colores</label>
+      <p style="font-size:.8rem; color:var(--gris);">Elegí un tema fijo (arriba) o armá uno personalizado: fondo, barra superior, colores por zona/grupo y tipografía.</p>
+      <div style="margin-top:6px;">
+        <button type="button" class="btn-mini-tarea" id="btnAbrirFondos" style="margin-top:0;">🎨 Elegir/editar tema</button>
+      </div>
+    </div>
 
     <div class="seccion-admin" id="zonaVentanas">
       <label>🗓 Calendario de provincia y Feriados</label>
@@ -2410,6 +2422,9 @@ function generarCSSPersonalizado(t){
     "body.tema-personalizado .form-alta, body.tema-personalizado .bloque-persona, body.tema-personalizado .dia-card,"+
     "body.tema-personalizado .calendario, body.tema-personalizado .meta-card, body.tema-personalizado .stats-bloque,"+
     "body.tema-personalizado .caja-tareas{background:"+fondoAlt+"; border-color:"+borde+";}"+
+    "body.tema-personalizado .calendario{border-color:"+t.acento+";}"+
+    "body.tema-personalizado .cal-cab{background:"+t.acento+";}"+
+    "body.tema-personalizado .cal-cab b{color:#fff;}"+
     "body.tema-personalizado .bp-cab{background:"+t.papel+"; border-color:"+borde+";}"+
     "body.tema-personalizado .modal{background:"+t.papel+"; color:"+t.texto+";}"+
     "body.tema-personalizado .modal h3, body.tema-personalizado h2.sub, body.tema-personalizado .semana>h3,"+
@@ -7158,6 +7173,7 @@ document.querySelectorAll("[data-vista-al]").forEach(b=>{ b.onclick = ()=>cambia
 document.querySelectorAll("[data-vista-bit]").forEach(b=>{ b.onclick = ()=>cambiarVistaBitacora(b.dataset.vistaBit); });
 $("#btnAbrirProvincia").onclick = ()=>{ $("#ovOpciones").classList.remove("visible"); renderProvincia(); $("#ovProvincia").classList.add("visible"); };
 $("#btnAbrirFeriados").onclick = ()=>{ $("#ovOpciones").classList.remove("visible"); renderFeriados(); $("#ovFeriados").classList.add("visible"); };
+$("#btnAbrirFondos").onclick = ()=>{ $("#ovOpciones").classList.remove("visible"); $("#formNuevoFondo").style.display = "none"; renderFondos(); $("#ovFondos").classList.add("visible"); };
 $("#btnAgregarProvincia").onclick = agregarFechaProvincia;
 $("#btnEjemploExcelProvincia").onclick = descargarEjemploExcelProvincia;
 $("#cancelEdicionProv").onclick = cancelarEdicionProvincia;
