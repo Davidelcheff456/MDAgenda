@@ -1635,6 +1635,7 @@
       <button class="b-cancelar" id="btnZonaAlumnosCancelar">Cancelar</button>
       <button class="b-guardar" id="btnZonaAlumnosNorte">🔵 Zona norte</button>
       <button class="b-guardar" id="btnZonaAlumnosSur">🟢 Zona sur</button>
+      <button class="b-guardar" id="btnZonaAlumnosSinZona" style="background:var(--gris);">⚪ Sin zona específica</button>
     </div>
   </div>
 </div>
@@ -7257,6 +7258,7 @@ $("#inputHorariosDocentes").addEventListener("change", (ev)=>{
 $("#btnZonaAlumnosCancelar").onclick = cancelarZonaAlumnos;
 $("#btnZonaAlumnosNorte").onclick = ()=>confirmarZonaAlumnos("norte");
 $("#btnZonaAlumnosSur").onclick = ()=>confirmarZonaAlumnos("sur");
+$("#btnZonaAlumnosSinZona").onclick = ()=>confirmarZonaAlumnos("");
 $("#btnEjemploExcelAlumnos").onclick = descargarEjemploExcelAlumnos;
 $("#buscarAlumnosInput").addEventListener("input", renderAlumnos);
 $("#filtroAlumnosPot").addEventListener("change", renderAlumnos);
