@@ -902,27 +902,22 @@
         <label class="chk" style="display:flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" id="filtroEsperaSinCert"> Sin certificado</label>
         <label class="chk" style="display:flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" id="filtroEsperaAlDia"> Certificado al día</label>
       </div>
+      <div class="caja-filtro-tareas" id="filtroZonaEsperaBox" style="margin-bottom:14px;">
+        <label style="margin-bottom:6px; display:block;">Mostrar:</label>
+        <div style="display:flex; gap:14px; flex-wrap:wrap;">
+          <label style="display:flex; align-items:center; gap:5px; font-size:.85rem; font-weight:400;"><input type="checkbox" id="filtroEsperaZonaNorte" checked> 🔵 Zona norte</label>
+          <label style="display:flex; align-items:center; gap:5px; font-size:.85rem; font-weight:400;"><input type="checkbox" id="filtroEsperaZonaSur" checked> 🟢 Zona sur</label>
+          <label style="display:flex; align-items:center; gap:5px; font-size:.85rem; font-weight:400;"><input type="checkbox" id="filtroEsperaZonaSinAsignar" checked> ⚪ Sin zona asignada</label>
+        </div>
+      </div>
       <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
         <button type="button" class="btn-mini-tarea btn-excel-par" id="btnImportarExcelEspera" style="margin-top:0;">📥 Importar Excel</button>
         <button type="button" class="btn-mini-tarea btn-excel-par" id="btnEjemploExcelEspera" style="margin-top:0;">📄 Descargar Excel de ejemplo</button>
+        <button type="button" class="btn-mini-tarea" id="btnDescargarEsperaNorte" style="margin-top:0;">⬇️ Excel — Zona norte</button>
+        <button type="button" class="btn-mini-tarea" id="btnDescargarEsperaSur" style="margin-top:0;">⬇️ Excel — Zona sur</button>
         <input type="file" id="inputExcelEspera" accept=".xlsx,.xls" style="display:none;">
       </div>
-      <div class="espera-dos-col">
-        <div class="espera-col">
-          <h3 class="espera-col-titulo">🔵 Zona norte</h3>
-          <button type="button" class="btn-mini-tarea" id="btnDescargarEsperaNorte" style="margin:0 0 10px 0;">⬇️ Descargar Excel — Zona norte</button>
-          <div class="grilla-personas" id="grillaAlumnosEsperaNorte"></div>
-        </div>
-        <div class="espera-col">
-          <h3 class="espera-col-titulo">🟢 Zona sur</h3>
-          <button type="button" class="btn-mini-tarea" id="btnDescargarEsperaSur" style="margin:0 0 10px 0;">⬇️ Descargar Excel — Zona sur</button>
-          <div class="grilla-personas" id="grillaAlumnosEsperaSur"></div>
-        </div>
-      </div>
-      <div id="bloqueEsperaOtros" style="margin-top:18px; display:none;">
-        <p class="mini-dato">Sin zona definida (no aparecen en ninguna de las dos columnas de arriba):</p>
-        <div class="grilla-personas" id="grillaAlumnosEsperaOtros"></div>
-      </div>
+      <div class="grilla-personas" id="grillaAlumnosEspera"></div>
     </div>
     <div id="vistaAlBaja" style="display:none;">
       <div class="grilla-personas" id="grillaAlumnosBaja"></div>
@@ -5825,7 +5820,16 @@ function renderAlumnosEspera(){
   const fSinCert = $("#filtroEsperaSinCert") && $("#filtroEsperaSinCert").checked;
   const fAlDia = $("#filtroEsperaAlDia") && $("#filtroEsperaAlDia").checked;
   const hayFiltroEstado = fVencido || fSinCert || fAlDia;
+  const fZonaNorte = $("#filtroEsperaZonaNorte") ? $("#filtroEsperaZonaNorte").checked : true;
+  const fZonaSur = $("#filtroEsperaZonaSur") ? $("#filtroEsperaZonaSur").checked : true;
+  const fZonaSinAsignar = $("#filtroEsperaZonaSinAsignar") ? $("#filtroEsperaZonaSinAsignar").checked : true;
   let todos = estado.alumnos.filter(a=>a.estado==="espera");
+  todos = todos.filter(a=>{
+    const z = zonaEfectiva(a);
+    if (z==="norte") return fZonaNorte;
+    if (z==="sur") return fZonaSur;
+    return fZonaSinAsignar;
+  });
   if (q) todos = todos.filter(a=>((a.apellido||"")+" "+(a.nombre||"")).toLowerCase().includes(q));
   if (hayFiltroEstado){
     todos = todos.filter(a=>{
@@ -5835,16 +5839,12 @@ function renderAlumnosEspera(){
       return false;
     });
   }
-  const hayFiltro = !!q || hayFiltroEstado;
+  const hayFiltro = !!q || hayFiltroEstado || !(fZonaNorte && fZonaSur && fZonaSinAsignar);
   const porOrden = (x,y)=>ordenEsperaNum(x)-ordenEsperaNum(y);
   const norte = todos.filter(a=>zonaEfectiva(a)==="norte").sort(porOrden);
   const sur = todos.filter(a=>zonaEfectiva(a)==="sur").sort(porOrden);
   const otros = todos.filter(a=>zonaEfectiva(a)==="").sort(porOrden);
-  renderListaEsperaColumna("grillaAlumnosEsperaNorte", norte, hayFiltro);
-  renderListaEsperaColumna("grillaAlumnosEsperaSur", sur, hayFiltro);
-  const bloqueOtros = $("#bloqueEsperaOtros");
-  if (bloqueOtros) bloqueOtros.style.display = otros.length ? "" : "none";
-  renderListaEsperaColumna("grillaAlumnosEsperaOtros", otros, hayFiltro);
+  renderListaEsperaColumna("grillaAlumnosEspera", [...norte, ...sur, ...otros], hayFiltro);
 }
 function renderAlumnosBaja(){
   const cont = $("#grillaAlumnosBaja");
@@ -7240,6 +7240,9 @@ $("#buscarEsperaInput").addEventListener("input", renderAlumnosEspera);
 $("#filtroEsperaVencido").addEventListener("change", renderAlumnosEspera);
 $("#filtroEsperaSinCert").addEventListener("change", renderAlumnosEspera);
 $("#filtroEsperaAlDia").addEventListener("change", renderAlumnosEspera);
+$("#filtroEsperaZonaNorte").addEventListener("change", renderAlumnosEspera);
+$("#filtroEsperaZonaSur").addEventListener("change", renderAlumnosEspera);
+$("#filtroEsperaZonaSinAsignar").addEventListener("change", renderAlumnosEspera);
 $("#btnImportarExcelEspera").onclick = ()=>$("#inputExcelEspera").click();
 $("#inputExcelEspera").addEventListener("change", manejarSeleccionExcelEspera);
 $("#btnDescargarEsperaNorte").onclick = ()=>descargarListaEspera("norte");
