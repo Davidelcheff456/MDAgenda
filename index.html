@@ -895,6 +895,7 @@
     </div>
     <div id="vistaAlEspera" style="display:none;">
       <p class="mini-dato" style="margin-bottom:6px;">Alumnos anotados para ingresar cuando se libere un lugar, ordenados por N° de orden. Tocá "Dar de alta" para pasarlos a atendidos.</p>
+      <p id="fechaActualizacionEsperaTxt" style="display:none; font-size:.82rem; font-weight:700; color:var(--azul-osc); margin-bottom:10px;"></p>
       <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:12px;">
         <input type="text" id="buscarEsperaInput" class="input-buscador" placeholder="🔎 Buscar por apellido o nombre..." autocomplete="off" style="flex:0 1 220px; min-width:160px; margin-bottom:0;">
         <label class="chk" style="display:flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" id="filtroEsperaVencido"> ⛔ Certificados vencidos</label>
@@ -1811,7 +1812,8 @@ function estadoInicial(){
   return { tareas: [], bitacora: [], equipo: equipoInicial(), docentes: [],
            licencias: [], paros: [], papelera: [], metas: [], opciones: {...OPCIONES_BASE},
            escuelasOrigen: [], alumnos: [], memoria: memoriaBase(), contactosExtra: [],
-           fechasProvincia: [], feriados: [], matricula: matriculaBase(), censoAnual: censoAnualBase() };
+           fechasProvincia: [], feriados: [], matricula: matriculaBase(), censoAnual: censoAnualBase(),
+           fechaActualizacionEspera: "" };
 }
 // Matrícula y días de clase: 3 cortes manuales (el director carga los números, no se calculan
 // solos) para poder comparar cómo evolucionó la cantidad de estudiantes atendidos y los días
@@ -2417,6 +2419,7 @@ function aplicarEstado(nuevo){
   estado.feriados = Array.isArray(nuevo.feriados) ? nuevo.feriados.map(normalizarFechaEtiquetada) : [];
   estado.matricula = normalizarMatricula(nuevo.matricula);
   estado.censoAnual = normalizarCensoAnual(nuevo.censoAnual);
+  estado.fechaActualizacionEspera = typeof nuevo.fechaActualizacionEspera === "string" ? nuevo.fechaActualizacionEspera : "";
   aplicarTema();
   renderTodo();
 }
@@ -3493,8 +3496,9 @@ function procesarExcelEspera(file){
           agregados += r.agregados; actualizados += r.actualizados;
         }
       }
-      guardar(); renderAlumnos(); renderAlumnosEspera(); renderAlumnosBaja();
       const total = agregados+actualizados;
+      if (total) estado.fechaActualizacionEspera = hoyISO();
+      guardar(); renderAlumnos(); renderAlumnosEspera(); renderAlumnosBaja();
       toast(total ? agregados+" alumno(s) nuevo(s), "+actualizados+" actualizado(s) ✔"
         : "No se encontraron filas válidas (revisá que tenga las columnas N° de orden y Estudiante)");
     } catch(err){
@@ -5806,6 +5810,15 @@ function renderListaEsperaColumna(contId, lista, q){
   }
 }
 function renderAlumnosEspera(){
+  const txtFecha = $("#fechaActualizacionEsperaTxt");
+  if (txtFecha){
+    if (estado.fechaActualizacionEspera){
+      txtFecha.textContent = "📅 Listado actualizado el "+fmtCorto(estado.fechaActualizacionEspera);
+      txtFecha.style.display = "";
+    } else {
+      txtFecha.style.display = "none";
+    }
+  }
   const q = ($("#buscarEsperaInput") ? $("#buscarEsperaInput").value : "").trim().toLowerCase();
   const fVencido = $("#filtroEsperaVencido") && $("#filtroEsperaVencido").checked;
   const fSinCert = $("#filtroEsperaSinCert") && $("#filtroEsperaSinCert").checked;
