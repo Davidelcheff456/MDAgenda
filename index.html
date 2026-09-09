@@ -30,6 +30,9 @@
   .dropdown-links-educacion.abierta{display:flex;}
   body.tema-sepia .dropdown-links-educacion{background:#e0c27a; border-color:#b8912e;}
   body.tema-oscuro .dropdown-links-educacion{background:#1c4a70; border-color:#3f8fc4;}
+  body.tema-verde .dropdown-links-educacion{background:#bcd8ae; border-color:#6f9c5c;}
+  body.tema-lavanda .dropdown-links-educacion{background:#cbb0e0; border-color:#8a5fb0;}
+  body.tema-arena .dropdown-links-educacion{background:#dcb37e; border-color:#a5702f;}
   .logo-subtitulo{margin-left:14px; padding-left:14px; border-left:1px solid rgba(255,255,255,.3);
     color:rgba(255,255,255,.85); font-size:1.5rem; font-weight:600; letter-spacing:.01em; white-space:nowrap;}
   .auth-zone button{padding:6px 14px; border:1px solid rgba(255,255,255,.35); background:rgba(255,255,255,.12); color:#fff; border-radius:6px; cursor:pointer; font-size:.85rem;}
@@ -81,6 +84,9 @@
   .nav-grupo-items button.activa{background:#fff; color:var(--grupo-color-oscuro); box-shadow:0 1px 4px rgba(0,0,0,.25);}
   body.tema-sepia nav.tabs.sidebar{background:#d9c48c;}
   body.tema-oscuro nav.tabs.sidebar{background:#12151a;}
+  body.tema-verde nav.tabs.sidebar{background:#bcd8ae;}
+  body.tema-lavanda nav.tabs.sidebar{background:#cbb0e0;}
+  body.tema-arena nav.tabs.sidebar{background:#dcb37e;}
   body.tema-oscuro .nav-grupo-items button.activa{background:#1c2027;}
 
   main{background:var(--papel); border:1px solid var(--borde); margin:18px 22px 30px 14px; flex:1; min-width:0;
@@ -119,11 +125,17 @@
   .toolbar-tareas{background:#f4f2ec; border:1px solid var(--borde); border-radius:8px; padding:9px 14px; margin-bottom:18px;}
   body.tema-sepia .toolbar-tareas{background:#f0e6cc;}
   body.tema-oscuro .toolbar-tareas{background:#2a323b;}
+  body.tema-verde .toolbar-tareas{background:#e9f3e3;}
+  body.tema-lavanda .toolbar-tareas{background:#f1e5f8;}
+  body.tema-arena .toolbar-tareas{background:#f8ecd8;}
   .separador-toolbar{width:1px; height:20px; background:var(--borde); margin:0 2px;}
   .fila-herramientas-tareas{display:flex; gap:10px; flex-wrap:wrap; margin:0 0 18px; padding-top:2px;}
   .caja-links-chubut{border:1px solid #5b93c2; border-radius:10px; background:#aed4f2; padding:8px 12px; min-width:220px;}
   body.tema-sepia .caja-links-chubut{background:#e0c27a; border-color:#b8912e;}
   body.tema-oscuro .caja-links-chubut{background:#1c4a70; border-color:#3f8fc4;}
+  body.tema-verde .caja-links-chubut{background:#bcd8ae; border-color:#6f9c5c;}
+  body.tema-lavanda .caja-links-chubut{background:#cbb0e0; border-color:#8a5fb0;}
+  body.tema-arena .caja-links-chubut{background:#dcb37e; border-color:#a5702f;}
   .caja-links-chubut-titulo{display:block; font-size:.78rem; font-weight:700; color:#1e4260; text-transform:uppercase; letter-spacing:.03em; margin-bottom:6px;}
   body.tema-oscuro .caja-links-chubut-titulo{color:#dceefb;}
   .caja-links-chubut-botones{display:flex; gap:6px; flex-wrap:wrap;}
@@ -136,6 +148,9 @@
   .caja-tareas{background:#dceefb; border:1px solid #b8d9f0; border-radius:14px; padding:6px 14px; margin-bottom:4px;}
   body.tema-sepia .caja-tareas{background:#e9eff3; border-color:#cdd8e0;}
   body.tema-oscuro .caja-tareas{background:#26333f; border-color:#3a4a5a;}
+  body.tema-verde .caja-tareas{background:#e6f0df; border-color:#c7ddbc;}
+  body.tema-lavanda .caja-tareas{background:#efe3f5; border-color:#d7c0e8;}
+  body.tema-arena .caja-tareas{background:#f6e8d2; border-color:#e0c199;}
   ul.lista-tareas li{display:flex; align-items:center; gap:10px; padding:12px 14px;
     border:1px solid var(--borde); border-radius:10px; background:#fff; margin:8px 0; flex-wrap:wrap; cursor:pointer;}
   ul.lista-tareas li:hover{border-color:var(--azul); box-shadow:0 1px 4px rgba(0,0,0,.1);}
@@ -298,7 +313,7 @@
   /* ---- MODALES ---- */
   .overlay{position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:50; padding:16px;}
   .overlay.visible{display:flex;}
-  .modal{background:#fff; border-radius:12px; padding:22px; width:100%; max-width:540px; max-height:90vh; overflow-y:auto;}
+  .modal{background:var(--papel); border-radius:12px; padding:22px; width:100%; max-width:540px; max-height:90vh; overflow-y:auto;}
   /* Fondos: sin telón oscuro, para poder ver los cambios de color en vivo en el resto de la página */
   #ovFondos{background:transparent; justify-content:flex-end; align-items:flex-start; padding:80px 26px 26px;}
   #ovFondos .modal{box-shadow:0 12px 40px rgba(0,0,0,.35); border:1px solid var(--borde);}
@@ -366,6 +381,39 @@
   body.tema-sepia .dia-foco-tab{background:#f6efdd;}
   body.tema-sepia .dia-foco-panel{background:#faf3e3;}
 
+  body.tema-verde{--papel:#f5faf2; --borde:#c8ddc0; background:#e2eedd;}
+  body.tema-verde header.top{background:#2f5233;}
+  body.tema-verde .form-alta{background:#eef6ea;}
+  body.tema-verde .caja-agregar-tarea{background:#e6f2e0;}
+  body.tema-verde .caja-filtro-tareas{background:#eaf4e5;}
+  body.tema-verde .bloque-persona, body.tema-verde .dia-card, body.tema-verde .calendario{background:#eaf4e5;}
+  body.tema-verde .bp-cab{background:#f5faf2;}
+  body.tema-verde .cal-dia{background:#f5faf2;}
+  body.tema-verde .dia-foco-tab{background:#eaf4e5;}
+  body.tema-verde .dia-foco-panel{background:#f5faf2;}
+
+  body.tema-lavanda{--papel:#f8f3fb; --borde:#ddc9ea; background:#ece0f5;}
+  body.tema-lavanda header.top{background:#4a3166;}
+  body.tema-lavanda .form-alta{background:#f2e8f8;}
+  body.tema-lavanda .caja-agregar-tarea{background:#eee0f6;}
+  body.tema-lavanda .caja-filtro-tareas{background:#f0e6f7;}
+  body.tema-lavanda .bloque-persona, body.tema-lavanda .dia-card, body.tema-lavanda .calendario{background:#f0e6f7;}
+  body.tema-lavanda .bp-cab{background:#f8f3fb;}
+  body.tema-lavanda .cal-dia{background:#f8f3fb;}
+  body.tema-lavanda .dia-foco-tab{background:#f0e6f7;}
+  body.tema-lavanda .dia-foco-panel{background:#f8f3fb;}
+
+  body.tema-arena{--papel:#fbf3ea; --borde:#e3cfb4; background:#f3e4d0;}
+  body.tema-arena header.top{background:#7a4a26;}
+  body.tema-arena .form-alta{background:#f7ead9;}
+  body.tema-arena .caja-agregar-tarea{background:#f6e8d4;}
+  body.tema-arena .caja-filtro-tareas{background:#f7ead9;}
+  body.tema-arena .bloque-persona, body.tema-arena .dia-card, body.tema-arena .calendario{background:#f7ead9;}
+  body.tema-arena .bp-cab{background:#fbf3ea;}
+  body.tema-arena .cal-dia{background:#fbf3ea;}
+  body.tema-arena .dia-foco-tab{background:#f7ead9;}
+  body.tema-arena .dia-foco-panel{background:#fbf3ea;}
+
   body.tema-oscuro{--papel:#2a3038; --borde:#4a4f57; --gris:#9aa4b1; background:#20242b; color:#e4e6e9; color-scheme:dark;}
   body.tema-oscuro header.top{background:#12151a;}
   body.tema-oscuro .form-alta{background:#333a43;}
@@ -411,6 +459,9 @@
   .meta-card{border:1px solid var(--borde); border-radius:10px; background:#fbfaf6; padding:16px; margin-bottom:16px;}
   body.tema-oscuro .meta-card{background:#2f353e;}
   body.tema-sepia .meta-card{background:#f6efdd;}
+  body.tema-verde .meta-card{background:#eaf4e5;}
+  body.tema-lavanda .meta-card{background:#f0e6f7;}
+  body.tema-arena .meta-card{background:#f7ead9;}
   .meta-cab{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px;}
   .meta-cab h3{color:var(--azul-osc); font-size:1.05rem; flex:1;}
   body.tema-oscuro .meta-cab h3{color:#a8c6e8;}
@@ -469,6 +520,9 @@
   .stats-bloque{border:1px solid var(--borde); border-radius:10px; background:#fbfaf6; padding:16px;}
   body.tema-oscuro .stats-bloque{background:#2f353e; border-color:#4a4f57;}
   body.tema-sepia .stats-bloque{background:#f6efdd;}
+  body.tema-verde .stats-bloque{background:#eaf4e5;}
+  body.tema-lavanda .stats-bloque{background:#f0e6f7;}
+  body.tema-arena .stats-bloque{background:#f7ead9;}
   .stats-subtitulo{font-size:.95rem; color:var(--azul-osc); margin-bottom:12px;}
   body.tema-oscuro .stats-subtitulo{color:#a8c6e8;}
   .stats-bloque-matricula{margin-top:20px;}
@@ -1111,13 +1165,7 @@
 <div class="overlay" id="ovOpciones">
   <div class="modal">
     <h3>⚙ Opciones</h3>
-    <label>Tema de fondo</label>
-    <select id="optTema">
-      <option value="claro">Blanco (claro)</option>
-      <option value="sepia">Sepia</option>
-      <option value="oscuro">Oscuro</option>
-    </select>
-    <label style="display:flex; align-items:center; gap:8px; margin-top:16px; font-size:.9rem; color:inherit;">
+    <label style="display:flex; align-items:center; gap:8px; margin-top:0; font-size:.9rem; color:inherit;">
       <input type="checkbox" id="optReset" style="width:16px; height:16px;">
       Reiniciar cada lunes las funciones tildadas de POTs y coordinadores
     </label>
@@ -2355,7 +2403,7 @@ function aplicarEstado(nuevo){
   renderTodo();
 }
 function aplicarTema(){
-  document.body.classList.remove("tema-sepia","tema-oscuro","tema-personalizado");
+  document.body.classList.remove("tema-sepia","tema-oscuro","tema-verde","tema-lavanda","tema-arena","tema-personalizado");
   const estilo = $("#estiloPersonalizado");
   if (estilo) estilo.textContent = "";
   const t = temaLocalActivo();
@@ -2367,8 +2415,7 @@ function aplicarTema(){
       return;
     }
   }
-  if (t==="sepia") document.body.classList.add("tema-sepia");
-  else if (t==="oscuro") document.body.classList.add("tema-oscuro");
+  if (["sepia","oscuro","verde","lavanda","arena"].includes(t)) document.body.classList.add("tema-"+t);
 }
 
 // ---------- Fondos personalizados (por dispositivo, no sincroniza) ----------
@@ -2435,17 +2482,20 @@ function generarCSSPersonalizado(t){
     "body.tema-personalizado .modal input, body.tema-personalizado .modal textarea, body.tema-personalizado .modal select{"+
     "background:"+t.fondo+"; color:"+t.texto+"; border-color:"+borde+";}";
 }
-function nombreTemaFijo(k){ return {claro:"Claro", sepia:"Sepia", oscuro:"Oscuro"}[k] || k; }
+function nombreTemaFijo(k){ return {claro:"Claro", sepia:"Sepia", oscuro:"Oscuro", verde:"Verde", lavanda:"Lavanda", arena:"Arena"}[k] || k; }
 function renderFondos(){
   const activo = temaLocalActivo();
   const MUESTRAS_FIJAS = {
     claro:{sidebar:"#e0dbc8", fondo:"#f6f4ee", papel:"#ffffff", acento:"#2c5f8a"},
     sepia:{sidebar:"#d9c48c", fondo:"#efe3cd", papel:"#faf3e3", acento:"#5c4326"},
-    oscuro:{sidebar:"#12151a", fondo:"#20242b", papel:"#2a3038", acento:"#12151a"}
+    oscuro:{sidebar:"#12151a", fondo:"#20242b", papel:"#2a3038", acento:"#12151a"},
+    verde:{sidebar:"#bcd8ae", fondo:"#e2eedd", papel:"#f5faf2", acento:"#2f5233"},
+    lavanda:{sidebar:"#cbb0e0", fondo:"#ece0f5", papel:"#f8f3fb", acento:"#4a3166"},
+    arena:{sidebar:"#dcb37e", fondo:"#f3e4d0", papel:"#fbf3ea", acento:"#7a4a26"}
   };
   const fijos = $("#fondosFijos");
   fijos.innerHTML = "";
-  for (const k of ["claro","sepia","oscuro"]){
+  for (const k of ["claro","sepia","oscuro","verde","lavanda","arena"]){
     const m = MUESTRAS_FIJAS[k];
     const card = document.createElement("div");
     card.className = "fondo-card"+(activo===k ? " activo" : "");
@@ -2515,7 +2565,7 @@ function fondoDesdeFormulario(){
 function previsualizarFondo(){
   if ($("#formNuevoFondo").style.display === "none") return;
   const t = fondoDesdeFormulario();
-  document.body.classList.remove("tema-sepia","tema-oscuro");
+  document.body.classList.remove("tema-sepia","tema-oscuro","tema-verde","tema-lavanda","tema-arena");
   document.body.classList.add("tema-personalizado");
   const estilo = $("#estiloPersonalizado");
   if (estilo) estilo.textContent = generarCSSPersonalizado(t);
@@ -7053,7 +7103,6 @@ $("#btnAgregarFuncion").onclick = ()=>{
   guardar(); renderFunciones(p);
 };
 $("#btnOpciones").onclick = ()=>{
-  $("#optTema").value = estado.opciones.tema || "claro";
   $("#optReset").checked = !!estado.opciones.resetFunciones;
   $("#optCupoNorte").value = estado.opciones.cupos.norte;
   $("#optCupoSur").value = estado.opciones.cupos.sur;
@@ -7073,7 +7122,6 @@ $("#btnOpciones").onclick = ()=>{
   $("#ovOpciones").classList.add("visible");
 };
 $("#btnGuardarOpciones").onclick = ()=>{
-  estado.opciones.tema = $("#optTema").value;
   estado.opciones.resetFunciones = $("#optReset").checked;
   estado.opciones.cupos = {
     norte: Math.max(0, parseInt($("#optCupoNorte").value,10) || 0),
