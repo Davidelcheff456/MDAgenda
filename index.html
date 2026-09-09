@@ -954,8 +954,8 @@
     <div class="caja-filtro-tareas" id="filtroContactosBox">
       <label style="margin-bottom:6px; display:block;">Mostrar contactos de:</label>
       <div style="display:flex; gap:14px; flex-wrap:wrap;">
-        <label style="display:flex; align-items:center; gap:5px; font-size:.85rem; font-weight:400;"><input type="checkbox" id="filtroCont_escuela370" checked> Escuela 370 (equipo y alumnos)</label>
-        <label style="display:flex; align-items:center; gap:5px; font-size:.85rem; font-weight:400;"><input type="checkbox" id="filtroCont_familias" checked> Familias</label>
+        <label style="display:flex; align-items:center; gap:5px; font-size:.85rem; font-weight:400;"><input type="checkbox" id="filtroCont_escuela370" checked> Equipo de 370</label>
+        <label style="display:flex; align-items:center; gap:5px; font-size:.85rem; font-weight:400;"><input type="checkbox" id="filtroCont_familias" checked> Familias de estudiantes</label>
         <label style="display:flex; align-items:center; gap:5px; font-size:.85rem; font-weight:400;"><input type="checkbox" id="filtroCont_docentes" checked> Docentes</label>
         <label style="display:flex; align-items:center; gap:5px; font-size:.85rem; font-weight:400;"><input type="checkbox" id="filtroCont_otraescuela" checked> Otra escuela</label>
         <label style="display:flex; align-items:center; gap:5px; font-size:.85rem; font-weight:400;"><input type="checkbox" id="filtroCont_supervision" checked> Supervisión</label>
@@ -6099,7 +6099,7 @@ function contactosTodos(){
   for (const a of estado.alumnos){
     const nom = nombreDe(a);
     const est = ESTADOS_ALUMNO[a.estado] || ESTADOS_ALUMNO.activo;
-    res.push({tipo:"Alumno/a", label:est.label, nombre: nom||"(sin nombre)", tel:a.padre1.telefono, correo:a.correo, zona:a.zona, cat:"escuela370",
+    res.push({tipo:"Alumno/a", label:est.label, nombre: nom||"(sin nombre)", tel:a.padre1.telefono, correo:a.correo, zona:a.zona, cat:"familias",
       buscable:(nom+" "+(a.padre1.telefono||"")+" "+(a.correo||"")).toLowerCase(),
       accion:()=>abrirAlumno(a.id)});
   }
