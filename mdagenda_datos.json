@@ -1181,6 +1181,3027 @@
       "sexo": "",
       "fechaBaja": "",
       "resultadoPromocion": ""
+    },
+    {
+      "id": "mtu1yheaopk2b",
+      "nombre": "Lara",
+      "apellido": "PLAZA",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "1",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "Depresión.  Fobia escolar",
+      "observaciones": "Se cambió de 749 a 797. Todavía no comenzó. Tiene informe",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhea4f1b5",
+      "nombre": "Ignacio",
+      "apellido": "ARAMBURU",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "2",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "Depresión.  Fobia escolar",
+      "observaciones": "Se envió mail a la E.O y no contestó",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yheaqjsab",
+      "nombre": "Iñaki",
+      "apellido": "ZEBALLOS",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "3",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "",
+      "observaciones": "E.O activó dispositivo",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhea3o6tn",
+      "nombre": "Leonardo",
+      "apellido": "CATRILEO",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "4",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "",
+      "observaciones": "Se envió mail a la E.O y no contestó",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yheaw2xex",
+      "nombre": "A",
+      "apellido": "CABRERA BENITEZ",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "5",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "Leucemia",
+      "observaciones": "Activar E.H",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yheanyrff",
+      "nombre": "N",
+      "apellido": "MANSILLA SEGURA",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "6",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "Quemaduras \n Tipo A/B",
+      "observaciones": "Se envió mail a la E.O y no contestó",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yheag9b5h",
+      "nombre": "Benjamín",
+      "apellido": "HERRERA",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "7",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "Cirugía de cadera",
+      "observaciones": "Se envió mail a la E.O y no contestó",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhea4uuwj",
+      "nombre": "Mateo",
+      "apellido": "VELAZQUEZ",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "9",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "Fractura tobillo izquierdo",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhea9oxtg",
+      "nombre": "Lucas",
+      "apellido": "ARAVENA",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "10",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "Fractura maléolo tibial derecho",
+      "observaciones": "Se envió mail a la E.O y no contestó",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yheav9uxu",
+      "nombre": "Nahuel",
+      "apellido": "URIBE",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "11",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "Luxación Rotuliana izq.",
+      "observaciones": "Se envió mail a la E.O y no contestó",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhearr5se",
+      "nombre": "Aldana",
+      "apellido": "ARROYO",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "12",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "Esquizofrenia",
+      "observaciones": "Se envió mail a la E.O y no contestó",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yheanuesv",
+      "nombre": "Ezequiel",
+      "apellido": "PEREYRA",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "13",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "Depresión",
+      "observaciones": "E.O activó dispositivo",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yheadv7uy",
+      "nombre": "Bruno",
+      "apellido": "PEREZ",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "14",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "Fractura ambos brazos",
+      "observaciones": "Se envió mail a la E.O y no contestó",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yheav7fb5",
+      "nombre": "Morena",
+      "apellido": "BARBEIS",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "13",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "Trastorno mixt. ansiedad y depresión",
+      "observaciones": "Se envió mail a la E.O y no contestó",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yheba8vtq",
+      "nombre": "Giuliana",
+      "apellido": "BOBBA",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "14",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "Depresión.  Fobia escolar",
+      "observaciones": "Cursa de manera virtual. Dispositivo",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yheb893g5",
+      "nombre": "Santiago",
+      "apellido": "GUTTIERREZ",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "15",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "Accidente",
+      "observaciones": "Contactar",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebbcp7k",
+      "nombre": "Xiara",
+      "apellido": "BRIZUELA LEGUE",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "16",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "Cifosis tobillo",
+      "observaciones": "Se envió mail a la E.O y no contestó",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebynl9q",
+      "nombre": "Valentino",
+      "apellido": "MARABOLIS",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "17",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "Fractura rotuliana – izq.",
+      "observaciones": "Se envió mail a la E.O y no contestó",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebnsar3",
+      "nombre": "JUAN IGNACIO",
+      "apellido": "CENTENO REYNOSO",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "1ro 2da",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "18",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "Normativa 02/2025",
+      "diagnostico": "Fractura de ambas muñecas",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yheb7uuci",
+      "nombre": "Santiago",
+      "apellido": "MANSILLA",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "19",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "Cirugía Cifosis. TDH",
+      "observaciones": "Se envió mail a la E.O y no contestó",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebk9gd1",
+      "nombre": "VEGA SANTIAGO BENJAMÍN",
+      "apellido": "FALCON",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "3ro 1ra",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "19",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "Normativa 02/2025",
+      "diagnostico": "Trastorno de la ansiedad (severo) - Fobia Escolar",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebythg8",
+      "nombre": "CIRO",
+      "apellido": "PEDRAZA",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "6to 2da",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "20",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "Normativa 02/2025",
+      "diagnostico": "pop rlca rodilla izquierda",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebutgqs",
+      "nombre": "CISNEROS FLORENCIA",
+      "apellido": "NAHUELCHEO",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "1ro",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "21",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "Normativa 02/2025",
+      "diagnostico": "Astroscopia compleja",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebiq70h",
+      "nombre": "TOMÁS",
+      "apellido": "CORZO",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "2do 2da",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "22",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "Normativa 02/2025",
+      "diagnostico": "Fractura muñeca derecha",
+      "observaciones": "Atención de espacios Educ. Tecn / Matem.",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebi2nj0",
+      "nombre": "LOPEZ JAIRO CRISTIANO",
+      "apellido": "PEREZ",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "2do 2da",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "23",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "Normativa 02/2025",
+      "diagnostico": "Fractura tobillo izquierdo",
+      "observaciones": "Atención con espacios Educ. Tecn / Matem.",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yheb38hkg",
+      "nombre": "SANTINO BENJAMIN",
+      "apellido": "FLORES",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "1ro 2da",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "24",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "Normativa 02/2025",
+      "diagnostico": "Operación rodilla derecha",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebrer2o",
+      "nombre": "AARON TIZIANO",
+      "apellido": "CORTES",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "3ero 4ta",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "25",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "Normativa 02/2025",
+      "diagnostico": "Psicosis no organica",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebpuxzi",
+      "nombre": "PONCE LUZ ABRIL",
+      "apellido": "FERNÁNDEZ",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "6to 4ta",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "26",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "Normativa 02/2025",
+      "diagnostico": "Trastorno de la personalidad",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebfkhbs",
+      "nombre": "Luz Aldana",
+      "apellido": "LLANOS",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "28",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "Mielitis transversa",
+      "observaciones": "Están en Bs As. Contactar",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebagmv1",
+      "nombre": "VIDAL YAMILA CRISTEL",
+      "apellido": "MONTAÑO",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "2do 2da",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "33",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "Normativa 02/2025",
+      "diagnostico": "Leucemia aguda",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yheb9sdd1",
+      "nombre": "IAN AGUSTIN",
+      "apellido": "HERRERA",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "3ro 2da",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "34",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "Normativa 02/2025",
+      "diagnostico": "Fractura 4to dedo mano izquierda",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebipqug",
+      "nombre": "LEAL DYLAN EXEQUIEL",
+      "apellido": "ARIAS",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "4to",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "Normativa 02/2025",
+      "diagnostico": "",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebhah9h",
+      "nombre": "MALDONADO IAN",
+      "apellido": "PISA",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "4to",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "Trastorno de ansiedad",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yheb0kvrz",
+      "nombre": "MAIA",
+      "apellido": "GAMBOA",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "6to",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "espera",
+      "ordenEspera": "",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "Ansiedad y depresión",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebjvvyo",
+      "nombre": "THORP VICTORIA ANGELINA",
+      "apellido": "DIAZ",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "1er año",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "activo",
+      "ordenEspera": "",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "Normativa 02 -2025",
+      "diagnostico": "Epilepsia. Psicosis Ictal",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yheb5039e",
+      "nombre": "CUSSE ALDANA YAMILA DEL VALLE",
+      "apellido": "ARROYO",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "6to año",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "activo",
+      "ordenEspera": "",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "Normativa 02 -2025",
+      "diagnostico": "Depresión y ansiedad",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yheb1pqgt",
+      "nombre": "LOLA",
+      "apellido": "TOLEDO",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "4to año",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "activo",
+      "ordenEspera": "",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "Normativa 02 -2025",
+      "diagnostico": "Cirugia de Rodilla",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yheb2a77t",
+      "nombre": "CHABRUX IGNACIO",
+      "apellido": "CASTILLO",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "5to año",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "activo",
+      "ordenEspera": "",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "Normativa 02 -2025",
+      "diagnostico": "Cirugia de Rodilla",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebz4kmo",
+      "nombre": "JUAN BAUTISTA",
+      "apellido": "QUIROGA",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "2do año",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "activo",
+      "ordenEspera": "",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "Normativa 02 -2025",
+      "diagnostico": "Leucemia linfoblástica aguda",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebluus7",
+      "nombre": "LUCAS ALEJANDRO",
+      "apellido": "CASTRO",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "6to año",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "activo",
+      "ordenEspera": "",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "Normativa 02 -2025",
+      "diagnostico": "Ansiedad y depresión",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebaegjm",
+      "nombre": "CAROLINA GISELLE",
+      "apellido": "PEREZ",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "6to año",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "activo",
+      "ordenEspera": "",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "Normativa 02 -2025",
+      "diagnostico": "Ansiedad social.",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebuestw",
+      "nombre": "MAZA MURIEL",
+      "apellido": "GONZALEZ",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "4to año",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "activo",
+      "ordenEspera": "",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "Normativa 02 -2025",
+      "diagnostico": "Trastorno de ansiedad social",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebe3663",
+      "nombre": "AGUSTÍN IGNACIO",
+      "apellido": "VIDAL",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "4to año",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "activo",
+      "ordenEspera": "",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "Normativa 02 -2025",
+      "diagnostico": "Leucemia aguda",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yheblvjj4",
+      "nombre": "TOMÁS JESÚS",
+      "apellido": "CORZO",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "2do año",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "activo",
+      "ordenEspera": "",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "Educación Tecnológica - Matemática",
+      "diagnostico": "Fractura de muñeca derecha",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebevua0",
+      "nombre": "Elías Fabián",
+      "apellido": "NAVARRETE",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "baja",
+      "ordenEspera": "",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "Fractura Humero derecho. 30 días",
+      "observaciones": "Se envió mail a la E.O y no contestó",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebjfi7m",
+      "nombre": "Zhaira",
+      "apellido": "VERON",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "baja",
+      "ordenEspera": "",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "Leucemia",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yheba789p",
+      "nombre": "Ian",
+      "apellido": "WEBER BRISUELA",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "baja",
+      "ordenEspera": "",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "Cirugía en glúteos",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebgdvi2",
+      "nombre": "Moira",
+      "apellido": "MUÑOZ",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "baja",
+      "ordenEspera": "",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "Padecimiento psíquico",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebmwwi2",
+      "nombre": "Johnston",
+      "apellido": "RAMALLO",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "baja",
+      "ordenEspera": "",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "Fractura muñecas",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebbcnhz",
+      "nombre": "Zaira",
+      "apellido": "VASQUEZ",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "baja",
+      "ordenEspera": "",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "Fractura tobillo derecho",
+      "observaciones": "Se envió mail a la E.O y no contestó",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebs96iz",
+      "nombre": "Camila",
+      "apellido": "ARREDONDO",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "baja",
+      "ordenEspera": "",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "Depresión",
+      "observaciones": "Está en el Domingo Savio a la noche. Nocturna",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebptiv2",
+      "nombre": "Leal Dylan Exequiel",
+      "apellido": "Arias",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "4to",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "baja",
+      "ordenEspera": "",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yheb364hx",
+      "nombre": "Jerónimo Jesús",
+      "apellido": "Julio",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "2do",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "baja",
+      "ordenEspera": "",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yheb7ukhb",
+      "nombre": "Jonás",
+      "apellido": "Cárcamo",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "3er",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "baja",
+      "ordenEspera": "",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebj48wa",
+      "nombre": "LOPEZ JAIRO CRISTIANO",
+      "apellido": "PEREZ",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "2do",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "baja",
+      "ordenEspera": "",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yhebnw29b",
+      "nombre": "LOLA",
+      "apellido": "TOLEDO",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "4to",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "baja",
+      "ordenEspera": "",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
+    },
+    {
+      "id": "mtu1yheb6n0ik",
+      "nombre": "CHABRUX IGNACIO",
+      "apellido": "CASTILLO",
+      "edad": "",
+      "dni": "",
+      "sexo": "",
+      "escuelaOrigenId": "",
+      "cursoOrigen": "5to año",
+      "modalidad": "",
+      "zona": "",
+      "cupoZona": "",
+      "padre1": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "padre2": {
+        "nombre": "",
+        "telefono": ""
+      },
+      "correo": "",
+      "direccion": "",
+      "lat": null,
+      "lng": null,
+      "fechaIngreso": "2026-09-09",
+      "docentes": [],
+      "estado": "baja",
+      "ordenEspera": "",
+      "fechaBaja": "",
+      "resultadoPromocion": "",
+      "certificadoDesde": "",
+      "certificadoDias": "",
+      "certificadoHasta": "",
+      "cud": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "ppi": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "adecuacion": {
+        "tiene": false,
+        "detalle": ""
+      },
+      "espaciosCurriculares": "",
+      "diagnostico": "",
+      "observaciones": "",
+      "documentacion": "",
+      "notas": "",
+      "atendidoPot": false,
+      "actas": []
     }
   ],
   "memoria": {
@@ -1401,5 +4422,6 @@
       "total": 0,
       "varones": 0
     }
-  }
+  },
+  "fechaActualizacionEspera": "2026-09-09"
 }
