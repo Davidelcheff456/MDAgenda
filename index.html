@@ -951,6 +951,16 @@
   <section class="panel" id="panel-contactos">
     <button class="btn-agregar-doc" id="btnAgregarContacto">➕ Agregar contacto</button>
     <input type="text" id="buscarContactosInput" class="input-buscador" placeholder="Buscar por nombre, escuela, teléfono..." autocomplete="off" style="margin-bottom:14px; width:100%;">
+    <div class="caja-filtro-tareas" id="filtroContactosBox">
+      <label style="margin-bottom:6px; display:block;">Mostrar contactos de:</label>
+      <div style="display:flex; gap:14px; flex-wrap:wrap;">
+        <label style="display:flex; align-items:center; gap:5px; font-size:.85rem; font-weight:400;"><input type="checkbox" id="filtroCont_escuela370" checked> Escuela 370 (equipo y alumnos)</label>
+        <label style="display:flex; align-items:center; gap:5px; font-size:.85rem; font-weight:400;"><input type="checkbox" id="filtroCont_familias" checked> Familias</label>
+        <label style="display:flex; align-items:center; gap:5px; font-size:.85rem; font-weight:400;"><input type="checkbox" id="filtroCont_docentes" checked> Docentes</label>
+        <label style="display:flex; align-items:center; gap:5px; font-size:.85rem; font-weight:400;"><input type="checkbox" id="filtroCont_otraescuela" checked> Otra escuela</label>
+        <label style="display:flex; align-items:center; gap:5px; font-size:.85rem; font-weight:400;"><input type="checkbox" id="filtroCont_supervision" checked> Supervisión</label>
+      </div>
+    </div>
     <div id="resultadosContactos"></div>
   </section>
 </main>
@@ -1634,8 +1644,9 @@
     <h3 id="contactoTitulo">➕ Nuevo contacto</h3>
     <label>Tipo de contacto</label>
     <select id="cTipo">
-      <option value="escuela">Personal de una escuela</option>
+      <option value="escuela">Personal de otra escuela</option>
       <option value="familia">Familia de un/a estudiante</option>
+      <option value="supervision">Supervisión</option>
       <option value="otro">Otro</option>
     </select>
 
@@ -1660,9 +1671,14 @@
       <select id="cAlumno"></select>
     </div>
 
+    <div id="bloqueCSupervision" style="display:none;">
+      <label>Cargo en Supervisión</label>
+      <input type="text" id="cCargoSupervision" placeholder="Ej.: Supervisor/a, inspector/a...">
+    </div>
+
     <div id="bloqueCOtro" style="display:none;">
       <label>Descripción / rol</label>
-      <input type="text" id="cDescripcion" placeholder="Ej.: Supervisión, profesional externo...">
+      <input type="text" id="cDescripcion" placeholder="Ej.: profesional externo, organismo...">
     </div>
 
     <label>Nombre</label>
@@ -2082,12 +2098,12 @@ function normalizarAlumno(a){
 function contactoExtraBase(){
   return {id: uid(), tipo:"otro", nombre:"", apellido:"",
     rol:"", rolOtro:"", escuelaId:"",
-    parentesco:"", alumnoId:"",
+    parentesco:"", alumnoId:"", cargoSupervision:"",
     descripcion:"", telefono:"", correo:"", zona:""};
 }
 function normalizarContactoExtra(c){
-  if (!["escuela","familia","otro"].includes(c.tipo)) c.tipo = "otro";
-  for (const k of ["nombre","apellido","rol","rolOtro","escuelaId","parentesco","alumnoId","descripcion","telefono","correo","zona"]){
+  if (!["escuela","familia","supervision","otro"].includes(c.tipo)) c.tipo = "otro";
+  for (const k of ["nombre","apellido","rol","rolOtro","escuelaId","parentesco","alumnoId","cargoSupervision","descripcion","telefono","correo","zona"]){
     if (typeof c[k] !== "string") c[k] = "";
   }
   return c;
@@ -2336,6 +2352,7 @@ async function iniciarAlmacenLocal(){
   aplicarTema();
   aplicarLinksChubut();
   aplicarPermisos();
+  restaurarFiltrosContactos();
   renderTodo();
   restaurarUltimaVista();
   const conectada = await conectarCarpetaLocal(false);
@@ -6069,69 +6086,93 @@ function contactosTodos(){
   const res = [];
   for (const p of estado.equipo){
     const nom = nombreDe(p);
-    res.push({tipo:"Equipo", label:p.rol, nombre: nom||"(sin nombre)", tel:p.telefono, correo:p.correo, zona:p.zona,
+    res.push({tipo:"Equipo", label:p.rol, nombre: nom||"(sin nombre)", tel:p.telefono, correo:p.correo, zona:p.zona, cat:"escuela370",
       buscable:(nom+" "+(p.rol||"")+" "+(p.telefono||"")+" "+(p.correo||"")).toLowerCase(),
       accion:()=>abrirFicha("eq:"+p.id)});
   }
   for (const p of estado.docentes){
     const nom = nombreDe(p);
-    res.push({tipo:"Docente", label:p.materia||"", nombre: nom||"(sin nombre)", tel:p.telefono, correo:p.correo, zona:p.zona,
+    res.push({tipo:"Docente", label:p.materia||"", nombre: nom||"(sin nombre)", tel:p.telefono, correo:p.correo, zona:p.zona, cat:"docentes",
       buscable:(nom+" "+(p.materia||"")+" "+(p.telefono||"")+" "+(p.correo||"")).toLowerCase(),
       accion:()=>abrirFicha("doc:"+p.id)});
   }
   for (const a of estado.alumnos){
     const nom = nombreDe(a);
     const est = ESTADOS_ALUMNO[a.estado] || ESTADOS_ALUMNO.activo;
-    res.push({tipo:"Alumno/a", label:est.label, nombre: nom||"(sin nombre)", tel:a.padre1.telefono, correo:a.correo, zona:a.zona,
+    res.push({tipo:"Alumno/a", label:est.label, nombre: nom||"(sin nombre)", tel:a.padre1.telefono, correo:a.correo, zona:a.zona, cat:"escuela370",
       buscable:(nom+" "+(a.padre1.telefono||"")+" "+(a.correo||"")).toLowerCase(),
       accion:()=>abrirAlumno(a.id)});
   }
   for (const e of estado.escuelasOrigen){
     const escLabel = (e.numero?"N° "+e.numero+" — ":"")+(e.nombre||"(sin nombre)");
-    res.push({tipo:"Escuela de origen", label:e.numero?"N° "+e.numero:"", nombre: e.nombre||"(sin nombre)", tel:e.director.telefono, correo:e.correo, zona:e.zona,
+    res.push({tipo:"Escuela de origen", label:e.numero?"N° "+e.numero:"", nombre: e.nombre||"(sin nombre)", tel:e.director.telefono, correo:e.correo, zona:e.zona, cat:"otraescuela",
       buscable:((e.nombre||"")+" "+(e.numero||"")+" "+(e.director.nombre||"")+" "+(e.director.telefono||"")+" "+(e.correo||"")).toLowerCase(),
       accion:()=>abrirEscuela(e.id)});
     for (const v of e.vicedirectores){
       if (!v.nombre && !v.telefono) continue;
-      res.push({tipo:"Vicedirector/a", label:escLabel, nombre: v.nombre||"(sin nombre)", tel:v.telefono, correo:"", zona:e.zona,
+      res.push({tipo:"Vicedirector/a", label:escLabel, nombre: v.nombre||"(sin nombre)", tel:v.telefono, correo:"", zona:e.zona, cat:"otraescuela",
         buscable:((v.nombre||"")+" "+(v.telefono||"")+" "+escLabel).toLowerCase(),
         accion:()=>abrirEscuela(e.id)});
     }
     for (const p of e.pots){
       if (!p.nombre && !p.telefono) continue;
-      res.push({tipo:"POT (escuela)", label:escLabel, nombre: p.nombre||"(sin nombre)", tel:p.telefono, correo:"", zona:e.zona,
+      res.push({tipo:"POT (escuela)", label:escLabel, nombre: p.nombre||"(sin nombre)", tel:p.telefono, correo:"", zona:e.zona, cat:"otraescuela",
         buscable:((p.nombre||"")+" "+(p.telefono||"")+" "+escLabel).toLowerCase(),
         accion:()=>abrirEscuela(e.id)});
     }
   }
   for (const c of estado.contactosExtra){
     const nom = nombreDe(c) || "(sin nombre)";
-    let tipo, label, extra = "";
+    let tipo, label, extra = "", cat = "otro";
     if (c.tipo === "escuela"){
-      tipo = "Personal de escuela";
+      tipo = "Personal de escuela"; cat = "otraescuela";
       const rolTexto = c.rol==="otro" ? (c.rolOtro||"Otro") : (c.rol||"");
       const esc = estado.escuelasOrigen.find(e=>e.id===c.escuelaId);
       label = rolTexto + (esc ? " · "+(esc.nombre||("N° "+esc.numero)) : "");
       extra = esc ? (esc.nombre||"")+" "+(esc.numero||"") : "";
     } else if (c.tipo === "familia"){
-      tipo = "Familia de estudiante";
+      tipo = "Familia de estudiante"; cat = "familias";
       const al = estado.alumnos.find(a=>a.id===c.alumnoId);
       label = (c.parentesco||"Familiar") + (al ? " de "+nombreDe(al) : "");
       extra = al ? nombreDe(al) : "";
+    } else if (c.tipo === "supervision"){
+      tipo = "Supervisión"; cat = "supervision";
+      label = c.cargoSupervision||"";
     } else {
-      tipo = "Otro contacto";
+      tipo = "Otro contacto"; cat = "otro";
       label = c.descripcion||"";
     }
-    res.push({tipo, label, nombre: nom, tel:c.telefono, correo:c.correo, zona:c.zona,
+    res.push({tipo, label, nombre: nom, tel:c.telefono, correo:c.correo, zona:c.zona, cat,
       buscable:(nom+" "+label+" "+extra+" "+(c.telefono||"")+" "+(c.correo||"")).toLowerCase(),
       accion:()=>abrirContacto(c.id)});
   }
   return res;
 }
+const FILTRO_CONTACTOS_CATS = ["escuela370","familias","docentes","otraescuela","supervision"];
+function filtrosContactosActivos(){
+  const out = {};
+  for (const k of FILTRO_CONTACTOS_CATS){
+    const el = $("#filtroCont_"+k);
+    out[k] = el ? el.checked : true;
+  }
+  return out;
+}
+function guardarFiltrosContactos(){
+  try{ localStorage.setItem("mdagenda_filtroContactos", JSON.stringify(filtrosContactosActivos())); }catch(e){}
+}
+function restaurarFiltrosContactos(){
+  let guardado = {};
+  try{ guardado = JSON.parse(localStorage.getItem("mdagenda_filtroContactos")||"{}"); }catch(e){}
+  for (const k of FILTRO_CONTACTOS_CATS){
+    const el = $("#filtroCont_"+k);
+    if (el) el.checked = guardado[k] !== false; // por defecto todos tildados
+  }
+}
 function renderContactos(){
   const q = ($("#buscarContactosInput").value||"").trim().toLowerCase();
   const cont = $("#resultadosContactos");
-  const todos = contactosTodos();
+  const filtros = filtrosContactosActivos();
+  const todos = contactosTodos().filter(r=> r.cat==="otro" || filtros[r.cat]!==false);
   const res = q ? todos.filter(r=>r.buscable.includes(q)) : todos;
   cont.innerHTML = "";
   if (!res.length){ cont.innerHTML = '<p class="sin-datos">'+(q?"Sin resultados.":"Todavía no hay contactos cargados.")+'</p>'; return; }
@@ -6172,6 +6213,7 @@ function actualizarBloquesContacto(){
   const tipo = $("#cTipo").value;
   $("#bloqueCEscuela").style.display = tipo==="escuela" ? "" : "none";
   $("#bloqueCFamilia").style.display = tipo==="familia" ? "" : "none";
+  $("#bloqueCSupervision").style.display = tipo==="supervision" ? "" : "none";
   $("#bloqueCOtro").style.display = tipo==="otro" ? "" : "none";
 }
 function abrirContacto(id){
@@ -6187,6 +6229,7 @@ function abrirContacto(id){
   poblarSelectEscuelasContacto(c.escuelaId);
   $("#cParentesco").value = c.parentesco || "";
   poblarSelectAlumnosContacto(c.alumnoId);
+  $("#cCargoSupervision").value = c.cargoSupervision || "";
   $("#cDescripcion").value = c.descripcion || "";
   $("#cNombre").value = c.nombre || "";
   $("#cApellido").value = c.apellido || "";
@@ -6212,6 +6255,7 @@ function guardarContacto(){
   c.escuelaId = c.tipo==="escuela" ? $("#cEscuela").value : "";
   c.parentesco = c.tipo==="familia" ? $("#cParentesco").value.trim() : "";
   c.alumnoId = c.tipo==="familia" ? $("#cAlumno").value : "";
+  c.cargoSupervision = c.tipo==="supervision" ? $("#cCargoSupervision").value.trim() : "";
   c.descripcion = c.tipo==="otro" ? $("#cDescripcion").value.trim() : "";
   if (!contactoEnCurso) estado.contactosExtra.push(c);
   cerrar("ovContacto");
@@ -7245,6 +7289,10 @@ $("#btnUbicarEscuela").onclick = ()=>ubicarEnMapa("escuela");
 $("#capaMapaAlumnos").onchange = renderMapaAlumnos;
 $("#capaMapaEscuelas").onchange = renderMapaAlumnos;
 $("#buscarContactosInput").addEventListener("input", renderContactos);
+for (const k of FILTRO_CONTACTOS_CATS){
+  const el = $("#filtroCont_"+k);
+  if (el) el.addEventListener("change", ()=>{ guardarFiltrosContactos(); renderContactos(); });
+}
 $("#btnAgregarContacto").onclick = ()=>abrirContacto(null);
 $("#btnGuardarContacto").onclick = guardarContacto;
 $("#btnBorrarContacto").onclick = borrarContacto;
