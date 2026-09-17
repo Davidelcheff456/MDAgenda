@@ -2994,7 +2994,7 @@ function agregarFeriado(){
     toast("Feriado agregado ✔");
   }
   $("#ferNombre").value = ""; $("#ferFecha").value = "";
-  guardar(); renderFeriados(); renderCalendario();
+  guardar(); renderFeriados(); renderCalendario(); renderEstadisticas();
 }
 function editarFeriado(id){
   const x = estado.feriados.find(v=>v.id===id);
@@ -3009,7 +3009,7 @@ function borrarFeriado(id){
   if (!confirm("¿Eliminar este feriado?")) return;
   estado.feriados = estado.feriados.filter(x=>x.id!==id);
   if (feriadoEnEdicion===id) cancelarEdicionFeriado();
-  guardar(); renderFeriados(); renderCalendario();
+  guardar(); renderFeriados(); renderCalendario(); renderEstadisticas();
 }
 function cancelarEdicionFeriado(){
   feriadoEnEdicion = null;
